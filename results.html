@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Your Credit Analysis — Clean Path Credit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   TOKENS
+═══════════════════════════════════════════ */
+:root{
+  --bg:    #07090f;
+  --card:  #111827;
+  --card2: #0f1724;
+  --bdr:   rgba(255,255,255,.07);
+  --bhi:   rgba(61,232,192,.28);
+  --teal:  #3de8c0;
+  --blue:  #4fa3ff;
+  --purp:  #9b8dff;
+  --red:   #ff5a7e;
+  --amb:   #f59e0b;
+  --grad:  linear-gradient(135deg,#3de8c0 0%,#4fa3ff 50%,#9b8dff 100%);
+  --gradr: linear-gradient(135deg,#ff5a7e,#f59e0b);
+  --txt:   #e8edf5;
+  --mut:   #6b7a96;
+  --mut2:  #3d4a5c;
+  --r:     16px;
+  --rs:    10px;
+  --fd:    'Syne',    sans-serif;
+  --fb:    'DM Sans', sans-serif;
+  --ease:  cubic-bezier(.4,0,.2,1);
+  --max:   740px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--fb);background:var(--bg);color:var(--txt);
+  min-height:100vh;overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse 90% 45% at 50% -5%,rgba(61,232,192,.055) 0%,transparent 65%),
+    linear-gradient(rgba(255,255,255,.014) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.014) 1px,transparent 1px);
+  background-size:100% 100%,44px 44px,44px 44px;
+}
+
+/* ── UTILS ── */
+.grad-text{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.center{text-align:center}
+.eyebrow{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
+.sec-title{font-family:var(--fd);font-size:clamp(16px,3vw,20px);font-weight:800;line-height:1.2}
+
+/* ── PAGE LOADER ── */
+#page-loader{
+  position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+  transition:opacity .65s var(--ease);
+}
+#page-loader.out{opacity:0;pointer-events:none}
+.loader-ring{width:52px;height:52px;border-radius:50%;border:3px solid rgba(61,232,192,.12);border-top-color:var(--teal);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-msgs{font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);height:18px;overflow:hidden;position:relative;min-width:220px;text-align:center}
+.loader-msgs span{position:absolute;left:0;right:0;top:0;opacity:0;transform:translateY(7px);transition:opacity .35s,transform .35s;white-space:nowrap}
+.loader-msgs span.on{opacity:1;transform:none}
+
+/* ── TOP BAR ── */
+#top-bar{
+  position:sticky;top:0;z-index:100;width:100%;padding:0 24px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  background:rgba(7,9,15,.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);
+}
+.nav-logo-wrap{display:flex;flex-direction:column;line-height:1}
+.nav-logo{font-family:var(--fd);font-size:15px;font-weight:800;letter-spacing:.04em}
+.nav-ai-badge{font-size:8.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);opacity:.65;margin-top:2px}
+.nav-pill{display:flex;align-items:center;gap:7px;padding:5px 13px;border-radius:99px;background:rgba(61,232,192,.08);border:1px solid rgba(61,232,192,.2);font-size:12px;font-weight:600;color:var(--teal)}
+.nav-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── MAIN ── */
+main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;flex-direction:column;gap:26px}
+
+/* ── CARD ── */
+.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:30px 26px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:var(--grad);opacity:.4}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.reveal.on{opacity:1;transform:none}
+
+/* ══════════════════════════════════════
+   HERO
+══════════════════════════════════════ */
+#hero{padding:40px 26px 34px;text-align:center}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:26px}
+.score-ring{position:relative;width:120px;height:120px}
+.score-ring svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:8}
+.ring-fill{fill:none;stroke-width:8;stroke-linecap:round;stroke:url(#rg);stroke-dasharray:302;stroke-dashoffset:302;transition:stroke-dashoffset 2s var(--ease)}
+.ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.rl-val{font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.05em;color:var(--teal);text-transform:uppercase;text-align:center;max-width:82px;line-height:1.25}
+.rl-sub{font-size:9px;color:var(--mut);text-align:center;max-width:82px;line-height:1.3}
+#hero h1{font-family:var(--fd);font-size:clamp(23px,5.5vw,40px);font-weight:800;line-height:1.1;margin-bottom:14px}
+.hero-sub{font-size:15px;color:var(--mut);line-height:1.65;max-width:520px;margin:0 auto}
+.hero-sub strong{color:var(--txt)}
+.hero-call-pill{
+  display:inline-flex;align-items:center;gap:9px;margin-top:22px;
+  padding:12px 24px;background:var(--gradr);border-radius:99px;
+  color:#fff;font-family:var(--fd);font-size:13px;font-weight:700;
+  text-decoration:none;letter-spacing:.02em;
+  box-shadow:0 0 28px rgba(255,90,126,.25);transition:opacity .2s;
+}
+.hero-call-pill:hover{opacity:.88}
+
+/* ══════════════════════════════════════
+   SUMMARY CARDS
+══════════════════════════════════════ */
+.section-title{font-family:var(--fd);font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:18px}
+.findings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:520px){.findings-grid{grid-template-columns:1fr}}
+.finding-item{
+  background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:var(--rs);
+  padding:18px 12px;text-align:center;position:relative;overflow:hidden;
+  opacity:0;transform:translateY(10px);transition:opacity .5s var(--ease),transform .5s var(--ease);
+}
+.finding-item.on{opacity:1;transform:none}
+.finding-item::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:.6}
+.fi-icon{font-size:22px;margin-bottom:9px}
+.fi-val{font-family:var(--fd);font-size:17px;font-weight:800;margin-bottom:4px;line-height:1.2}
+.fi-label{font-size:11px;color:var(--mut);line-height:1.4}
+
+/* ══════════════════════════════════════
+   DIAGNOSIS
+══════════════════════════════════════ */
+.diag-intro{font-size:13px;color:var(--mut);margin-bottom:16px;line-height:1.55}
+.diag-items{display:flex;flex-direction:column;gap:10px}
+.diag-item{
+  display:flex;gap:13px;align-items:flex-start;padding:16px 14px;
+  background:rgba(255,255,255,.025);border:1px solid var(--bdr);border-radius:var(--rs);
+  opacity:0;transform:translateX(-12px);transition:opacity .5s var(--ease),transform .5s var(--ease);
+}
+.diag-item.on{opacity:1;transform:none}
+.di-icon{width:36px;height:36px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,90,126,.1);border:1px solid rgba(255,90,126,.2)}
+.diag-item.warn .di-icon{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.25)}
+.diag-item.ok   .di-icon{background:rgba(61,232,192,.1);border-color:rgba(61,232,192,.25)}
+.di-title{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:4px}
+.di-desc{font-size:13px;color:var(--mut);line-height:1.55}
+
+/* ══════════════════════════════════════
+   OPPORTUNITY
+══════════════════════════════════════ */
+.opp-banner{background:linear-gradient(135deg,rgba(61,232,192,.07),rgba(79,163,255,.07));border:1px solid var(--bhi);border-radius:var(--rs);padding:18px;font-size:14px;line-height:1.65;margin-top:12px}
+.opp-banner strong{color:var(--teal)}
+.opp-list{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.opp-list li{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.5}
+.opp-list li::before{content:'→';color:var(--teal);font-weight:700;flex-shrink:0;margin-top:1px}
+.opp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
+@media(max-width:480px){.opp-stats{grid-template-columns:1fr 1fr}}
+.opp-stat{background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px 10px;text-align:center}
+.os-val{font-family:var(--fd);font-size:17px;font-weight:800}
+.os-label{font-size:11px;color:var(--mut);margin-top:3px}
+
+/* ══════════════════════════════════════
+   WHY IT MATTERS
+══════════════════════════════════════ */
+#why-matters .wm-body{font-size:14px;color:var(--mut);line-height:1.75;margin-top:12px}
+#why-matters .wm-body strong{color:var(--txt)}
+
+/* ══════════════════════════════════════
+   GENERIC vs CLEAN PATH
+══════════════════════════════════════ */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+@media(max-width:480px){.compare-grid{grid-template-columns:1fr}}
+.compare-col{border-radius:var(--rs);padding:20px}
+.compare-col.bad{background:rgba(255,90,126,.05);border:1px solid rgba(255,90,126,.18)}
+.compare-col.good{background:rgba(61,232,192,.05);border:1px solid rgba(61,232,192,.2)}
+.col-head{font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+.compare-col.bad  .col-head{color:var(--red)}
+.compare-col.good .col-head{color:var(--teal)}
+.compare-col ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.compare-col ul li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--mut);line-height:1.45}
+.li-ico{flex-shrink:0;font-size:14px}
+
+/* ══════════════════════════════════════
+   WHAT HAPPENS ON THE CALL
+══════════════════════════════════════ */
+.call-steps{display:flex;flex-direction:column;margin-top:16px}
+.call-step{display:flex;gap:16px;padding-bottom:22px}
+.call-step:last-child{padding-bottom:0}
+.cs-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.cs-num{width:30px;height:30px;border-radius:50%;background:var(--grad);color:#07090f;font-family:var(--fd);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.cs-line{width:2px;flex:1;min-height:16px;background:linear-gradient(to bottom,rgba(61,232,192,.3),transparent);margin-top:4px}
+.call-step:last-child .cs-line{display:none}
+.cs-body{padding-top:3px}
+.cs-title{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:3px}
+.cs-desc{font-size:13px;color:var(--mut);line-height:1.55}
+
+/* ══════════════════════════════════════
+   STRATEGY STEPS
+══════════════════════════════════════ */
+.strat-steps{display:flex;flex-direction:column}
+.strat-step{display:flex;gap:14px;padding-bottom:22px}
+.strat-step:last-child{padding-bottom:0}
+.ss-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.ss-num{width:30px;height:30px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:12px;font-weight:800;color:#07090f}
+.ss-line{width:2px;flex:1;min-height:18px;background:linear-gradient(to bottom,rgba(61,232,192,.3),transparent);margin-top:4px}
+.strat-step:last-child .ss-line{display:none}
+.ss-body{padding-top:3px}
+.ss-title{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:4px}
+.ss-desc{font-size:13px;color:var(--mut);line-height:1.6}
+
+/* ══════════════════════════════════════
+   URGENCY BANNER
+══════════════════════════════════════ */
+#urgency-banner{background:rgba(255,90,126,.07);border:1px solid rgba(255,90,126,.2);border-radius:var(--r);padding:20px 22px;display:flex;align-items:flex-start;gap:14px}
+.ub-icon{font-size:26px;flex-shrink:0;margin-top:2px}
+.ub-title{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--red);margin-bottom:5px}
+.ub-desc{font-size:13px;color:var(--mut);line-height:1.55}
+
+/* ══════════════════════════════════════
+   BOOKING SECTION
+══════════════════════════════════════ */
+#booking{padding:32px 26px}
+#booking h2{font-family:var(--fd);font-size:clamp(19px,4vw,26px);font-weight:800;line-height:1.15;margin:8px 0 10px}
+.book-sub{font-size:14px;color:var(--mut);line-height:1.65;margin-bottom:22px;max-width:500px}
+.calendly-wrap{border-radius:var(--rs);overflow:hidden;border:1px solid var(--bhi);margin-bottom:22px;background:var(--card2)}
+
+/* CALL BUTTON */
+.call-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:17px 24px;background:var(--gradr);border:none;border-radius:var(--rs);
+  color:#fff;font-family:var(--fd);font-size:17px;font-weight:800;
+  letter-spacing:.02em;text-decoration:none;cursor:pointer;
+  position:relative;overflow:hidden;transition:transform .2s,opacity .2s;
+  margin-bottom:10px;box-shadow:0 0 30px rgba(255,90,126,.2);
+  animation:pulse-btn 2.8s ease-in-out infinite;
+}
+@keyframes pulse-btn{0%,100%{box-shadow:0 0 24px rgba(255,90,126,.2)}50%{box-shadow:0 0 42px rgba(255,90,126,.38)}}
+.call-btn:active{transform:scale(.98)}
+.cb-pulse{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.5);animation:blink 1.4s ease-in-out infinite;flex-shrink:0}
+.call-disclaimer{text-align:center;font-size:11px;color:var(--mut2);margin-top:4px}
+.or-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--mut2);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--bdr)}
+
+/* ADD TO CALENDAR */
+.cal-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media(max-width:480px){.cal-buttons{grid-template-columns:1fr}}
+.cal-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--txt);font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;transition:border-color .25s,background .25s,color .25s}
+.cal-btn:hover{border-color:rgba(61,232,192,.25);background:rgba(61,232,192,.05);color:var(--teal)}
+.cal-icon{font-size:22px}
+
+/* ══════════════════════════════════════
+   SECOND CALL CTA BLOCK
+══════════════════════════════════════ */
+#call-block{background:rgba(255,90,126,.06);border:1px solid rgba(255,90,126,.18);border-radius:var(--r);padding:28px 26px;text-align:center;position:relative;overflow:hidden}
+#call-block::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:var(--gradr);opacity:.5}
+#call-block .cb-eye{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--amb);margin-bottom:10px}
+#call-block h3{font-family:var(--fd);font-size:clamp(18px,3.5vw,24px);font-weight:800;margin-bottom:8px}
+#call-block p{font-size:13px;color:var(--mut);line-height:1.6;margin-bottom:20px;max-width:420px;margin-left:auto;margin-right:auto}
+
+/* ══════════════════════════════════════
+   TRUST STACK
+══════════════════════════════════════ */
+.trust-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:440px){.trust-grid{grid-template-columns:1fr}}
+.trust-item{display:flex;align-items:flex-start;gap:10px;padding:14px;background:rgba(255,255,255,.025);border:1px solid var(--bdr);border-radius:var(--rs)}
+.ti-icon{font-size:19px;flex-shrink:0;margin-top:1px}
+.ti-title{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:3px}
+.ti-desc{font-size:11px;color:var(--mut);line-height:1.45}
+
+/* ══════════════════════════════════════
+   STICKY MOBILE CALL BAR
+   ⚠️ Phone number: update href + text below
+══════════════════════════════════════ */
+#sticky-call{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;padding:10px 14px;background:rgba(7,9,15,.96);backdrop-filter:blur(16px);border-top:1px solid rgba(255,90,126,.25)}
+#sticky-call a{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px;background:var(--gradr);border-radius:var(--rs);color:#fff;font-family:var(--fd);font-size:16px;font-weight:800;text-decoration:none;letter-spacing:.02em}
+@media(max-width:640px){#sticky-call{display:block}body{padding-bottom:80px}}
+</style>
+</head>
+<body>
+
+<!-- ── PAGE LOADER ── -->
+<div id="page-loader">
+  <div class="loader-ring"></div>
+  <div class="loader-msgs" id="loader-msgs">
+    <span class="on">Compiling your profile…</span>
+    <span>Running AI audit…</span>
+    <span>Identifying blockers…</span>
+    <span>Mapping your strategy…</span>
+    <span>Almost ready…</span>
+  </div>
+</div>
+
+<!-- ── TOP BAR ── -->
+<div id="top-bar">
+  <div class="nav-logo-wrap">
+    <span class="nav-logo grad-text">Clean Path Credit</span>
+    <span class="nav-ai-badge">powered by AI</span>
+  </div>
+  <div class="nav-pill"><span class="dot"></span>Analysis Complete</div>
+</div>
+
+<main>
+
+  <!-- ══ 1 — HERO ══ -->
+  <div class="card reveal" id="hero">
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg viewBox="0 0 100 100" width="120" height="120">
+          <defs>
+            <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#3de8c0"/>
+              <stop offset="50%"  stop-color="#4fa3ff"/>
+              <stop offset="100%" stop-color="#9b8dff"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg"   cx="50" cy="50" r="48"/>
+          <circle class="ring-fill" cx="50" cy="50" r="48" id="ring-fill"/>
+        </svg>
+        <div class="ring-label">
+          <span class="rl-val" id="ring-val">Analyzing…</span>
+          <span class="rl-sub" id="ring-sub">AI Profile Score</span>
+        </div>
+      </div>
+    </div>
+    <div class="eyebrow center" style="margin-bottom:14px">🔍 Personalized Credit Analysis</div>
+    <h1 class="grad-text center" id="hero-headline">Your Credit Analysis Is Ready</h1>
+    <p class="hero-sub center" id="hero-sub" style="margin-top:12px"></p>
+    <!-- ⚠️ PHONE: update href + text here and in 3 other places below -->
+    <div class="center">
+      <a href="tel:+13463995606" class="hero-call-pill" id="hero-call-pill">
+        📞 Speak With a Strategist Now
+      </a>
+    </div>
+  </div>
+
+  <!-- ══ 2 — AI SUMMARY CARDS ══ -->
+  <div class="card reveal" id="ai-summary">
+    <div class="section-title"><span>🤖</span> AI Analysis Summary</div>
+    <div class="findings-grid" id="findings-grid"></div>
+  </div>
+
+  <!-- ══ 3 — DIAGNOSIS ══ -->
+  <div class="card reveal" id="diagnosis">
+    <div class="section-title"><span>🩺</span> Your Credit Diagnosis</div>
+    <p class="diag-intro" id="diag-intro"></p>
+    <div class="diag-items" id="diag-items"></div>
+  </div>
+
+  <!-- ══ 4 — OPPORTUNITY ══ -->
+  <div class="card reveal" id="opportunity">
+    <div class="eyebrow" style="margin-bottom:6px">📈 What Becomes Possible</div>
+    <div class="sec-title" id="opp-title" style="margin-bottom:4px"></div>
+    <div class="opp-banner" id="opp-banner"></div>
+    <ul class="opp-list" id="opp-list"></ul>
+    <div class="opp-stats" id="opp-stats"></div>
+  </div>
+
+  <!-- ══ 5 — WHY IT MATTERS ══ -->
+  <div class="card reveal" id="why-matters">
+    <div class="eyebrow" style="margin-bottom:8px">🎯 Why This Matters For You Specifically</div>
+    <div class="sec-title" id="wm-title" style="margin-bottom:12px"></div>
+    <div class="wm-body" id="wm-body"></div>
+  </div>
+
+  <!-- ══ 6 — HOW THE SYSTEM WORKS ══ -->
+  <div class="card reveal" id="strategy">
+    <div class="eyebrow" style="margin-bottom:6px">⚙️ How It Works</div>
+    <div class="sec-title" style="margin-bottom:20px">Our AI-Powered Credit System</div>
+    <div class="strat-steps">
+      <div class="strat-step"><div class="ss-left"><div class="ss-num">1</div><div class="ss-line"></div></div><div class="ss-body"><div class="ss-title">AI-Powered 3-Bureau Audit</div><div class="ss-desc">We scan all three bureaus for inaccuracies, outdated items, and reporting violations — things most people never know to look for.</div></div></div>
+      <div class="strat-step"><div class="ss-left"><div class="ss-num">2</div><div class="ss-line"></div></div><div class="ss-body"><div class="ss-title">Custom Dispute Strategy — Not Templates</div><div class="ss-desc">Every dispute is built around your specific file using FCRA and FDCPA provisions. No copy-paste letters — ever.</div></div></div>
+      <div class="strat-step"><div class="ss-left"><div class="ss-num">3</div><div class="ss-line"></div></div><div class="ss-body"><div class="ss-title">Score Optimization for Your Specific Goal</div><div class="ss-desc">We sequence removals and utilization changes to produce the fastest measurable lift toward exactly what you're trying to qualify for.</div></div></div>
+      <div class="strat-step"><div class="ss-left"><div class="ss-num">4</div><div class="ss-line"></div></div><div class="ss-body"><div class="ss-title">Lender-Ready Positioning</div><div class="ss-desc">We align your full profile to meet the specific thresholds your goal requires — so approvals actually happen and stick.</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ 7 — GENERIC vs CLEAN PATH ══ -->
+  <div class="card reveal" id="comparison">
+    <div class="eyebrow" style="margin-bottom:8px">⚠️ Why Most Credit Repair Fails</div>
+    <div class="sec-title" style="margin-bottom:4px">Generic Templates vs. Real Strategy</div>
+    <p style="font-size:13px;color:var(--mut);margin:10px 0 16px;line-height:1.55">Most credit repair companies send the same letters to every client. That's not a strategy — it's guesswork. Here's how this is different.</p>
+    <div class="compare-grid">
+      <div class="compare-col bad">
+        <div class="col-head">❌ Generic Repair</div>
+        <ul>
+          <li><span class="li-ico">❌</span>Same template letters for every client</li>
+          <li><span class="li-ico">❌</span>No goal-based prioritization</li>
+          <li><span class="li-ico">❌</span>Disputes without legal grounding</li>
+          <li><span class="li-ico">❌</span>No lender-positioning strategy</li>
+          <li><span class="li-ico">❌</span>Score focus, not approval focus</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <div class="col-head">✅ Clean Path Credit</div>
+        <ul>
+          <li><span class="li-ico">✅</span>AI-assisted audit of your specific file</li>
+          <li><span class="li-ico">✅</span>Strategy built around your approval goal</li>
+          <li><span class="li-ico">✅</span>FCRA &amp; FDCPA-grounded disputes</li>
+          <li><span class="li-ico">✅</span>Lender-specific profile positioning</li>
+          <li><span class="li-ico">✅</span>Optimized to get you approved — not just higher</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 8 — WHAT HAPPENS ON THE CALL ══ -->
+  <div class="card reveal" id="on-call">
+    <div class="eyebrow" style="margin-bottom:8px">📞 What Happens on the Call</div>
+    <div class="sec-title" id="oncall-title" style="margin-bottom:4px"></div>
+    <p style="font-size:13px;color:var(--mut);margin:10px 0 18px;line-height:1.55">It's 30 minutes. No pressure. No confusing pitch. Just a clear picture of where you stand, what's blocking you, and the smartest next moves — with someone who actually knows how this works.</p>
+    <div class="call-steps">
+      <div class="call-step"><div class="cs-left"><div class="cs-num">1</div><div class="cs-line"></div></div><div class="cs-body"><div class="cs-title">We review your actual situation</div><div class="cs-desc">We look at your goal, score range, and what you've described — then confirm the most likely blockers in your profile.</div></div></div>
+      <div class="call-step"><div class="cs-left"><div class="cs-num">2</div><div class="cs-line"></div></div><div class="cs-body"><div class="cs-title">We identify your highest-impact actions</div><div class="cs-desc">Not a generic checklist. Specific items, specific priorities, in the right order for your timeline and goal.</div></div></div>
+      <div class="call-step"><div class="cs-left"><div class="cs-num">3</div><div class="cs-line"></div></div><div class="cs-body"><div class="cs-title">You leave with a clear next step</div><div class="cs-desc">No confusion. No vague advice. A concrete, sequenced plan — and a decision you can make with full confidence.</div></div></div>
+    </div>
+  </div>
+
+  <!-- ══ 9 — URGENCY ══ -->
+  <div id="urgency-banner" class="reveal">
+    <div class="ub-icon">⏳</div>
+    <div>
+      <div class="ub-title" id="urgency-title"></div>
+      <div class="ub-desc"  id="urgency-desc"></div>
+    </div>
+  </div>
+
+  <!-- ══ 10 — CALENDLY BOOKING (Primary CTA) ══
+       ⚠️ Calendly link: https://calendly.com/perfectcredit780/30min
+       To change: update data-url on .calendly-inline-widget below -->
+  <div class="card reveal" id="booking">
+    <div class="eyebrow center" style="margin-bottom:8px">📅 Book Your Free Strategy Session</div>
+    <h2 class="center" id="booking-title">Book Your 30-Minute Credit Strategy Session</h2>
+    <p class="book-sub center" id="booking-sub">We'll walk through your profile, identify your highest-impact actions, and map out a clear plan — no cost, no obligation.</p>
+
+    <div class="calendly-wrap">
+      <!-- Calendly inline widget begin -->
+      <div class="calendly-inline-widget" data-url="https://calendly.com/perfectcredit780/30min?hide_event_type_details=1" style="min-width:320px;height:700px;"></div>
+      <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
+      <!-- Calendly inline widget end -->
+    </div>
+
+    <div class="or-divider">prefer to call instead?</div>
+
+    <!-- ⚠️ PHONE: update href + visible number -->
+    <a href="tel:+13463995606" class="call-btn" id="main-call-btn">
+      <span class="cb-pulse"></span>
+      📞 Call Now — (346) 399-5606
+    </a>
+    <p class="call-disclaimer">Available Mon–Fri · 9am–6pm CT · Free · No obligation</p>
+
+    <div style="margin-top:24px">
+      <p style="font-size:12px;color:var(--mut2);text-align:center;margin-bottom:12px">Already booked? Add it to your calendar:</p>
+      <div class="cal-buttons">
+        <a href="#" class="cal-btn" id="cal-google" target="_blank" rel="noopener"><span class="cal-icon">📅</span> Google Calendar</a>
+        <a href="#" class="cal-btn" id="cal-outlook" target="_blank" rel="noopener"><span class="cal-icon">📆</span> Outlook</a>
+        <a href="#" class="cal-btn" id="cal-apple" download="strategy-session.ics"><span class="cal-icon">🍎</span> Apple Calendar</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ 11 — SECOND CALL CTA BLOCK ══ -->
+  <div id="call-block" class="reveal">
+    <div class="cb-eye">⚡ Want the Fastest Path Forward?</div>
+    <h3 id="call-block-title">Talk to a Credit Strategist Right Now</h3>
+    <p id="call-block-sub">If you'd rather not wait for a scheduled session, our team is available now to walk you through your next steps.</p>
+    <!-- ⚠️ PHONE: update href + visible number -->
+    <a href="tel:+13463995606" class="call-btn" style="max-width:420px;margin:0 auto">
+      <span class="cb-pulse"></span>
+      📞 Call (346) 399-5606 Now
+    </a>
+    <p class="call-disclaimer" style="margin-top:8px">Free · No obligation · Speak with a real strategist</p>
+  </div>
+
+  <!-- ══ 12 — TRUST STACK ══ -->
+  <div class="card reveal" id="trust">
+    <div class="eyebrow center" style="margin-bottom:16px">🔒 Why Trust Our Process</div>
+    <div class="trust-grid">
+      <div class="trust-item"><span class="ti-icon">⚖️</span><div><div class="ti-title">FCRA &amp; FDCPA Compliant</div><div class="ti-desc">Every action is grounded in consumer protection law — not loopholes.</div></div></div>
+      <div class="trust-item"><span class="ti-icon">🤖</span><div><div class="ti-title">AI-Assisted Analysis</div><div class="ti-desc">Your profile is cross-referenced against hundreds of lender approval patterns.</div></div></div>
+      <div class="trust-item"><span class="ti-icon">🚫</span><div><div class="ti-title">No Generic Disputes</div><div class="ti-desc">We never send template letters. Every dispute is specific to your exact file.</div></div></div>
+      <div class="trust-item"><span class="ti-icon">🎯</span><div><div class="ti-title">Approval-Focused Strategy</div><div class="ti-desc">We optimize for your specific goal — not just a higher score in a vacuum.</div></div></div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ⚠️ PHONE: update href + visible number -->
+<div id="sticky-call">
+  <a href="tel:+13463995606"><span>📞</span> Call Now — (346) 399-5606</a>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT — FULL PERSONALIZATION ENGINE
+══════════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════
+   DEMO MODE TOGGLE
+   ─ DEMO_MODE = true  → uses hardcoded DEMO_USER below
+   ─ DEMO_MODE = false → reads from localStorage (production)
+   Change this to test different user scenarios.
+════════════════════════════════════════════ */
+const DEMO_MODE = false;
+
+/* ── Demo user — edit values to test different scenarios ──
+   Goals: 'Home' | 'Car' | 'Business Funding' | 'Credit Card'
+          'Apartment' | 'Personal Loan' | 'Emergency Situation'
+   Score: '500s' | '600s' | '700s' | 'Not sure'
+   Timeline: 'ASAP' | 'Within 30 days' | 'Within 60 days' | 'Just exploring'
+   Blocker: free text — try including: collections, late, balance, bankruptcy, denied, error
+── */
+const DEMO_USER = {
+  firstName : 'Alex',
+  lastName  : 'Johnson',
+  email     : 'alex@example.com',
+  phone     : '',
+  goal      : 'Home',
+  score     : '600s',
+  timeline  : 'ASAP',
+  blocker   : 'I have some collections and a few late payments on my report',
+};
+
+/* ════════════════════════════════════════════
+   1. LOAD USER DATA
+   ⚠️ 'creditData' key is set by submitForm() in the main form.
+   All fields are read and normalised with safe defaults here.
+════════════════════════════════════════════ */
+function loadUser() {
+  if (DEMO_MODE) {
+    console.log('[CPC] DEMO_MODE active:', DEMO_USER);
+    return DEMO_USER;
+  }
+  try {
+    const raw = localStorage.getItem('creditData');
+    if (!raw) { console.warn('[CPC] No creditData in localStorage — using fallbacks.'); return {}; }
+    const parsed = JSON.parse(raw);
+    console.log('[CPC] Loaded from localStorage:', parsed);
+    return parsed;
+  } catch(e) {
+    console.error('[CPC] Failed to parse creditData:', e);
+    return {};
+  }
+}
+
+const RAW = loadUser();
+
+/* Normalised data with safe fallback defaults */
+const D = {
+  firstName : String(RAW.firstName || RAW.name || 'there').trim(),
+  lastName  : String(RAW.lastName  || '').trim(),
+  email     : String(RAW.email     || ''),
+  phone     : String(RAW.phone     || ''),
+  goal      : String(RAW.goal      || '').toLowerCase().trim(),
+  score     : String(RAW.score     || '').toLowerCase().trim(),
+  timeline  : String(RAW.timeline  || '').toLowerCase().trim(),
+  blocker   : String(RAW.blocker   || '').toLowerCase().trim(),
+};
+
+console.log('[CPC] D (normalised):', D);
+
+/* ── Convenience matchers ──
+   ⚠️ Add new keyword checks here as the offer expands */
+const goalIs  = (...k) => k.some(v => D.goal.includes(v.toLowerCase()));
+const scoreIs = (...k) => k.some(v => D.score.includes(v.toLowerCase()));
+const timeIs  = (...k) => k.some(v => D.timeline.includes(v.toLowerCase()));
+const has     = (...k) => k.some(v => D.blocker.includes(v.toLowerCase()));
+const NAME    = D.firstName !== 'there' ? D.firstName : null;
+
+/* ════════════════════════════════════════════
+   2. PERSONALIZATION FUNCTIONS
+   ⚠️ Each function returns data consumed by render().
+   Expand conditions inside each function as needed.
+════════════════════════════════════════════ */
+
+function getHeadline() {
+  if (goalIs('home'))           return "You're Closer to Home Approval Than You Think";
+  if (goalIs('car'))            return "You May Be Paying More Than You Should";
+  if (goalIs('business'))       return "Your Credit May Be Blocking Funding Opportunities";
+  if (goalIs('credit card'))    return "You Could Be Missing Out on Better Credit Options";
+  if (goalIs('apartment'))      return "Your Approval Odds May Be Stronger Than They Look";
+  if (goalIs('personal loan'))  return "Your Credit Profile May Be Costing You Better Terms";
+  if (goalIs('emergency'))      return "You Need the Fastest Path Forward";
+  return "Your Credit Analysis Is Ready";
+}
+
+function getSubheadline() {
+  const n = NAME ? `<strong>${NAME}</strong>, based` : 'Based';
+  if (goalIs('home'))     return `${n} on your responses, we identified key factors likely affecting your mortgage approval odds — and mapped out your smartest next steps.`;
+  if (goalIs('business')) return `${n} on your profile, we found factors that may be limiting your access to capital — and a clear path to address them.`;
+  if (goalIs('emergency'))return `${n} on what you've shared, we've prioritized your fastest available options and identified what needs to move first.`;
+  return `${n} on your responses, we identified likely approval blockers, optimization opportunities, and the fastest path to stronger qualification.`;
+}
+
+/* getAIScore() — qualitative ring label, supporting text, fill percentage
+   ⚠️ Expand score × blocker combinations here */
+function getAIScore() {
+  const heavyBlocker = has('collection','bankruptcy','judgment','charge-off','charged off');
+  const midBlocker   = has('late','missed','balance','utiliz','denied','denial');
+  if (scoreIs('500')) return { label:'Recoverable',              sub:'High improvement potential',        pct:0.28 };
+  if (scoreIs('600')) {
+    if (heavyBlocker) return { label:'Emerging',                 sub:'Approval blockers identified',      pct:0.48 };
+    if (midBlocker)   return { label:'Emerging',                 sub:'Targeted action needed',            pct:0.52 };
+    return                   { label:'Emerging',                 sub:'Close to approval threshold',       pct:0.56 };
+  }
+  if (scoreIs('700')) {
+    if (heavyBlocker||midBlocker) return { label:'Strong · Under-Optimized', sub:'Optimization opportunity detected', pct:0.74 };
+    return                               { label:'Approval-Ready',            sub:'Positioning refinement needed',    pct:0.82 };
+  }
+  return { label:'Analysis Pending', sub:'Profile risk factors detected', pct:0.42 };
+}
+
+/* getSummaryCards() — three stat cards */
+function getSummaryCards() {
+  let items='3–7 likely factors', improve='High', time='30–60 Days';
+  if (scoreIs('500')) { items='5–12 likely blockers'; improve='Very High'; time=timeIs('asap')?'Fast-Track Priority':'45–90 Days'; }
+  else if (scoreIs('600')) { items='3–8 likely factors'; improve='High'; time=timeIs('asap','30')?'30–60 Days':'45–75 Days'; }
+  else if (scoreIs('700')) { items='1–4 optimization gaps'; improve='Moderate–High'; time='15–45 Days'; }
+  else { items='Several likely factors'; time=timeIs('asap')?'Fast-Track Priority':'30–90 Days'; }
+  return [
+    { icon:'⚠️', val:items,   label:'Estimated Impact\nRange'    },
+    { icon:'📈', val:improve, label:'Improvement\nPotential'     },
+    { icon:'⏱️', val:time,    label:'Estimated Time\nto Results' },
+  ];
+}
+
+/* getDiagnosis() — up to 4 insight cards
+   ⚠️ Add more blocker keyword branches below */
+function getDiagnosis() {
+  const items = [];
+
+  /* Score-based primary items */
+  if (scoreIs('500')) {
+    items.push({ sev:'error', icon:'🚨', title:'Major Derogatory Items Likely Present',
+      desc:'Profiles in the 500s typically carry collections, charge-offs, or public records that create outsized drag on approval odds. These must be addressed before meaningful approval becomes possible.'});
+    items.push({ sev:'error', icon:'📉', title:'Rebuild Strategy Is the Priority',
+      desc:'Getting from the 500s to approval range requires a sequenced plan: strategic removals, positive account positioning, and utilization control — in the right order for your specific goal.'});
+  } else if (scoreIs('600')) {
+    items.push({ sev:'warn', icon:'⚡',
+      title: NAME ? `${NAME}, You're Close — But Specifically Blocked` : "You're Close — But Specifically Blocked",
+      desc:'Scores in the 600s are often just a handful of targeted items away from qualifying. The gap usually isn\'t massive — it\'s precise. A focused strategy can close it faster than most people expect.'});
+    items.push({ sev:'warn', icon:'🧩', title:'A Few Key Items Are Likely Holding You Back',
+      desc:'One or two lingering derogatory items — or a high utilization ratio — can be the only thing between you and approval. These are directly addressable with the right approach.'});
+  } else if (scoreIs('700')) {
+    items.push({ sev:'ok', icon:'✅', title:'Strong Baseline — Focus Shifts to Optimization',
+      desc:'You\'re in a solid position. The work shifts from repair to positioning — aligning your profile for the lowest rates and highest eligibility on the products you\'re targeting.'});
+    items.push({ sev:'warn', icon:'🔍', title:'Hidden Gaps May Still Be Limiting You',
+      desc:'Even 700+ profiles often carry reporting inconsistencies or utilization patterns that cap eligibility for premium products. A targeted audit surfaces and fixes these quickly.'});
+  } else {
+    items.push({ sev:'warn', icon:'🔍', title:'Profile Estimation In Progress',
+      desc:'Our AI is running a pattern-based analysis from your inputs. A full audit will confirm the precise picture and unlock the specific actions with the highest impact for your goal.'});
+  }
+
+  /* Blocker keyword secondary items
+     ⚠️ Add more keyword patterns here */
+  if (has('collect'))
+    items.push({ sev:'error', icon:'💸', title:'Collections on File — Often Removable',
+      desc:'Collection accounts are among the most commonly disputable items under the FCRA. Many can be challenged and removed entirely if reporting doesn\'t meet strict legal accuracy standards — which it frequently doesn\'t.'});
+  if (has('late','missed','behind'))
+    items.push({ sev:'warn', icon:'📅', title:'Payment History Pattern Detected',
+      desc:'Payment history carries 35% of your score weight. Even a few late marks can significantly suppress lender confidence — and many can be addressed through goodwill strategies or accuracy challenges.'});
+  if (has('balance','utiliz','maxed','high card'))
+    items.push({ sev:'warn', icon:'💳', title:'High Utilization Suppressing Your Profile',
+      desc:'Utilization above 30% signals risk to lenders across all bureaus. Strategic balance restructuring can produce fast, measurable score improvement — often within a single billing cycle.'});
+  if (has('bankrupt','chapter'))
+    items.push({ sev:'error', icon:'⚖️', title:'Bankruptcy History — Specific Strategy Required',
+      desc:'Post-bankruptcy rebuilding requires a very specific sequence. Strong approval pathways still exist — they just need the right lenders and positioning to navigate correctly.'});
+  if (has('denied','denial','declined','rejected'))
+    items.push({ sev:'warn', icon:'🚪', title:'Recent Denial Pattern Detected',
+      desc:'Recent denials often signal a specific threshold failure — not a general problem. Identifying and addressing the exact trigger can significantly strengthen any re-application.'});
+  if (has('fraud','identity','error','mistake','incorrect','inaccurate'))
+    items.push({ sev:'error', icon:'🛡️', title:'Potential Reporting Error or Dispute Opportunity',
+      desc:'Reporting errors are more common than most people realize. Our 3-bureau audit routinely uncovers items that are inaccurate, outdated, or legally challengeable — with outsized impact on scores when corrected.'});
+
+  /* Ensure minimum 3 items */
+  if (items.length < 3)
+    items.push({ sev:'ok', icon:'📋', title:'Full Audit Will Surface Hidden Items',
+      desc:'Even profiles that appear relatively clean often have under-the-radar issues. Our 3-bureau audit routinely finds items clients had no idea existed — items that, once addressed, produce meaningful improvement.'});
+
+  return items.slice(0,4);
+}
+
+function getDiagIntro() {
+  if (scoreIs('500')) return 'Based on your score range and what you described, here are the priority issues our AI flagged as most likely in your profile.';
+  if (scoreIs('600')) return "Your profile is closer to approval than you might think. Here's what our AI identified as your most important blockers.";
+  if (scoreIs('700')) return "Your baseline is strong. Here's where our AI found the most impactful optimization opportunities.";
+  return "Based on your inputs, here's what our AI identified as the most likely factors affecting your credit profile.";
+}
+
+/* getOpportunity() — goal-specific outcomes section
+   ⚠️ Add more goal branches here */
+function getOpportunity() {
+  if (goalIs('home')) return {
+    title:'Your Path to Home Loan Approval',
+    banner:`With targeted profile improvement, <strong>mortgage approval becomes significantly more realistic</strong> — and at a materially better rate. A 40-point improvement can mean the difference between approval and denial, and <strong>thousands saved</strong> in interest over the life of a loan.`,
+    list:['Lower mortgage rate — 1–2% difference = $40K–$100K saved over 30 years','Stronger pre-approval odds with lenders requiring 640+, 660+, or 680+','Access to conventional loan programs currently out of reach','Reduced required down payment thresholds with an improved profile'],
+    stats:[{val:'↑40–80 pts',label:'Avg Score Lift'},{val:'$200–$500',label:'Monthly Savings'},{val:'45–90 days',label:'To Mortgage-Ready'}],
+  };
+  if (goalIs('car')) return {
+    title:'Your Path to Better Auto Financing',
+    banner:`A repaired credit profile stops you from overpaying on rates that don\'t reflect your actual risk. <strong>Reducing your APR by 3–5%</strong> can mean hundreds less per month — and the difference between subprime and prime financing terms.`,
+    list:['Lower APR — 3–6% reduction is common after targeted improvement','Access to prime lenders instead of subprime or buy-here-pay-here','Lower monthly payment — often $100–$300+ per month in savings','Potential refinance opportunity on an existing loan at a better rate'],
+    stats:[{val:'↑35–70 pts',label:'Avg Score Lift'},{val:'3–6%',label:'APR Reduction'},{val:'$100–$300',label:'Monthly Saved'}],
+  };
+  if (goalIs('business')) return {
+    title:'Your Path to Business Funding Access',
+    banner:`Business lenders evaluate personal credit heavily — often requiring 650–700+ for most products. A stronger profile unlocks <strong>SBA loans, business lines of credit, and private capital</strong> that may currently be entirely out of reach.`,
+    list:['SBA 7(a) and 504 loans — personal credit is a primary qualifier','Business line of credit — typically requires 650+ personal score','Better terms and lower personal guarantee exposure','Reduced collateral requirements with a stronger credit position'],
+    stats:[{val:'$25K–$500K',label:'Potential Funding'},{val:'↑40–80 pts',label:'Score Lift'},{val:'60–90 days',label:'To Funding-Ready'}],
+  };
+  if (goalIs('credit card')) return {
+    title:'Your Path to Better Credit Products',
+    banner:`Premium credit cards require specific score thresholds and profile signals that go beyond just a number. We\'ll position your profile to meet the exact criteria for <strong>the products you actually want</strong> — not just what you can currently get approved for.`,
+    list:['Access to 0% APR introductory offers for balance transfers or purchases','Higher credit limits — strengthening your overall utilization ratio','Cash-back and rewards cards requiring 680+ or 720+','Stronger revolving profile for future loan qualification'],
+    stats:[{val:'↑30–60 pts',label:'Avg Score Lift'},{val:'30–60 days',label:'Timeline'},{val:'3–5x',label:'Approval Odds Lift'}],
+  };
+  if (goalIs('apartment')) return {
+    title:'Your Path to Rental Approval',
+    banner:`Landlords use specific credit thresholds you may not be aware of — and many won\'t tell you exactly why you were denied. <strong>Removing key negative items</strong> can make the difference between denied and approved, often in a short window.`,
+    list:['Pass standard landlord credit screening (typically 580–650+)','Avoid co-signer or additional deposit requirements','Access higher-quality properties currently screening you out','Stronger rental application confidence and negotiating position'],
+    stats:[{val:'↑30–60 pts',label:'Score Lift'},{val:'30–60 days',label:'Timeline'},{val:'High',label:'Approval Impact'}],
+  };
+  if (goalIs('personal loan')) return {
+    title:'Your Path to Better Loan Terms',
+    banner:`The rate difference between a poor-credit and good-credit personal loan can be 10–15% APR — which on a $10,000 loan means thousands in unnecessary interest. <strong>Improving your profile before applying</strong> has a direct, measurable dollar impact.`,
+    list:['Lower interest rate — often 8–15% APR difference','Higher approved loan amounts with a stronger profile','Access to reputable lenders vs. high-fee subprime alternatives','Reduced origination fees and better overall loan structure'],
+    stats:[{val:'↑35–65 pts',label:'Avg Score Lift'},{val:'8–15%',label:'Rate Reduction'},{val:'30–60 days',label:'Timeline'}],
+  };
+  if (goalIs('emergency')) return {
+    title:'Your Fastest Path Forward',
+    banner:`When you need access to funds quickly, every item that can be addressed <em>is</em> a lever. <strong>Fast-track strategies</strong> exist for profiles at every stage — the goal is identifying which moves produce the most impact in the shortest window.`,
+    list:['Identify highest-impact items that can be addressed in 30 days or less','Rapid utilization optimization for fastest score lift','Emergency lender strategies for profiles in active repair','Priority sequencing to maximize credit access speed'],
+    stats:[{val:'Fast-Track',label:'Priority Mode'},{val:'30 Days',label:'First Results'},{val:'Highest',label:'Urgency Level'}],
+  };
+  return {
+    title:'What a Stronger Profile Unlocks',
+    banner:`A repaired credit profile opens access to <strong>better rates, higher limits, and more approvals</strong> across every financial product. The gap between where you are and where you want to be is often far smaller than it feels.`,
+    list:['Better interest rates across all loan types','Higher approval odds with more — and better — lenders','Stronger overall financial positioning and flexibility','Access to products currently out of reach'],
+    stats:[{val:'↑40–80 pts',label:'Avg Score Lift'},{val:'60–90 days',label:'To Results'},{val:'3x',label:'Approval Rate Lift'}],
+  };
+}
+
+/* getWhyMatters() — goal-specific "why it matters" section
+   ⚠️ Add goal branches here */
+function getWhyMatters() {
+  if (goalIs('home')) return {
+    title:"For Home Buyers, Credit Score Is the Most Expensive Decision You Make",
+    body:`A mortgage is likely the largest financial commitment you'll make. The difference between a 620 and a 700 credit score on a $250,000 loan can easily be <strong>$150–$200 per month in interest</strong> — and over $50,000 over the life of the loan.<br><br>More importantly: many lenders won't approve below 640, 660, or even 680 for conventional loans. If you're below those thresholds, the rate is the least of your problems. <strong>Getting into the approval window is the first step.</strong>`,
+  };
+  if (goalIs('car')) return {
+    title:"For Auto Buyers, Credit Score Determines How Much You Actually Pay",
+    body:`On a $25,000 auto loan, the difference between a 580 and a 680 credit score can mean <strong>an extra $100–$200 per month</strong> — and thousands in total interest paid over the loan term.<br><br>Beyond the payment: a stronger credit profile means access to prime lenders, better loan structures, and the ability to refinance later at a lower rate. <strong>The car isn't the only thing you're financing — you're financing the cost of your credit position.</strong>`,
+  };
+  if (goalIs('business')) return {
+    title:"For Business Owners, Personal Credit Is Still the Gateway to Capital",
+    body:`Most small business lenders — including SBA programs, business credit cards, and many alternative lenders — require a personal credit check. A 650 is often the floor for consideration; <strong>680+ opens significantly better terms and higher amounts.</strong><br><br>If your personal profile has unresolved issues, you may be entirely blocked from funding categories that would otherwise be available. Every month that passes is a month your business may be underperforming due to capital access — not capability.`,
+  };
+  if (goalIs('emergency')) return {
+    title:"In an Urgent Situation, Strategy Moves Faster Than Desperation",
+    body:`When you need credit access quickly, the instinct is to apply broadly and hope something gets approved. That strategy typically backfires — multiple inquiries, multiple denials, and a profile that looks riskier than when you started.<br><br><strong>A targeted approach is faster in practice.</strong> Identifying the one or two moves that produce the most leverage in the next 30 days — and doing those first — produces better results than a scattershot application strategy.`,
+  };
+  return {
+    title:"Your Credit Profile Affects Every Financial Decision You Make",
+    body:`Every loan, every approval, every interest rate you're quoted is filtered through your credit profile. A profile with unresolved issues doesn't just affect your current goal — it compounds across every financial decision you make going forward.<br><br>The fastest path is always to understand exactly what's there, what's addressable, and what the highest-leverage moves are for <strong>your specific situation</strong>.`,
+  };
+}
+
+/* getUrgency() — timeline-driven urgency copy */
+function getUrgency() {
+  if (timeIs('asap')) return {
+    title:'⚠️ Your Timeline Is Tight — Every Day Costs You',
+    desc:'The strategies that produce results in 30 days need to start now. Waiting even one week narrows your options and may push your target past reach. This is the most important moment to act.',
+  };
+  if (timeIs('30 day','30days','30-day')) return {
+    title:'📊 Your 30-Day Window Is Already Open',
+    desc:'A 30-day credit improvement sprint requires immediate action. Bureau response cycles take 30 days — meaning every week of delay is a week of results you won\'t get. Smart prioritization starts today.',
+  };
+  if (timeIs('60 day','60days','60-day')) return {
+    title:'📅 60 Days Is Enough — But Only If You Start Now',
+    desc:'You likely have enough runway to make meaningful moves before your target date. That window closes as you wait. Starting this week keeps your options open and gives your strategy time to work.',
+  };
+  if (timeIs('exploring','just exploring')) return {
+    title:'⏳ The Best Time to Know Your Options Is Before You Need Them',
+    desc:'Most people find out their credit is a problem when they\'re already in the middle of an application. Understanding where you stand now — before another denial or overpayment — puts you in a far stronger position.',
+  };
+  return {
+    title:'⏳ Inaction Has a Real Cost',
+    desc:'Negative items continue aging into your report. Interest accrues. Approval windows tighten. There\'s no benefit to waiting — and real, measurable cost to doing so.',
+  };
+}
+
+/* getBookingSection() — dynamic Calendly heading + subtext */
+function getBookingSection() {
+  if (goalIs('home'))     return { title:'Book Your Home Approval Strategy Session',     sub:"We'll walk through exactly what's blocking approval and map out the fastest path to getting mortgage-ready." };
+  if (goalIs('car'))      return { title:'Book Your Rate Reduction Strategy Session',    sub:"We'll show you what may be costing you better terms and where to focus first to lower your effective APR." };
+  if (goalIs('business')) return { title:'Book Your Funding Readiness Strategy Session', sub:"We'll identify what's limiting your funding access and build the strongest path to capital." };
+  if (goalIs('credit card')) return { title:'Book Your Credit Optimization Session',    sub:"We'll review your profile and show you the fastest path to the products you're targeting." };
+  if (goalIs('emergency')) return { title:'Get Your Fast-Track Strategy Session',       sub:"Given your urgency, we'll prioritize the highest-leverage moves and get you moving immediately." };
+  return { title:'Book Your 30-Minute Credit Strategy Session', sub:"We'll walk through your profile, identify your highest-impact actions, and map out a clear, sequenced plan — no cost, no obligation." };
+}
+
+function getOnCallTitle() {
+  if (goalIs('home'))     return "What We'll Cover In Your 30-Minute Home Approval Session";
+  if (goalIs('business')) return "What We'll Cover In Your Funding Readiness Session";
+  if (goalIs('emergency')) return "What We'll Cover In Your Fast-Track Strategy Session";
+  return "What We'll Cover In Your Free 30-Minute Session";
+}
+
+function getCallBlock() {
+  if (goalIs('home'))     return { title:'Talk to a Home Approval Specialist Now',  sub:"Our team has helped hundreds of buyers go from denied to mortgage-ready. Call now to start mapping your path." };
+  if (goalIs('business')) return { title:'Talk to a Funding Strategist Now',        sub:"Capital access is time-sensitive. Call now and we'll get to work on your funding readiness immediately." };
+  if (goalIs('emergency')) return { title:'Call Now for the Fastest Path Forward',  sub:"Don't wait for a scheduled call. Our team will prioritize your situation and move fast." };
+  return { title:'Talk to a Credit Strategist Right Now', sub:"If you'd rather not wait for a scheduled session, our team is available now to walk you through your next steps." };
+}
+
+/* ════════════════════════════════════════════
+   3. SAFE DOM HELPERS — never crash on a missing element
+════════════════════════════════════════════ */
+const $       = id      => document.getElementById(id);
+const setText = (id, v) => { const el=$(id); if(el) el.textContent = v; };
+const setHTML = (id, v) => { const el=$(id); if(el) el.innerHTML   = v; };
+const setHref = (id, v) => { const el=$(id); if(el) el.href        = v; };
+
+/* ════════════════════════════════════════════
+   4. RENDER — writes all dynamic content to DOM
+════════════════════════════════════════════ */
+function render() {
+  console.log('[CPC] render() start');
+
+  /* Hero */
+  setHTML('hero-headline', getHeadline());
+  setHTML('hero-sub',      getSubheadline());
+
+  /* Ring */
+  const ai      = getAIScore();
+  const circumf = 2 * Math.PI * 48;
+  setText('ring-val', ai.label);
+  setText('ring-sub', ai.sub);
+  setTimeout(() => {
+    const rf = $('ring-fill');
+    if (rf) rf.style.strokeDashoffset = circumf - (circumf * ai.pct);
+  }, 900);
+
+  /* Hero call pill — urgency variant */
+  const pill = $('hero-call-pill');
+  if (pill && (timeIs('asap') || goalIs('emergency'))) {
+    pill.textContent = '📞 Call Now — This Is Time-Sensitive';
+  }
+
+  /* Summary cards */
+  const fg = $('findings-grid');
+  if (fg) {
+    fg.innerHTML = '';
+    getSummaryCards().forEach((f, i) => {
+      const d = document.createElement('div');
+      d.className = 'finding-item';
+      d.innerHTML = `<div class="fi-icon">${f.icon}</div>
+        <div class="fi-val grad-text">${f.val}</div>
+        <div class="fi-label">${f.label.replace('\n','<br>')}</div>`;
+      fg.appendChild(d);
+      setTimeout(() => d.classList.add('on'), 500 + i * 220);
+    });
+  }
+
+  /* Diagnosis */
+  setHTML('diag-intro', getDiagIntro());
+  const di = $('diag-items');
+  if (di) {
+    di.innerHTML = '';
+    getDiagnosis().forEach((d, i) => {
+      const cls = d.sev === 'error' ? '' : d.sev; /* 'warn' | 'ok' | '' */
+      const el  = document.createElement('div');
+      el.className = `diag-item ${cls}`;
+      el.innerHTML = `<div class="di-icon">${d.icon}</div>
+        <div><div class="di-title">${d.title}</div>
+             <div class="di-desc">${d.desc}</div></div>`;
+      di.appendChild(el);
+      setTimeout(() => el.classList.add('on'), 300 + i * 160);
+    });
+  }
+
+  /* Opportunity */
+  const opp = getOpportunity();
+  setHTML('opp-title',  opp.title);
+  setHTML('opp-banner', opp.banner);
+  const ol = $('opp-list');
+  if (ol) ol.innerHTML = opp.list.map(item => `<li>${item}</li>`).join('');
+  const os = $('opp-stats');
+  if (os) os.innerHTML = opp.stats.map(s =>
+    `<div class="opp-stat"><div class="os-val grad-text">${s.val}</div><div class="os-label">${s.label}</div></div>`
+  ).join('');
+
+  /* Why It Matters */
+  const wm = getWhyMatters();
+  setHTML('wm-title', wm.title);
+  setHTML('wm-body',  wm.body);
+
+  /* Urgency */
+  const urg = getUrgency();
+  setText('urgency-title', urg.title);
+  setText('urgency-desc',  urg.desc);
+
+  /* Booking section */
+  const bk = getBookingSection();
+  setHTML('booking-title', bk.title);
+  setText('booking-sub',   bk.sub);
+
+  /* On-call title */
+  setText('oncall-title', getOnCallTitle());
+
+  /* Second call block */
+  const cb = getCallBlock();
+  setHTML('call-block-title', cb.title);
+  setText('call-block-sub',   cb.sub);
+
+  /* Calendar stub links */
+  const evT = encodeURIComponent('Credit Strategy Session — Clean Path Credit');
+  const evD = encodeURIComponent('Personalized credit strategy session with Clean Path Credit');
+  setHref('cal-google',  `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${evT}&details=${evD}`);
+  setHref('cal-outlook', `https://outlook.live.com/calendar/0/deeplink/compose?subject=${evT}&body=${evD}`);
+  setHref('cal-apple',
+    'data:text/calendar;charset=utf8,' + encodeURIComponent(
+      'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\n' +
+      'SUMMARY:Credit Strategy Session\r\n' +
+      'DESCRIPTION:Personalized credit strategy session with Clean Path Credit\r\n' +
+      'END:VEVENT\r\nEND:VCALENDAR'));
+
+  console.log('[CPC] render() complete');
+}
+
+/* ════════════════════════════════════════════
+   5. SCROLL REVEAL
+════════════════════════════════════════════ */
+function initReveal() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('on'); obs.unobserve(e.target); }});
+  }, { threshold: 0.06 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+}
+
+/* ════════════════════════════════════════════
+   6. PAGE LOADER
+════════════════════════════════════════════ */
+function runLoader() {
+  const loader = $('page-loader');
+  const msgs   = $('loader-msgs');
+  if (!loader || !msgs) return;
+  const spans = msgs.querySelectorAll('span');
+  if (!spans.length) return;
+  let idx = 0;
+  const iv = setInterval(() => {
+    spans[idx].classList.remove('on');
+    idx = (idx + 1) % spans.length;
+    spans[idx].classList.add('on');
+  }, 560);
+  setTimeout(() => {
+    clearInterval(iv);
+    loader.classList.add('out');
+    setTimeout(() => { if(loader.parentNode) loader.remove(); }, 700);
+  }, 2200);
+}
+
+/* ════════════════════════════════════════════
+   7. BOOT
+════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('[CPC] DOMContentLoaded — booting results page');
+  runLoader();
+  render();
+  initReveal();
+});
+</script>
+
+<!--
+════════════════════════════════════════════════
+  TESTING CHECKLIST
+════════════════════════════════════════════════
+
+  HOW TO SWITCH TO TEST MODE
+  Set DEMO_MODE = true at the top of the <script>.
+  Edit DEMO_USER fields to simulate different users.
+  Set DEMO_MODE = false for production.
+
+  1. GOAL VARIATIONS
+     DEMO_USER.goal = 'Home' | 'Car' | 'Business Funding' | 'Credit Card'
+                      'Apartment' | 'Personal Loan' | 'Emergency Situation'
+     CHECK: headline, subheadline, opportunity section,
+            why-it-matters, booking title, call block copy.
+
+  2. SCORE VARIATIONS
+     DEMO_USER.score = '500s' | '600s' | '700s' | 'Not sure'
+     CHECK: ring label changes (Recoverable / Emerging / Strong·Under-Optimized)
+            ring fill percentage changes
+            ring sub-label changes
+            summary card values change
+            diagnosis items change (severity, title, desc)
+
+  3. TIMELINE VARIATIONS
+     DEMO_USER.timeline = 'ASAP' | 'Within 30 days' | 'Within 60 days' | 'Just exploring'
+     CHECK: urgency section title + body
+            ASAP also changes hero call pill text
+
+  4. BLOCKER KEYWORD TESTING
+     DEMO_USER.blocker = 'I have collections'   → collections diagnosis card
+                       = 'late payments'         → payment history card
+                       = 'high balances'         → utilization card
+                       = 'bankruptcy'            → bankruptcy card
+                       = 'I was denied'          → denial card
+                       = 'incorrect information' → error/dispute card
+
+  5. MISSING DATA FALLBACK
+     Set DEMO_USER = {} (all empty strings)
+     CHECK: page loads with no console errors
+            all sections show graceful fallback copy
+            ring shows "Analysis Pending" label
+            no "undefined", "null", or blank areas
+
+  6. LIVE MODE TEST
+     Set DEMO_MODE = false
+     Submit the main form → confirm redirect to results.html
+     CHECK: all sections populate from localStorage data
+
+  7. CALL BUTTON TEST
+     Click/tap all 4 call buttons:
+     - Hero pill (#hero-call-pill)
+     - Main booking call button (#main-call-btn)
+     - Second call block button (#call-block .call-btn)
+     - Sticky mobile bar (#sticky-call a)
+     All should trigger tel:+13463995606
+
+  8. CALENDLY TEST
+     Confirm widget loads at: https://calendly.com/perfectcredit780/30min
+     To change: update data-url on .calendly-inline-widget
+
+  9. CALENDAR BUTTONS TEST
+     Click Google Calendar → opens calendar.google.com in new tab
+     Click Outlook → opens outlook.live.com in new tab
+     Click Apple → downloads strategy-session.ics file
+
+════════════════════════════════════════════════
+-->
+</body>
+</html>

@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Free Credit Analysis — Clean Path Credit</title>
+<meta name="description" content="Get your free AI-Powered Credit Analysis in under 2 minutes. Find out what's holding your credit back and get a personalized strategy."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS — Matches results.html
+═══════════════════════════════════════════ */
+:root {
+  --bg:   #07090f;
+  --card: #111827;
+  --card2:#0f1724;
+  --bdr:  rgba(255,255,255,.07);
+  --bhi:  rgba(61,232,192,.28);
+  --teal: #3de8c0;
+  --blue: #4fa3ff;
+  --purp: #9b8dff;
+  --red:  #ff5a7e;
+  --amb:  #f59e0b;
+  --grad: linear-gradient(135deg,#3de8c0 0%,#4fa3ff 50%,#9b8dff 100%);
+  --gradr:linear-gradient(135deg,#ff5a7e,#f59e0b);
+  --txt:  #e8edf5;
+  --mut:  #6b7a96;
+  --mut2: #3d4a5c;
+  --r:    16px;
+  --rs:   10px;
+  --fd:   'Syne', sans-serif;
+  --fb:   'DM Sans', sans-serif;
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+
+body {
+  font-family: var(--fb);
+  background: var(--bg);
+  color: var(--txt);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image:
+    radial-gradient(ellipse 90% 45% at 50% -5%, rgba(61,232,192,.055) 0%, transparent 65%),
+    linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.014) 1px, transparent 1px);
+  background-size: 100% 100%, 44px 44px, 44px 44px;
+}
+
+/* ── UTILITY ── */
+.grad-text { background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+
+/* ═══════════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════════ */
+#top-bar {
+  position: fixed; top:0; left:0; right:0; z-index:100;
+  height: 56px; padding:0 24px;
+  display: flex; align-items:center; justify-content:space-between;
+  background: rgba(7,9,15,.92);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--bdr);
+}
+.nav-logo-wrap { display:flex; flex-direction:column; line-height:1; }
+.nav-logo { font-family:var(--fd); font-size:15px; font-weight:800; letter-spacing:.04em; }
+.nav-ai-badge { font-size:8.5px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); opacity:.65; margin-top:2px; }
+.nav-pill { display:flex; align-items:center; gap:7px; padding:5px 13px; border-radius:99px; background:rgba(61,232,192,.08); border:1px solid rgba(61,232,192,.2); font-size:12px; font-weight:600; color:var(--teal); }
+.nav-pill .dot { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:blink 1.6s ease-in-out infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ═══════════════════════════════════════════
+   PROGRESS BAR
+═══════════════════════════════════════════ */
+#progress-bar {
+  position: fixed; top:56px; left:0; right:0; z-index:99;
+  height: 3px; background:rgba(255,255,255,.05);
+}
+#progress-fill {
+  height:100%; width:0%;
+  background: var(--grad);
+  transition: width .5s var(--ease);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 0 0 12px rgba(61,232,192,.35);
+}
+#step-indicator {
+  position:fixed; top:63px; right:24px; z-index:99;
+  font-family:var(--fd); font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  color:var(--teal); opacity:.7;
+  transition: opacity .3s;
+}
+
+/* ═══════════════════════════════════════════
+   FORM CONTAINER
+═══════════════════════════════════════════ */
+#form-wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 100px 20px 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ── Individual Step ── */
+.form-step {
+  display: none;
+  flex-direction: column;
+  gap: 20px;
+  animation: stepIn .45s var(--ease) both;
+}
+.form-step.active { display:flex; }
+
+@keyframes stepIn {
+  from { opacity:0; transform:translateY(18px); }
+  to   { opacity:1; transform:none; }
+}
+
+/* ── Step Question ── */
+.step-eyebrow {
+  font-family:var(--fd); font-size:11px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--teal);
+}
+.step-question {
+  font-family:var(--fd); font-size:clamp(22px,5vw,30px);
+  font-weight:800; line-height:1.15;
+}
+
+/* ═══════════════════════════════════════════
+   OPTION CARDS
+═══════════════════════════════════════════ */
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 12px;
+}
+.option-card {
+  position: relative;
+  display: flex; flex-direction:column; align-items:center; justify-content:center;
+  gap: 10px;
+  padding: 22px 14px;
+  background: var(--card);
+  border: 1.5px solid var(--bdr);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: border-color .25s var(--ease), background .25s var(--ease), transform .2s var(--ease), box-shadow .25s var(--ease);
+  text-align: center;
+  user-select: none;
+  overflow: hidden;
+}
+.option-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--grad); opacity:0; transition:opacity .25s;
+}
+.option-card:hover {
+  border-color: rgba(61,232,192,.3);
+  background: rgba(61,232,192,.04);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(61,232,192,.08);
+}
+.option-card:hover::before { opacity:.6; }
+.option-card.selected {
+  border-color: var(--teal);
+  background: rgba(61,232,192,.07);
+  box-shadow: 0 0 24px rgba(61,232,192,.12);
+}
+.option-card.selected::before { opacity:1; }
+.option-icon { font-size:28px; line-height:1; }
+.option-label {
+  font-family:var(--fd); font-size:13px; font-weight:700;
+  letter-spacing:.01em; line-height:1.25;
+}
+
+/* Checkmark indicator on selected */
+.option-card.selected::after {
+  content:'✓'; position:absolute; top:8px; right:10px;
+  font-size:14px; font-weight:800; color:var(--teal);
+}
+
+/* ═══════════════════════════════════════════
+   TEXTAREA / INPUT STYLES
+═══════════════════════════════════════════ */
+.form-textarea, .form-input {
+  width:100%; padding:16px 18px;
+  background:var(--card); color:var(--txt);
+  border:1.5px solid var(--bdr); border-radius:var(--rs);
+  font-family:var(--fb); font-size:15px;
+  outline:none; resize:vertical;
+  transition: border-color .25s, box-shadow .25s;
+}
+.form-textarea:focus, .form-input:focus {
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px rgba(61,232,192,.1);
+}
+.form-textarea::placeholder, .form-input::placeholder {
+  color:var(--mut2);
+}
+.form-textarea { min-height:120px; }
+
+/* ── User Info Grid ── */
+.info-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+}
+@media(max-width:480px) { .info-grid { grid-template-columns:1fr; } }
+.info-field { display:flex; flex-direction:column; gap:6px; }
+.info-field.full { grid-column:1 / -1; }
+.field-label {
+  font-family:var(--fd); font-size:11px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; color:var(--mut);
+}
+
+/* ═══════════════════════════════════════════
+   CONSENT CHECKBOX
+═══════════════════════════════════════════ */
+.consent-wrap {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:16px; margin-top:6px;
+  background:rgba(255,255,255,.02);
+  border:1px solid var(--bdr);
+  border-radius:var(--rs);
+}
+.consent-wrap input[type="checkbox"] {
+  width:20px; height:20px; flex-shrink:0; margin-top:2px;
+  accent-color:var(--teal); cursor:pointer;
+}
+.consent-text {
+  font-size:12px; color:var(--mut); line-height:1.55;
+}
+.consent-text a { color:var(--teal); text-decoration:underline; }
+.consent-error {
+  display:none; font-size:11px; color:var(--red);
+  margin-top:4px; font-weight:600;
+}
+.consent-error.show { display:block; }
+
+/* ═══════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════ */
+.btn-next {
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:16px 32px;
+  background:var(--grad); color:#07090f;
+  font-family:var(--fd); font-size:15px; font-weight:800;
+  border:none; border-radius:var(--rs); cursor:pointer;
+  letter-spacing:.02em;
+  transition:transform .2s, opacity .2s, box-shadow .25s;
+  box-shadow:0 0 20px rgba(61,232,192,.15);
+  align-self:flex-start;
+}
+.btn-next:hover { transform:translateY(-1px); box-shadow:0 0 30px rgba(61,232,192,.25); }
+.btn-next:active { transform:scale(.98); }
+.btn-next:disabled { opacity:.35; cursor:not-allowed; transform:none; box-shadow:none; }
+
+.btn-back {
+  display:inline-flex; align-items:center; gap:5px;
+  padding:10px 0; background:none; border:none;
+  color:var(--mut); font-family:var(--fd); font-size:12px;
+  font-weight:600; cursor:pointer; letter-spacing:.03em;
+  transition:color .2s;
+}
+.btn-back:hover { color:var(--txt); }
+
+.btn-row {
+  display:flex; align-items:center; gap:16px; margin-top:8px;
+}
+
+/* Submit button variant */
+.btn-submit {
+  background:var(--gradr);
+  color:#fff;
+  box-shadow:0 0 24px rgba(255,90,126,.2);
+  animation:pulse-btn 2.8s ease-in-out infinite;
+}
+@keyframes pulse-btn {
+  0%,100% { box-shadow:0 0 24px rgba(255,90,126,.2); }
+  50%     { box-shadow:0 0 42px rgba(255,90,126,.38); }
+}
+
+/* ═══════════════════════════════════════════
+   AI MICRO-FEEDBACK OVERLAY
+═══════════════════════════════════════════ */
+#ai-feedback {
+  display:none;
+  position:fixed; inset:0; z-index:200;
+  background:rgba(7,9,15,.88);
+  backdrop-filter:blur(12px);
+  flex-direction:column; align-items:center; justify-content:center; gap:18px;
+}
+#ai-feedback.show { display:flex; }
+
+.ai-spinner {
+  width:44px; height:44px; border-radius:50%;
+  border:3px solid rgba(61,232,192,.12);
+  border-top-color:var(--teal);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+
+#ai-msg {
+  font-family:var(--fd); font-size:14px; font-weight:700;
+  color:var(--teal); letter-spacing:.04em;
+  text-align:center; max-width:320px;
+  animation:aiPulse 1.6s ease-in-out infinite;
+}
+@keyframes aiPulse { 0%,100%{opacity:1} 50%{opacity:.55} }
+
+/* ═══════════════════════════════════════════
+   AI ROTATING MESSAGES (between steps)
+═══════════════════════════════════════════ */
+#ai-rotate {
+  display:none;
+  position:fixed; inset:0; z-index:200;
+  background:rgba(7,9,15,.92);
+  backdrop-filter:blur(14px);
+  flex-direction:column; align-items:center; justify-content:center; gap:20px;
+}
+#ai-rotate.show { display:flex; }
+
+.ai-rotate-ring {
+  width:52px; height:52px; border-radius:50%;
+  border:3px solid rgba(61,232,192,.12);
+  border-top-color:var(--teal);
+  animation:spin .8s linear infinite;
+}
+#ai-rotate-text {
+  font-family:var(--fd); font-size:13px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase;
+  color:var(--teal);
+  height:20px; overflow:hidden; position:relative;
+  min-width:280px; text-align:center;
+}
+#ai-rotate-text span {
+  position:absolute; left:0; right:0; top:0;
+  opacity:0; transform:translateY(7px);
+  transition:opacity .35s, transform .35s;
+  white-space:nowrap;
+}
+#ai-rotate-text span.on { opacity:1; transform:none; }
+
+/* ═══════════════════════════════════════════
+   FORM VALIDATION
+═══════════════════════════════════════════ */
+.form-input.error, .form-textarea.error {
+  border-color:var(--red);
+  box-shadow:0 0 0 3px rgba(255,90,126,.1);
+}
+.field-error {
+  font-size:11px; color:var(--red); font-weight:600;
+  margin-top:2px; display:none;
+}
+.field-error.show { display:block; }
+
+/* ═══════════════════════════════════════════
+   SOCIAL PROOF BAR
+═══════════════════════════════════════════ */
+#social-proof {
+  position:fixed; bottom:0; left:0; right:0; z-index:50;
+  padding:10px 20px;
+  background:rgba(7,9,15,.9); backdrop-filter:blur(10px);
+  border-top:1px solid var(--bdr);
+  display:flex; align-items:center; justify-content:center; gap:20px;
+  font-size:11px; color:var(--mut); letter-spacing:.02em;
+}
+.proof-item { display:flex; align-items:center; gap:6px; }
+.proof-dot { width:5px; height:5px; border-radius:50%; background:var(--teal); }
+
+@media(max-width:480px) {
+  #social-proof { gap:12px; font-size:10px; padding:8px 12px; }
+}
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media(max-width:480px) {
+  #form-wrap { padding:90px 16px 80px; }
+  .options-grid { grid-template-columns:1fr 1fr; gap:10px; }
+  .option-card { padding:18px 10px; }
+  .option-icon { font-size:24px; }
+  .option-label { font-size:12px; }
+  .step-question { font-size:clamp(20px,5vw,26px); }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div id="top-bar">
+  <div class="nav-logo-wrap">
+    <span class="nav-logo grad-text">Clean Path Credit</span>
+    <span class="nav-ai-badge">powered by AI</span>
+  </div>
+  <div class="nav-pill"><span class="dot"></span>AI Analysis</div>
+</div>
+
+<!-- ── PROGRESS BAR ── -->
+<div id="progress-bar"><div id="progress-fill"></div></div>
+<div id="step-indicator">Step 1 of 6</div>
+
+<!-- ── AI MICRO-FEEDBACK OVERLAY ── -->
+<div id="ai-feedback">
+  <div class="ai-spinner"></div>
+  <div id="ai-msg">Got it — refining your analysis…</div>
+</div>
+
+<!-- ── AI ROTATING MESSAGES (shown between steps 3→4, 4→5) ── -->
+<div id="ai-rotate">
+  <div class="ai-rotate-ring"></div>
+  <div id="ai-rotate-text">
+    <span class="on">Analyzing similar profiles…</span>
+    <span>Identifying high-impact items…</span>
+    <span>Scanning for reporting inconsistencies…</span>
+    <span>Estimating approval blockers…</span>
+    <span>Building your personalized strategy…</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     FORM
+═══════════════════════════════════════════ -->
+<div id="form-wrap">
+
+  <!-- ═══ STEP 1 — Goal ═══ -->
+  <div class="form-step active" data-step="1" id="step-1">
+    <div class="step-eyebrow">🔍 Step 1 — Your Goal</div>
+    <h2 class="step-question">What are you hoping to qualify for?</h2>
+    <div class="options-grid" id="goal-options">
+      <div class="option-card" data-value="Home">
+        <span class="option-icon">🏠</span>
+        <span class="option-label">Home</span>
+      </div>
+      <div class="option-card" data-value="Car">
+        <span class="option-icon">🚗</span>
+        <span class="option-label">Car</span>
+      </div>
+      <div class="option-card" data-value="Business Funding">
+        <span class="option-icon">💼</span>
+        <span class="option-label">Business Funding</span>
+      </div>
+      <div class="option-card" data-value="Credit Card">
+        <span class="option-icon">💳</span>
+        <span class="option-label">Credit Card</span>
+      </div>
+      <div class="option-card" data-value="Apartment">
+        <span class="option-icon">🏢</span>
+        <span class="option-label">Apartment</span>
+      </div>
+      <div class="option-card" data-value="Personal Loan">
+        <span class="option-icon">💰</span>
+        <span class="option-label">Personal Loan</span>
+      </div>
+      <div class="option-card" data-value="Emergency Situation">
+        <span class="option-icon">🚨</span>
+        <span class="option-label">Emergency Situation</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 2 — Situation ═══ -->
+  <div class="form-step" data-step="2" id="step-2">
+    <div class="step-eyebrow">📋 Step 2 — Your Situation</div>
+    <h2 class="step-question">What best describes your credit situation right now?</h2>
+    <div class="options-grid" id="situation-options">
+      <div class="option-card" data-value="Recent denials">
+        <span class="option-icon">🚫</span>
+        <span class="option-label">Recent Denials</span>
+      </div>
+      <div class="option-card" data-value="Negative items on report">
+        <span class="option-icon">📉</span>
+        <span class="option-label">Negative Items on Report</span>
+      </div>
+      <div class="option-card" data-value="Low score">
+        <span class="option-icon">⬇️</span>
+        <span class="option-label">Low Score</span>
+      </div>
+      <div class="option-card" data-value="Collections">
+        <span class="option-icon">💸</span>
+        <span class="option-label">Collections</span>
+      </div>
+      <div class="option-card" data-value="Late payments">
+        <span class="option-icon">📅</span>
+        <span class="option-label">Late Payments</span>
+      </div>
+      <div class="option-card" data-value="Not sure">
+        <span class="option-icon">❓</span>
+        <span class="option-label">Not Sure</span>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goBack()">← Back</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 3 — Timeline ═══ -->
+  <div class="form-step" data-step="3" id="step-3">
+    <div class="step-eyebrow">⏱️ Step 3 — Your Timeline</div>
+    <h2 class="step-question">How soon do you need results?</h2>
+    <div class="options-grid" id="timeline-options">
+      <div class="option-card" data-value="ASAP">
+        <span class="option-icon">⚡</span>
+        <span class="option-label">ASAP</span>
+      </div>
+      <div class="option-card" data-value="Within 30 days">
+        <span class="option-icon">📅</span>
+        <span class="option-label">Within 30 Days</span>
+      </div>
+      <div class="option-card" data-value="Within 60 days">
+        <span class="option-icon">📆</span>
+        <span class="option-label">Within 60 Days</span>
+      </div>
+      <div class="option-card" data-value="Just exploring">
+        <span class="option-icon">🔍</span>
+        <span class="option-label">Just Exploring</span>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goBack()">← Back</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 4 — Score ═══ -->
+  <div class="form-step" data-step="4" id="step-4">
+    <div class="step-eyebrow">📊 Step 4 — Your Score</div>
+    <h2 class="step-question">What's your estimated credit score?</h2>
+    <div class="options-grid" id="score-options">
+      <div class="option-card" data-value="500s">
+        <span class="option-icon">🔴</span>
+        <span class="option-label">500s</span>
+      </div>
+      <div class="option-card" data-value="600s">
+        <span class="option-icon">🟡</span>
+        <span class="option-label">600s</span>
+      </div>
+      <div class="option-card" data-value="700+">
+        <span class="option-icon">🟢</span>
+        <span class="option-label">700+</span>
+      </div>
+      <div class="option-card" data-value="Not sure">
+        <span class="option-icon">❓</span>
+        <span class="option-label">Not Sure</span>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goBack()">← Back</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 5 — Blocker ═══ -->
+  <div class="form-step" data-step="5" id="step-5">
+    <div class="step-eyebrow">✍️ Step 5 — What's Holding You Back</div>
+    <h2 class="step-question">Briefly describe what's holding you back</h2>
+    <textarea class="form-textarea" id="blocker-input"
+      placeholder="e.g. I have collections on my report, some late payments, and I was denied for a mortgage last month..."
+      maxlength="800"></textarea>
+    <div class="btn-row">
+      <button class="btn-back" onclick="goBack()">← Back</button>
+      <button class="btn-next" id="btn-step5" onclick="goNext()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- ═══ STEP 6 — Contact Info ═══ -->
+  <div class="form-step" data-step="6" id="step-6">
+    <div class="step-eyebrow">👤 Step 6 — Your Information</div>
+    <h2 class="step-question">Where should we send your personalized analysis?</h2>
+    <div class="info-grid">
+      <div class="info-field">
+        <label class="field-label" for="first-name">First Name</label>
+        <input class="form-input" type="text" id="first-name" placeholder="First name" required autocomplete="given-name"/>
+        <div class="field-error" id="err-first">First name is required</div>
+      </div>
+      <div class="info-field">
+        <label class="field-label" for="last-name">Last Name</label>
+        <input class="form-input" type="text" id="last-name" placeholder="Last name" required autocomplete="family-name"/>
+        <div class="field-error" id="err-last">Last name is required</div>
+      </div>
+      <div class="info-field">
+        <label class="field-label" for="phone">Phone Number</label>
+        <input class="form-input" type="tel" id="phone" placeholder="(555) 555-5555" required autocomplete="tel"/>
+        <div class="field-error" id="err-phone">Valid phone number is required</div>
+      </div>
+      <div class="info-field">
+        <label class="field-label" for="email">Email Address</label>
+        <input class="form-input" type="email" id="email" placeholder="you@email.com" required autocomplete="email"/>
+        <div class="field-error" id="err-email">Valid email address is required</div>
+      </div>
+    </div>
+
+    <!-- ── CONSENT CHECKBOX (required) ── -->
+    <div class="consent-wrap">
+      <input type="checkbox" id="consent" />
+      <label class="consent-text" for="consent">
+        I consent to receive text messages, emails, and calls from Clean Path Credit regarding my credit analysis and related services. Message & data rates may apply. Reply STOP to opt out at any time.
+      </label>
+    </div>
+    <div class="consent-error" id="consent-error">You must agree to receive communications before submitting.</div>
+
+    <div class="btn-row">
+      <button class="btn-back" onclick="goBack()">← Back</button>
+      <button class="btn-next btn-submit" id="btn-submit" onclick="submitForm()">
+        🚀 Get My Free Analysis
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── SOCIAL PROOF BAR ── -->
+<div id="social-proof">
+  <div class="proof-item"><span class="proof-dot"></span>2,400+ profiles analyzed</div>
+  <div class="proof-item"><span class="proof-dot"></span>AI-powered insights</div>
+  <div class="proof-item"><span class="proof-dot"></span>100% free</div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let currentStep = 1;
+const totalSteps = 6;
+
+const formData = {
+  goal: '',
+  situation: '',
+  timeline: '',
+  score: '',
+  blocker: '',
+  firstName: '',
+  lastName: '',
+  phone: '',
+  email: '',
+};
+
+/* ══════════════════════════════════════════
+   AI MICRO FEEDBACK MESSAGES
+══════════════════════════════════════════ */
+const microFeedback = [
+  "Got it — refining your analysis…",
+  "Perfect — narrowing things down…",
+  "Noted — adjusting your profile…",
+  "Great — factoring that in…",
+  "Understood — updating your strategy…",
+];
+
+const rotatingMessages = [
+  "Analyzing similar profiles…",
+  "Identifying high-impact items…",
+  "Scanning for reporting inconsistencies…",
+  "Estimating approval blockers…",
+  "Building your personalized strategy…",
+];
+
+/* ══════════════════════════════════════════
+   DOM HELPERS
+══════════════════════════════════════════ */
+const $ = id => document.getElementById(id);
+
+function updateProgress() {
+  const pct = (currentStep / totalSteps) * 100;
+  $('progress-fill').style.width = pct + '%';
+  $('step-indicator').textContent = `Step ${currentStep} of ${totalSteps}`;
+}
+
+/* ══════════════════════════════════════════
+   SHOW/HIDE STEPS
+══════════════════════════════════════════ */
+function showStep(num) {
+  document.querySelectorAll('.form-step').forEach(s => {
+    s.classList.remove('active');
+  });
+  const step = $('step-' + num);
+  if (step) {
+    step.classList.remove('active');
+    // Force reflow for animation restart
+    void step.offsetWidth;
+    step.classList.add('active');
+  }
+  currentStep = num;
+  updateProgress();
+
+  // Scroll to top smoothly
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ══════════════════════════════════════════
+   AI FEEDBACK OVERLAY (quick flash)
+══════════════════════════════════════════ */
+function showMicroFeedback(callback) {
+  const el = $('ai-feedback');
+  const msg = $('ai-msg');
+  msg.textContent = microFeedback[Math.floor(Math.random() * microFeedback.length)];
+  el.classList.add('show');
+  setTimeout(() => {
+    el.classList.remove('show');
+    if (callback) callback();
+  }, 1200);
+}
+
+/* ══════════════════════════════════════════
+   AI ROTATING MESSAGES OVERLAY (longer)
+══════════════════════════════════════════ */
+function showRotatingMessages(callback) {
+  const el = $('ai-rotate');
+  const textWrap = $('ai-rotate-text');
+  const spans = textWrap.querySelectorAll('span');
+  el.classList.add('show');
+
+  let idx = 0;
+  spans.forEach(s => s.classList.remove('on'));
+  spans[0].classList.add('on');
+
+  const iv = setInterval(() => {
+    spans[idx].classList.remove('on');
+    idx = (idx + 1) % spans.length;
+    spans[idx].classList.add('on');
+  }, 2000);
+
+  // Show for ~4 seconds then proceed
+  setTimeout(() => {
+    clearInterval(iv);
+    el.classList.remove('show');
+    if (callback) callback();
+  }, 4000);
+}
+
+/* ══════════════════════════════════════════
+   CARD SELECTION LOGIC
+══════════════════════════════════════════ */
+function setupOptionCards() {
+  /* Step 1 — Goal */
+  bindCards('goal-options', val => {
+    formData.goal = val;
+    showMicroFeedback(() => showStep(2));
+  });
+
+  /* Step 2 — Situation */
+  bindCards('situation-options', val => {
+    formData.situation = val;
+    showMicroFeedback(() => showStep(3));
+  });
+
+  /* Step 3 — Timeline: show rotating AI messages after selection */
+  bindCards('timeline-options', val => {
+    formData.timeline = val;
+    showRotatingMessages(() => showStep(4));
+  });
+
+  /* Step 4 — Score: show rotating AI messages after selection */
+  bindCards('score-options', val => {
+    formData.score = val;
+    showRotatingMessages(() => showStep(5));
+  });
+}
+
+function bindCards(containerId, onSelect) {
+  const container = $(containerId);
+  if (!container) return;
+  const cards = container.querySelectorAll('.option-card');
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      // Deselect siblings
+      cards.forEach(c => c.classList.remove('selected'));
+      // Select this one
+      card.classList.add('selected');
+      const val = card.getAttribute('data-value');
+      // Small delay so user sees the selection highlight
+      setTimeout(() => onSelect(val), 250);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════ */
+function goNext() {
+  if (currentStep === 5) {
+    formData.blocker = $('blocker-input').value.trim();
+    showMicroFeedback(() => showStep(6));
+  }
+}
+
+function goBack() {
+  if (currentStep > 1) {
+    showStep(currentStep - 1);
+  }
+}
+
+/* ══════════════════════════════════════════
+   PHONE FORMATTING
+══════════════════════════════════════════ */
+function formatPhone(val) {
+  const digits = val.replace(/\D/g, '');
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6,10)}`;
+}
+
+/* ══════════════════════════════════════════
+   FORM VALIDATION + SUBMIT
+══════════════════════════════════════════ */
+function validateStep6() {
+  let valid = true;
+  const firstName = $('first-name').value.trim();
+  const lastName  = $('last-name').value.trim();
+  const phone     = $('phone').value.trim();
+  const email     = $('email').value.trim();
+  const consent   = $('consent').checked;
+
+  // Reset errors
+  ['first-name','last-name','phone','email'].forEach(id => {
+    $(id).classList.remove('error');
+    $('err-' + id.split('-')[0]).classList.remove('show');
+  });
+  $('consent-error').classList.remove('show');
+
+  if (!firstName) {
+    $('first-name').classList.add('error');
+    $('err-first').classList.add('show');
+    valid = false;
+  }
+  if (!lastName) {
+    $('last-name').classList.add('error');
+    $('err-last').classList.add('show');
+    valid = false;
+  }
+  if (!phone || phone.replace(/\D/g,'').length < 10) {
+    $('phone').classList.add('error');
+    $('err-phone').classList.add('show');
+    valid = false;
+  }
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    $('email').classList.add('error');
+    $('err-email').classList.add('show');
+    valid = false;
+  }
+  if (!consent) {
+    $('consent-error').classList.add('show');
+    valid = false;
+  }
+
+  return valid;
+}
+
+function submitForm() {
+  if (!validateStep6()) return;
+
+  formData.firstName = $('first-name').value.trim();
+  formData.lastName  = $('last-name').value.trim();
+  formData.phone     = $('phone').value.trim();
+  formData.email     = $('email').value.trim();
+
+  /* ── Build creditData object for results page ── */
+  const creditData = {
+    firstName: formData.firstName,
+    lastName:  formData.lastName,
+    name:      formData.firstName, // backward compat
+    email:     formData.email,
+    phone:     formData.phone,
+    goal:      formData.goal,
+    situation: formData.situation,
+    score:     formData.score,
+    timeline:  formData.timeline,
+    blocker:   formData.blocker,
+  };
+
+  /* ⚠️ WEBHOOK — Send lead data to GoHighLevel (fire-and-forget)
+     This POST runs in the background and will NOT block the redirect.
+     If the webhook is slow or fails, the user still gets their results. */
+  const GHL_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/da0KTegxFQ62eqS73TQv/webhook-trigger/73b8546c-54a7-491f-ae2c-8575e976fc34';
+  fetch(GHL_WEBHOOK, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      first_name: formData.firstName,
+      last_name:  formData.lastName,
+      full_name:  formData.firstName + ' ' + formData.lastName,
+      email:      formData.email,
+      phone:      formData.phone,
+      goal:       formData.goal,
+      situation:  formData.situation,
+      score:      formData.score,
+      timeline:   formData.timeline,
+      blocker:    formData.blocker,
+    }),
+  })
+  .then(r => console.log('[CPC] Webhook sent:', r.status))
+  .catch(e => console.warn('[CPC] Webhook error (non-blocking):', e));
+
+  /* ⚠️ Store in localStorage for results page to read */
+  localStorage.setItem('creditData', JSON.stringify(creditData));
+
+  console.log('[CPC] Form submitted:', creditData);
+
+  /* Show final AI processing animation then redirect */
+  showRotatingMessages(() => {
+    /* ⚠️ Redirect to results page */
+    window.location.href = 'results.html';
+  });
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('[CPC] Form initialized');
+  setupOptionCards();
+  updateProgress();
+
+  /* Phone auto-format */
+  const phoneInput = $('phone');
+  if (phoneInput) {
+    phoneInput.addEventListener('input', (e) => {
+      const cursor = e.target.selectionStart;
+      const before = e.target.value.length;
+      e.target.value = formatPhone(e.target.value);
+      const after = e.target.value.length;
+      e.target.setSelectionRange(cursor + (after - before), cursor + (after - before));
+    });
+  }
+
+  /* Clear error states on input focus */
+  document.querySelectorAll('.form-input').forEach(inp => {
+    inp.addEventListener('focus', () => {
+      inp.classList.remove('error');
+      const errId = 'err-' + inp.id.split('-')[0];
+      const errEl = $(errId);
+      if (errEl) errEl.classList.remove('show');
+    });
+  });
+
+  /* Consent checkbox clears its error */
+  const consentBox = $('consent');
+  if (consentBox) {
+    consentBox.addEventListener('change', () => {
+      if (consentBox.checked) $('consent-error').classList.remove('show');
+    });
+  }
+});
+</script>
+
+</body>
+</html>
