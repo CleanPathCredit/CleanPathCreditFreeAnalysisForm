@@ -129,6 +129,9 @@ body {
   font-family:var(--fd); font-size:clamp(22px,5vw,30px);
   font-weight:800; line-height:1.15;
 }
+.step-subtext {
+  font-size:13px; color:var(--mut); line-height:1.55; margin-top:-8px;
+}
 
 /* ═══════════════════════════════════════════
    OPTION CARDS
@@ -173,6 +176,9 @@ body {
 .option-label {
   font-family:var(--fd); font-size:13px; font-weight:700;
   letter-spacing:.01em; line-height:1.25;
+}
+.option-sub {
+  font-size:11px; color:var(--mut); line-height:1.35; margin-top:-4px;
 }
 
 /* Checkmark indicator on selected */
@@ -309,7 +315,7 @@ body {
 @keyframes aiPulse { 0%,100%{opacity:1} 50%{opacity:.55} }
 
 /* ═══════════════════════════════════════════
-   AI ROTATING MESSAGES (between steps)
+   AI ROTATING MESSAGES (final loading)
 ═══════════════════════════════════════════ */
 #ai-rotate {
   display:none;
@@ -373,6 +379,31 @@ body {
 }
 
 /* ═══════════════════════════════════════════
+   VALUE BULLETS (Step 6)
+═══════════════════════════════════════════ */
+.value-bullets {
+  display:flex; flex-direction:column; gap:8px; margin-top:4px;
+}
+.value-bullet {
+  display:flex; align-items:center; gap:8px;
+  font-size:13px; color:var(--mut); line-height:1.4;
+}
+.value-bullet .vb-check {
+  color:var(--teal); font-weight:700; flex-shrink:0;
+}
+
+/* ═══════════════════════════════════════════
+   MULTI SELECT HINT
+═══════════════════════════════════════════ */
+.multi-select-hint {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:6px 12px; border-radius:6px;
+  background:rgba(61,232,192,.06);
+  border:1px solid rgba(61,232,192,.12);
+  font-size:11px; color:var(--teal); font-weight:600;
+}
+
+/* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
 @media(max-width:480px) {
@@ -406,16 +437,10 @@ body {
   <div id="ai-msg">Got it — refining your analysis…</div>
 </div>
 
-<!-- ── AI ROTATING MESSAGES (shown between steps 3→4, 4→5) ── -->
+<!-- ── AI ROTATING MESSAGES (final loading before results) ── -->
 <div id="ai-rotate">
   <div class="ai-rotate-ring"></div>
-  <div id="ai-rotate-text">
-    <span class="on">Analyzing similar profiles…</span>
-    <span>Identifying high-impact items…</span>
-    <span>Scanning for reporting inconsistencies…</span>
-    <span>Estimating approval blockers…</span>
-    <span>Building your personalized strategy…</span>
-  </div>
+  <div id="ai-rotate-text"></div>
 </div>
 
 <!-- ═══════════════════════════════════════════
@@ -426,43 +451,52 @@ body {
   <!-- ═══ STEP 1 — Goal ═══ -->
   <div class="form-step active" data-step="1" id="step-1">
     <div class="step-eyebrow">🔍 Step 1 — Your Goal</div>
-    <h2 class="step-question">What are you hoping to qualify for?</h2>
+    <h2 class="step-question">What are you trying to unlock with better credit?</h2>
+    <p class="step-subtext">This helps us prioritize your strategy</p>
     <div class="options-grid" id="goal-options">
       <div class="option-card" data-value="Home">
         <span class="option-icon">🏠</span>
         <span class="option-label">Home</span>
+        <span class="option-sub">Stop renting. Start owning.</span>
       </div>
       <div class="option-card" data-value="Car">
         <span class="option-icon">🚗</span>
         <span class="option-label">Car</span>
+        <span class="option-sub">Lower payments. Better approvals.</span>
       </div>
       <div class="option-card" data-value="Business Funding">
         <span class="option-icon">💼</span>
         <span class="option-label">Business Funding</span>
+        <span class="option-sub">Access $50K–$250K+ in capital</span>
       </div>
       <div class="option-card" data-value="Credit Card">
         <span class="option-icon">💳</span>
         <span class="option-label">Credit Card</span>
+        <span class="option-sub">Better rewards. Higher limits.</span>
       </div>
       <div class="option-card" data-value="Apartment">
         <span class="option-icon">🏢</span>
         <span class="option-label">Apartment</span>
+        <span class="option-sub">Get approved without co-signers.</span>
       </div>
       <div class="option-card" data-value="Personal Loan">
         <span class="option-icon">💰</span>
         <span class="option-label">Personal Loan</span>
+        <span class="option-sub">Lower rates. Bigger amounts.</span>
       </div>
       <div class="option-card" data-value="Emergency Situation">
         <span class="option-icon">🚨</span>
-        <span class="option-label">Emergency Situation</span>
+        <span class="option-label">Emergency</span>
+        <span class="option-sub">Get relief fast.</span>
       </div>
     </div>
   </div>
 
-  <!-- ═══ STEP 2 — Situation ═══ -->
+  <!-- ═══ STEP 2 — Situation (multi-select) ═══ -->
   <div class="form-step" data-step="2" id="step-2">
     <div class="step-eyebrow">📋 Step 2 — Your Situation</div>
-    <h2 class="step-question">What best describes your credit situation right now?</h2>
+    <h2 class="step-question">What's currently hurting your credit the most?</h2>
+    <p class="step-subtext">Select all that apply — this helps us identify what's fixable</p>
     <div class="options-grid" id="situation-options">
       <div class="option-card" data-value="Recent denials">
         <span class="option-icon">🚫</span>
@@ -491,29 +525,34 @@ body {
     </div>
     <div class="btn-row">
       <button class="btn-back" onclick="goBack()">← Back</button>
+      <button class="btn-next" id="btn-step2" onclick="advanceFromStep2()">Continue →</button>
     </div>
   </div>
 
   <!-- ═══ STEP 3 — Timeline ═══ -->
   <div class="form-step" data-step="3" id="step-3">
     <div class="step-eyebrow">⏱️ Step 3 — Your Timeline</div>
-    <h2 class="step-question">How soon do you need results?</h2>
+    <h2 class="step-question">How urgently do you need results?</h2>
     <div class="options-grid" id="timeline-options">
       <div class="option-card" data-value="ASAP">
         <span class="option-icon">⚡</span>
         <span class="option-label">ASAP</span>
+        <span class="option-sub">I need this fixed NOW</span>
       </div>
       <div class="option-card" data-value="Within 30 days">
         <span class="option-icon">📅</span>
         <span class="option-label">Within 30 Days</span>
+        <span class="option-sub">I want results soon</span>
       </div>
       <div class="option-card" data-value="Within 60 days">
         <span class="option-icon">📆</span>
         <span class="option-label">Within 60 Days</span>
+        <span class="option-sub">Planning ahead</span>
       </div>
       <div class="option-card" data-value="Just exploring">
         <span class="option-icon">🔍</span>
         <span class="option-label">Just Exploring</span>
+        <span class="option-sub">Just researching options</span>
       </div>
     </div>
     <div class="btn-row">
@@ -524,7 +563,8 @@ body {
   <!-- ═══ STEP 4 — Score ═══ -->
   <div class="form-step" data-step="4" id="step-4">
     <div class="step-eyebrow">📊 Step 4 — Your Score</div>
-    <h2 class="step-question">What's your estimated credit score?</h2>
+    <h2 class="step-question">Where do you think your credit stands right now?</h2>
+    <p class="step-subtext">Don't worry if you're not sure — we'll help you figure it out</p>
     <div class="options-grid" id="score-options">
       <div class="option-card" data-value="500s">
         <span class="option-icon">🔴</span>
@@ -550,10 +590,11 @@ body {
 
   <!-- ═══ STEP 5 — Blocker ═══ -->
   <div class="form-step" data-step="5" id="step-5">
-    <div class="step-eyebrow">✍️ Step 5 — What's Holding You Back</div>
-    <h2 class="step-question">Briefly describe what's holding you back</h2>
+    <div class="step-eyebrow">✍️ Step 5 — In Your Own Words</div>
+    <h2 class="step-question">What's been the most frustrating part about your credit situation?</h2>
+    <p class="step-subtext">The more detail you share, the more personalized your analysis will be</p>
     <textarea class="form-textarea" id="blocker-input"
-      placeholder="e.g. I have collections on my report, some late payments, and I was denied for a mortgage last month..."
+      placeholder="e.g. I've been denied twice for a mortgage, I have collections I didn't even know about, and my score keeps dropping even though I'm paying on time..."
       maxlength="800"></textarea>
     <div class="btn-row">
       <button class="btn-back" onclick="goBack()">← Back</button>
@@ -563,8 +604,16 @@ body {
 
   <!-- ═══ STEP 6 — Contact Info ═══ -->
   <div class="form-step" data-step="6" id="step-6">
-    <div class="step-eyebrow">👤 Step 6 — Your Information</div>
-    <h2 class="step-question">Where should we send your personalized analysis?</h2>
+    <div class="step-eyebrow">👤 Step 6 — Almost Done</div>
+    <h2 class="step-question">Get your personalized credit strategy</h2>
+    <p class="step-subtext">We'll analyze your answers and show you EXACTLY what to do next</p>
+
+    <div class="value-bullets">
+      <div class="value-bullet"><span class="vb-check">✔</span> Custom strategy based on your answers</div>
+      <div class="value-bullet"><span class="vb-check">✔</span> Identify what can be removed or improved</div>
+      <div class="value-bullet"><span class="vb-check">✔</span> Steps to increase your score faster</div>
+    </div>
+
     <div class="info-grid">
       <div class="info-field">
         <label class="field-label" for="first-name">First Name</label>
@@ -600,7 +649,7 @@ body {
     <div class="btn-row">
       <button class="btn-back" onclick="goBack()">← Back</button>
       <button class="btn-next btn-submit" id="btn-submit" onclick="submitForm()">
-        🚀 Get My Free Analysis
+        🔓 Unlock My Personalized Plan
       </button>
     </div>
   </div>
@@ -629,7 +678,7 @@ const totalSteps = 6;
 
 const formData = {
   goal: '',
-  situation: '',
+  situation: [],   // NOW AN ARRAY for multi-select
   timeline: '',
   score: '',
   blocker: '',
@@ -640,23 +689,130 @@ const formData = {
 };
 
 /* ══════════════════════════════════════════
-   AI MICRO FEEDBACK MESSAGES
+   CONTEXT-AWARE MICRO FEEDBACK MESSAGES
 ══════════════════════════════════════════ */
-const microFeedback = [
-  "Got it — refining your analysis…",
-  "Perfect — narrowing things down…",
-  "Noted — adjusting your profile…",
-  "Great — factoring that in…",
-  "Understood — updating your strategy…",
-];
+function getMicroMessage() {
+  const goal = formData.goal.toLowerCase();
+  const issues = formData.situation.map(s => s.toLowerCase());
+  const timeline = formData.timeline.toLowerCase();
 
-const rotatingMessages = [
-  "Analyzing similar profiles…",
-  "Identifying high-impact items…",
-  "Scanning for reporting inconsistencies…",
-  "Estimating approval blockers…",
-  "Building your personalized strategy…",
+  // Goal-based messages (Step 1 → 2)
+  if (currentStep === 1) {
+    if (goal.includes('home')) return pick([
+      "Mapping your path to home approval…",
+      "Analyzing mortgage qualification factors…",
+      "Identifying home loan readiness signals…"
+    ]);
+    if (goal.includes('car')) return pick([
+      "Analyzing auto financing factors…",
+      "Evaluating rate qualification pathways…",
+      "Mapping your auto approval profile…"
+    ]);
+    if (goal.includes('business')) return pick([
+      "Assessing business funding readiness…",
+      "Analyzing capital access factors…",
+      "Evaluating SBA qualification signals…"
+    ]);
+    if (goal.includes('emergency')) return pick([
+      "Prioritizing fast-track options…",
+      "Scanning for fastest relief pathways…"
+    ]);
+    return pick([
+      "Mapping your credit profile…",
+      "Analyzing your qualification factors…",
+      "Got it — building your profile…"
+    ]);
+  }
+
+  // Issue-based messages (Step 2 → 3)
+  if (currentStep === 2) {
+    if (issues.some(i => i.includes('collection'))) return pick([
+      "Identifying high-impact negative accounts…",
+      "Analyzing collection impact on your score…",
+      "Flagging potentially removable items…"
+    ]);
+    if (issues.some(i => i.includes('negative'))) return pick([
+      "Scanning for reporting inaccuracies…",
+      "Identifying disputable negative items…"
+    ]);
+    if (issues.some(i => i.includes('late'))) return pick([
+      "Evaluating payment history impact…",
+      "Analyzing late payment patterns…"
+    ]);
+    if (issues.some(i => i.includes('denial'))) return pick([
+      "Identifying likely denial triggers…",
+      "Cross-referencing common denial factors…"
+    ]);
+    return pick([
+      "Noted — adjusting your analysis…",
+      "Factoring that into your profile…",
+      "Understood — updating your strategy…"
+    ]);
+  }
+
+  // Timeline-based (Step 3 → 4)
+  if (currentStep === 3) {
+    if (timeline.includes('asap')) return pick([
+      "Prioritizing fastest path to results…",
+      "Activating fast-track analysis mode…"
+    ]);
+    if (timeline.includes('30')) return pick([
+      "Setting 30-day strategy priority…",
+      "Optimizing for quick turnaround…"
+    ]);
+    return pick([
+      "Calibrating your timeline…",
+      "Adjusting strategy to your schedule…"
+    ]);
+  }
+
+  // Score-based (Step 4 → 5)
+  if (currentStep === 4) {
+    const score = formData.score.toLowerCase();
+    if (score.includes('500')) return pick([
+      "Identifying rebuild opportunities…",
+      "Scanning for high-impact removable items…"
+    ]);
+    if (score.includes('600')) return pick([
+      "You're closer than you think…",
+      "Identifying targeted improvement areas…"
+    ]);
+    if (score.includes('700')) return pick([
+      "Strong baseline detected — optimizing…",
+      "Analyzing premium positioning options…"
+    ]);
+    return pick([
+      "Estimating your score range…",
+      "Analyzing profile patterns…"
+    ]);
+  }
+
+  // Step 5 → 6
+  return pick([
+    "Almost there — preparing your strategy…",
+    "Processing your details…",
+    "Personalizing your analysis…"
+  ]);
+}
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+/* ══════════════════════════════════════════
+   FINAL LOADING SEQUENCE (3-5 seconds)
+══════════════════════════════════════════ */
+const finalLoadingPhases = [
+  // Phase 1
+  ["Analyzing your credit profile…", "Reviewing key factors affecting your score…"],
+  // Phase 2
+  ["Comparing your profile to thousands of similar cases…", "Identifying patterns in credit behavior…"],
+  // Phase 3
+  ["Determining your credit profile type…", "Calculating your fastest path to improvement…"],
+  // Phase 4
+  ["Building your personalized strategy…", "Preparing your results…"],
 ];
+const finalMessage = "Your personalized plan is ready ✓";
 
 /* ══════════════════════════════════════════
    DOM HELPERS
@@ -679,24 +835,21 @@ function showStep(num) {
   const step = $('step-' + num);
   if (step) {
     step.classList.remove('active');
-    // Force reflow for animation restart
     void step.offsetWidth;
     step.classList.add('active');
   }
   currentStep = num;
   updateProgress();
-
-  // Scroll to top smoothly
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 /* ══════════════════════════════════════════
-   AI FEEDBACK OVERLAY (quick flash)
+   AI FEEDBACK OVERLAY (context-aware)
 ══════════════════════════════════════════ */
 function showMicroFeedback(callback) {
   const el = $('ai-feedback');
   const msg = $('ai-msg');
-  msg.textContent = microFeedback[Math.floor(Math.random() * microFeedback.length)];
+  msg.textContent = getMicroMessage();
   el.classList.add('show');
   setTimeout(() => {
     el.classList.remove('show');
@@ -705,76 +858,112 @@ function showMicroFeedback(callback) {
 }
 
 /* ══════════════════════════════════════════
-   AI ROTATING MESSAGES OVERLAY (longer)
+   FINAL AI ROTATING MESSAGES (before results)
 ══════════════════════════════════════════ */
-function showRotatingMessages(callback) {
+function showFinalLoading(callback) {
   const el = $('ai-rotate');
   const textWrap = $('ai-rotate-text');
-  const spans = textWrap.querySelectorAll('span');
-  el.classList.add('show');
 
+  // Build all phase messages dynamically
+  const allMessages = [];
+  finalLoadingPhases.forEach(phase => {
+    const msg = pick(phase);
+    allMessages.push(msg);
+  });
+  allMessages.push(finalMessage);
+
+  // Build spans
+  textWrap.innerHTML = allMessages.map((m, i) =>
+    `<span${i === 0 ? ' class="on"' : ''}>${m}</span>`
+  ).join('');
+
+  el.classList.add('show');
+  const spans = textWrap.querySelectorAll('span');
   let idx = 0;
-  spans.forEach(s => s.classList.remove('on'));
-  spans[0].classList.add('on');
 
   const iv = setInterval(() => {
-    spans[idx].classList.remove('on');
-    idx = (idx + 1) % spans.length;
-    spans[idx].classList.add('on');
-  }, 2000);
+    if (idx < spans.length) spans[idx].classList.remove('on');
+    idx++;
+    if (idx < spans.length) {
+      spans[idx].classList.add('on');
+    }
+  }, 900);
 
-  // Show for ~4 seconds then proceed
+  // Total duration: ~4.5 seconds
   setTimeout(() => {
     clearInterval(iv);
     el.classList.remove('show');
     if (callback) callback();
-  }, 4000);
+  }, 900 * allMessages.length);
 }
 
 /* ══════════════════════════════════════════
    CARD SELECTION LOGIC
 ══════════════════════════════════════════ */
 function setupOptionCards() {
-  /* Step 1 — Goal */
+  /* Step 1 — Goal (single select, auto-advance) */
   bindCards('goal-options', val => {
     formData.goal = val;
     showMicroFeedback(() => showStep(2));
-  });
+  }, false);
 
-  /* Step 2 — Situation */
-  bindCards('situation-options', val => {
-    formData.situation = val;
-    showMicroFeedback(() => showStep(3));
-  });
+  /* Step 2 — Situation (MULTI-SELECT, manual advance) */
+  bindCards('situation-options', null, true);
 
-  /* Step 3 — Timeline: show rotating AI messages after selection */
+  /* Step 3 — Timeline (single select, show micro then advance) */
   bindCards('timeline-options', val => {
     formData.timeline = val;
-    showRotatingMessages(() => showStep(4));
-  });
+    showMicroFeedback(() => showStep(4));
+  }, false);
 
-  /* Step 4 — Score: show rotating AI messages after selection */
+  /* Step 4 — Score (single select, show micro then advance) */
   bindCards('score-options', val => {
     formData.score = val;
-    showRotatingMessages(() => showStep(5));
-  });
+    showMicroFeedback(() => showStep(5));
+  }, false);
 }
 
-function bindCards(containerId, onSelect) {
+function bindCards(containerId, onSelect, isMulti) {
   const container = $(containerId);
   if (!container) return;
   const cards = container.querySelectorAll('.option-card');
   cards.forEach(card => {
     card.addEventListener('click', () => {
-      // Deselect siblings
-      cards.forEach(c => c.classList.remove('selected'));
-      // Select this one
-      card.classList.add('selected');
-      const val = card.getAttribute('data-value');
-      // Small delay so user sees the selection highlight
-      setTimeout(() => onSelect(val), 250);
+      if (isMulti) {
+        // Toggle selection
+        card.classList.toggle('selected');
+        // Update situation array
+        formData.situation = Array.from(container.querySelectorAll('.option-card.selected'))
+          .map(c => c.getAttribute('data-value'));
+
+        // If "Not sure" is selected, deselect others
+        if (card.getAttribute('data-value') === 'Not sure' && card.classList.contains('selected')) {
+          cards.forEach(c => {
+            if (c !== card) c.classList.remove('selected');
+          });
+          formData.situation = ['Not sure'];
+        } else if (card.getAttribute('data-value') !== 'Not sure') {
+          // Deselect "Not sure" when picking specific items
+          cards.forEach(c => {
+            if (c.getAttribute('data-value') === 'Not sure') c.classList.remove('selected');
+          });
+          formData.situation = formData.situation.filter(v => v !== 'Not sure');
+        }
+      } else {
+        // Single select — deselect siblings
+        cards.forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        const val = card.getAttribute('data-value');
+        setTimeout(() => onSelect(val), 250);
+      }
     });
   });
+}
+
+/* Step 2 manual advance */
+function advanceFromStep2() {
+  if (formData.situation.length === 0) return; // require at least 1 selection
+  showMicroFeedback(() => showStep(3));
 }
 
 /* ══════════════════════════════════════════
@@ -801,6 +990,55 @@ function formatPhone(val) {
   if (digits.length <= 3) return digits;
   if (digits.length <= 6) return `(${digits.slice(0,3)}) ${digits.slice(3)}`;
   return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6,10)}`;
+}
+
+/* ══════════════════════════════════════════
+   PROFILE CLASSIFICATION & PAIN SCORING
+══════════════════════════════════════════ */
+function classifyProfile() {
+  const issues = formData.situation.map(s => s.toLowerCase());
+  const score = formData.score.toLowerCase();
+  const timeline = formData.timeline.toLowerCase();
+
+  // Pain weights
+  const weights = {
+    'collections': 3,
+    'negative items on report': 3,
+    'late payments': 2,
+    'low score': 2,
+    'recent denials': 2,
+    'not sure': 1,
+  };
+
+  let painScore = 0;
+  issues.forEach(issue => {
+    Object.keys(weights).forEach(key => {
+      if (issue.includes(key) || key.includes(issue.toLowerCase())) {
+        painScore += weights[key];
+      }
+    });
+  });
+
+  // Profile type
+  let profile = 'RECOVERY';
+  if (score.includes('500') || issues.some(i => i.includes('collection') || i.includes('negative'))) {
+    profile = 'REBUILD';
+  } else if (score.includes('700')) {
+    profile = 'OPTIMIZATION';
+  }
+
+  // Pain level
+  let painLevel = 'MODERATE';
+  if (painScore >= 6) painLevel = 'SEVERE';
+  else if (painScore <= 2) painLevel = 'LIGHT';
+
+  // Urgency
+  let urgency = 'LOW';
+  if (timeline.includes('asap')) urgency = 'HIGH';
+  else if (timeline.includes('30')) urgency = 'MEDIUM';
+  else if (timeline.includes('exploring')) urgency = 'VERY_LOW';
+
+  return { profile, painLevel, painScore, urgency };
 }
 
 /* ══════════════════════════════════════════
@@ -857,23 +1095,29 @@ function submitForm() {
   formData.phone     = $('phone').value.trim();
   formData.email     = $('email').value.trim();
 
+  // Compute classification before saving
+  const classification = classifyProfile();
+
   /* ── Build creditData object for results page ── */
   const creditData = {
     firstName: formData.firstName,
     lastName:  formData.lastName,
-    name:      formData.firstName, // backward compat
+    name:      formData.firstName,
     email:     formData.email,
     phone:     formData.phone,
     goal:      formData.goal,
-    situation: formData.situation,
+    situation: Array.isArray(formData.situation) ? formData.situation.join(', ') : formData.situation,
+    situationArray: formData.situation,
     score:     formData.score,
     timeline:  formData.timeline,
     blocker:   formData.blocker,
+    profile:   classification.profile,
+    painLevel: classification.painLevel,
+    painScore: classification.painScore,
+    urgency:   classification.urgency,
   };
 
-  /* ⚠️ WEBHOOK — Send lead data to GoHighLevel (fire-and-forget)
-     This POST runs in the background and will NOT block the redirect.
-     If the webhook is slow or fails, the user still gets their results. */
+  /* ⚠️ WEBHOOK — Send lead data to GoHighLevel (fire-and-forget) */
   const GHL_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/da0KTegxFQ62eqS73TQv/webhook-trigger/73b8546c-54a7-491f-ae2c-8575e976fc34';
   fetch(GHL_WEBHOOK, {
     method: 'POST',
@@ -885,10 +1129,13 @@ function submitForm() {
       email:      formData.email,
       phone:      formData.phone,
       goal:       formData.goal,
-      situation:  formData.situation,
+      situation:  creditData.situation,
       score:      formData.score,
       timeline:   formData.timeline,
       blocker:    formData.blocker,
+      profile:    classification.profile,
+      painLevel:  classification.painLevel,
+      urgency:    classification.urgency,
     }),
   })
   .then(r => console.log('[CPC] Webhook sent:', r.status))
@@ -899,9 +1146,8 @@ function submitForm() {
 
   console.log('[CPC] Form submitted:', creditData);
 
-  /* Show final AI processing animation then redirect */
-  showRotatingMessages(() => {
-    /* ⚠️ Redirect to results page */
+  /* Show FINAL AI processing animation then redirect */
+  showFinalLoading(() => {
     window.location.href = 'results.html';
   });
 }
