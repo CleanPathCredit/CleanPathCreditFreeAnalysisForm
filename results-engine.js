@@ -23,18 +23,33 @@ const DEMO_USER = {
 
 /* ════════════════════════════════════════════
    1. LOAD USER DATA
+   Merges URL query params (?goal=home&name=Alex)
+   with localStorage — URL params take priority
+   for goal and name (canonical from form redirect)
 ════════════════════════════════════════════ */
 function loadUser() {
   if (DEMO_MODE) { console.log('[CPC] DEMO_MODE active:', DEMO_USER); return DEMO_USER; }
+
+  // Read URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlGoal   = urlParams.get('goal') || '';
+  const urlName   = urlParams.get('name') || '';
+
   try {
     const raw = localStorage.getItem('creditData');
-    if (!raw) { console.warn('[CPC] No creditData — using fallbacks.'); return {}; }
-    const parsed = JSON.parse(raw);
-    console.log('[CPC] Loaded from localStorage:', parsed);
+    const parsed = raw ? JSON.parse(raw) : {};
+
+    // URL params override localStorage for goal and name
+    if (urlGoal) parsed.goal      = urlGoal;
+    if (urlName) parsed.firstName = parsed.firstName || urlName;
+    if (urlName) parsed.name      = parsed.name      || urlName;
+
+    if (!raw && !urlGoal) console.warn('[CPC] No creditData — using fallbacks.');
+    console.log('[CPC] Loaded (merged):', parsed);
     return parsed;
   } catch(e) {
     console.error('[CPC] Failed to parse creditData:', e);
-    return {};
+    return { goal: urlGoal, firstName: urlName, name: urlName };
   }
 }
 
@@ -82,9 +97,11 @@ function getHeadline() {
 
 function getSubheadline() {
   const n = NAME ? `<strong>${NAME}</strong>, based` : 'Based';
-  if (goalIs('home'))     return `${n} on your responses, we identified key factors likely affecting your mortgage approval odds — and mapped out your smartest next steps.`;
-  if (goalIs('business')) return `${n} on your profile, we found factors that may be limiting your access to capital — and a clear path to address them.`;
-  if (goalIs('emergency'))return `${n} on what you've shared, we've prioritized your fastest available options and identified what needs to move first.`;
+  if (goalIs('home'))           return `${n} on your responses, we identified key factors likely affecting your mortgage approval odds — and mapped out your smartest next steps.`;
+  if (goalIs('car'))            return `${n} on your profile, we identified the factors guaranteeing you a subprime rate — and exactly what to fix first to stop overpaying.`;
+  if (goalIs('business'))       return `${n} on your profile, we found factors that may be limiting your access to capital — and a clear path to address them.`;
+  if (goalIs('improve_credit')) return `${n} on your answers, we identified the hidden costs your current score is imposing on you — and the fastest path to eliminating them.`;
+  if (goalIs('emergency'))      return `${n} on what you've shared, we've prioritized your fastest available options and identified what needs to move first.`;
   return `${n} on your responses, we identified likely approval blockers, optimization opportunities, and the fastest path to stronger qualification.`;
 }
 
@@ -231,6 +248,12 @@ function getOpportunity() {
     list:['SBA 7(a) and 504 loans — personal credit is a primary qualifier','Business line of credit — typically requires 650+ personal score','Better terms and lower personal guarantee exposure','Reduced collateral requirements with a stronger credit position'],
     stats:[{val:'$25K–$500K',label:'Potential Funding'},{val:'↑40–80 pts',label:'Score Lift'},{val:'60–90 days',label:'To Funding-Ready'}],
   };
+  if (goalIs('improve_credit')) return {
+    title:'Your Path to a Stronger Credit Profile',
+    banner:'A repaired profile immediately stops the "Bad Credit Tax" — <strong>lower APR on every card, lower insurance premiums, and zero security deposits.</strong> The math compounds in your favor starting day one.',
+    list:['Escape 29%+ APR traps — qualify for cards at 9–15% instead','Lower auto insurance premiums (bad credit adds $300–$800/yr)','Eliminate security deposit requirements on utilities and rentals','Access personal loans at fair rates rather than predatory alternatives'],
+    stats:[{val:'↑40–80 pts',label:'Avg Score Lift'},{val:'30–60 days',label:'To First Results'},{val:'$1,000s',label:'Annual Tax Saved'}],
+  };
   if (goalIs('credit card')) return {
     title:'Your Path to Better Credit Products',
     banner:'Premium credit cards require specific score thresholds and profile signals that go beyond just a number. We\'ll position your profile to meet the exact criteria for <strong>the products you actually want</strong>.',
@@ -276,6 +299,10 @@ function getWhyMatters() {
     title:"For Business Owners, Personal Credit Is Still the Gateway to Capital",
     body:'Most small business lenders — including SBA programs — require a personal credit check. A 650 is often the floor for consideration; <strong>680+ opens significantly better terms and higher amounts.</strong><br><br>Every month that passes is a month your business may be underperforming due to capital access — not capability.',
   };
+  if (goalIs('improve_credit')) return {
+    title:"The Bad Credit Tax Is Real — And It Compounds Every Month",
+    body:"Most people don\'t realize how many hidden costs are attached to a low credit score. Higher insurance premiums. Higher deposit requirements. Higher interest on every loan and card. <strong>The cumulative cost easily exceeds $2,000–$5,000 per year</strong> — money flowing away from you silently.<br><br>Fixing your profile doesn\'t just improve a number. It systematically eliminates each layer of that tax.",
+  };
   if (goalIs('emergency')) return {
     title:"In an Urgent Situation, Strategy Moves Faster Than Desperation",
     body:'When you need credit access quickly, the instinct is to apply broadly and hope something gets approved. That strategy typically backfires — multiple inquiries and denials.<br><br><strong>A targeted approach is faster in practice.</strong> Identifying the one or two moves that produce the most leverage in the next 30 days produces better results.',
@@ -309,19 +336,47 @@ function getUrgency() {
   };
 }
 
+/* ════════════════════════════════════════════
+   SCARCITY — "The True Cost of Waiting"
+   Matches the 4 canonical goal keys:
+   home | car | business | improve_credit
+════════════════════════════════════════════ */
+function getScarcity() {
+  if (goalIs('home')) return {
+    headline: 'Your Score Is Costing You $80,000–$100,000 on Your Mortgage',
+    body: "Fixing your credit isn't an expense; it's the down payment on your family's future. Right now, a low credit score guarantees a subprime interest rate. On a standard $300,000 home, the difference is an extra $80,000 to $100,000 in interest over the life of the loan. Every month you wait, you keep bleeding cash to a landlord.",
+  };
+  if (goalIs('car')) return {
+    headline: 'Dealers Are Counting on Your Bad Credit to Make Their Margin',
+    body: "Dealerships love bad credit because that is exactly where they make their highest margins. Walking onto a lot with a low score guarantees you will be forced into a predatory loan, costing you $5,000 to $10,000 extra in interest over a standard 5-year term. Don't let the dealership take advantage of you.",
+  };
+  if (goalIs('business')) return {
+    headline: 'Every Week of Delay Is Another Week Starved of Capital',
+    body: "In business, cash flow is oxygen. A damaged personal profile means traditional banks have closed their doors, leaving you at the mercy of predatory alternative lenders that drain your daily revenue. Every week you delay is another week your business is starved of the low-interest capital it needs to scale.",
+  };
+  // improve_credit (default)
+  return {
+    headline: "You're Paying a 'Bad Credit Tax' Every Single Day",
+    body: "You are silently paying a 'Bad Credit Tax' every single day. From maxed-out credit cards trapping you at 29% APR, to higher auto insurance premiums, to massive security deposits just to turn on basic utilities. This invisible tax is costing you thousands of dollars a year. The clock is ticking, and the banks are getting rich off your delay.",
+  };
+}
+
 function getBookingSection() {
-  if (goalIs('home'))     return { title:'Book Your Home Approval Strategy Session',     sub:"We'll walk through exactly what's blocking approval and map out the fastest path to getting mortgage-ready." };
-  if (goalIs('car'))      return { title:'Book Your Rate Reduction Strategy Session',    sub:"We'll show you what may be costing you better terms and where to focus first to lower your effective APR." };
-  if (goalIs('business')) return { title:'Book Your Funding Readiness Strategy Session', sub:"We'll identify what's limiting your funding access and build the strongest path to capital." };
-  if (goalIs('credit card')) return { title:'Book Your Credit Optimization Session',    sub:"We'll review your profile and show you the fastest path to the products you're targeting." };
-  if (goalIs('emergency')) return { title:'Get Your Fast-Track Strategy Session',       sub:"Given your urgency, we'll prioritize the highest-leverage moves and get you moving immediately." };
+  if (goalIs('home'))           return { title:'Book Your Home Approval Strategy Session',     sub:"We'll walk through exactly what's blocking approval and map out the fastest path to getting mortgage-ready." };
+  if (goalIs('car'))            return { title:'Book Your Rate Reduction Strategy Session',    sub:"We'll show you what may be costing you better terms and where to focus first to lower your effective APR." };
+  if (goalIs('business'))       return { title:'Book Your Funding Readiness Strategy Session', sub:"We'll identify what's limiting your funding access and build the strongest path to capital." };
+  if (goalIs('improve_credit')) return { title:'Book Your Credit Score Recovery Session',      sub:"We'll map the exact items draining your score and give you the fastest legal path to recovery." };
+  if (goalIs('credit card'))    return { title:'Book Your Credit Optimization Session',        sub:"We'll review your profile and show you the fastest path to the products you're targeting." };
+  if (goalIs('emergency'))      return { title:'Get Your Fast-Track Strategy Session',         sub:"Given your urgency, we'll prioritize the highest-leverage moves and get you moving immediately." };
   return { title:'Book Your 30-Minute Credit Strategy Session', sub:"We'll walk through your profile, identify your highest-impact actions, and map out a clear, sequenced plan — no cost, no obligation." };
 }
 
 function getOnCallTitle() {
-  if (goalIs('home'))     return "What We'll Cover In Your 30-Minute Home Approval Session";
-  if (goalIs('business')) return "What We'll Cover In Your Funding Readiness Session";
-  if (goalIs('emergency')) return "What We'll Cover In Your Fast-Track Strategy Session";
+  if (goalIs('home'))           return "What We'll Cover In Your 30-Minute Home Approval Session";
+  if (goalIs('car'))            return "What We'll Cover In Your Rate Reduction Session";
+  if (goalIs('business'))       return "What We'll Cover In Your Funding Readiness Session";
+  if (goalIs('improve_credit')) return "What We'll Cover In Your Credit Recovery Session";
+  if (goalIs('emergency'))      return "What We'll Cover In Your Fast-Track Strategy Session";
   return "What We'll Cover In Your Free 30-Minute Session";
 }
 
@@ -342,6 +397,11 @@ function render() {
   /* Hero */
   setHTML('hero-headline', getHeadline());
   setHTML('hero-sub',      getSubheadline());
+
+  /* Scarcity section */
+  const scar = getScarcity();
+  setHTML('scarcity-headline', scar.headline);
+  setHTML('scarcity-body',     scar.body);
 
   /* Ring */
   const ai = getAIScore();
