@@ -80,9 +80,9 @@ body {
 #progress-fill {
   height:100%; width:0%;
   background: var(--grad);
-  transition: width .5s var(--ease);
+  transition: width .6s var(--ease);
   border-radius: 0 3px 3px 0;
-  box-shadow: 0 0 12px rgba(61,232,192,.35);
+  box-shadow: 0 0 16px rgba(61,232,192,.4), 0 0 6px rgba(61,232,192,.2);
 }
 #step-indicator {
   position:fixed; top:63px; right:24px; z-index:99;
@@ -115,7 +115,11 @@ body {
 .form-step.active { display:flex; }
 
 @keyframes stepIn {
-  from { opacity:0; transform:translateY(18px); }
+  from { opacity:0; transform:translateY(24px) scale(.98); }
+  to   { opacity:1; transform:none; }
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
   to   { opacity:1; transform:none; }
 }
 
@@ -144,34 +148,43 @@ body {
   position: relative;
   display: flex; flex-direction:column; align-items:center; justify-content:center;
   gap: 10px;
-  padding: 22px 14px;
+  padding: 24px 16px;
   background: var(--card);
   border: 1.5px solid var(--bdr);
   border-radius: var(--r);
   cursor: pointer;
-  transition: border-color .25s var(--ease), background .25s var(--ease), transform .2s var(--ease), box-shadow .25s var(--ease);
+  transition: border-color .3s var(--ease), background .3s var(--ease), transform .25s var(--ease), box-shadow .3s var(--ease);
   text-align: center;
   user-select: none;
   overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 100px;
 }
 .option-card::before {
-  content:''; position:absolute; top:0; left:0; right:0; height:2px;
-  background:var(--grad); opacity:0; transition:opacity .25s;
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:var(--grad); opacity:0; transition:opacity .3s var(--ease);
 }
-.option-card:hover {
-  border-color: rgba(13,148,136,.35);
-  background: rgba(13,148,136,.04);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 22px rgba(13,148,136,.1);
+@media(hover:hover) {
+  .option-card:hover {
+    border-color: rgba(13,148,136,.35);
+    background: rgba(13,148,136,.04);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(13,148,136,.12);
+  }
+  .option-card:hover::before { opacity:.6; }
 }
-.option-card:hover::before { opacity:.6; }
+.option-card:active {
+  transform: scale(.97);
+  transition-duration: .1s;
+}
 .option-card.selected {
   border-color: var(--teal);
-  background: rgba(13,148,136,.06);
-  box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+  background: rgba(13,148,136,.07);
+  box-shadow: 0 0 0 3px rgba(13,148,136,.15), 0 4px 16px rgba(13,148,136,.1);
 }
 .option-card.selected::before { opacity:1; }
-.option-icon { font-size:28px; line-height:1; }
+.option-icon { font-size:30px; line-height:1; transition: transform .3s var(--ease); }
+.option-card.selected .option-icon { transform: scale(1.15); }
 .option-label {
   font-family:var(--fd); font-size:13px; font-weight:700;
   letter-spacing:.01em; line-height:1.25;
@@ -184,6 +197,7 @@ body {
 .option-card.selected::after {
   content:'✓'; position:absolute; top:8px; right:10px;
   font-size:14px; font-weight:800; color:var(--teal);
+  animation: fadeUp .3s var(--ease);
 }
 
 /* ═══════════════════════════════════════════
@@ -247,17 +261,26 @@ body {
 ═══════════════════════════════════════════ */
 .btn-next {
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  padding:16px 32px;
+  padding:16px 36px;
   background:var(--grad); color:#07090f;
   font-family:var(--fd); font-size:15px; font-weight:800;
   border:none; border-radius:var(--rs); cursor:pointer;
   letter-spacing:.02em;
-  transition:transform .2s, opacity .2s, box-shadow .25s;
-  box-shadow:0 0 20px rgba(61,232,192,.15);
+  transition:transform .2s var(--ease), opacity .2s, box-shadow .3s var(--ease);
+  box-shadow:0 4px 20px rgba(61,232,192,.2);
   align-self:flex-start;
+  position:relative;
+  overflow:hidden;
 }
-.btn-next:hover { transform:translateY(-1px); box-shadow:0 0 30px rgba(61,232,192,.25); }
-.btn-next:active { transform:scale(.98); }
+.btn-next::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.2), transparent);
+  transform:translateX(-100%);
+  transition:transform .6s var(--ease);
+}
+.btn-next:hover { transform:translateY(-2px); box-shadow:0 6px 32px rgba(61,232,192,.3); }
+.btn-next:hover::after { transform:translateX(100%); }
+.btn-next:active { transform:scale(.97); transition-duration:.1s; }
 .btn-next:disabled { opacity:.35; cursor:not-allowed; transform:none; box-shadow:none; }
 
 .btn-back {
@@ -273,18 +296,22 @@ body {
   display:flex; align-items:center; gap:16px; margin-top:8px;
 }
 
-/* Submit button variant — Emerald Green */
+/* Submit button variant — Emerald Green with attention pulse */
 .btn-submit {
-  background: #10b981;
+  background: linear-gradient(135deg, #10b981, #059669);
   color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 16px rgba(16,185,129,.3);
-  animation: pulse-emerald 2.8s ease-in-out infinite;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(16,185,129,.35);
+  animation: pulse-emerald 2.4s ease-in-out infinite;
+  width:100%;
+  font-size:16px;
+  padding:18px 32px;
 }
-.btn-submit:hover { background: #059669; box-shadow: 0 6px 24px rgba(16,185,129,.4); }
+.btn-submit:hover { background:linear-gradient(135deg, #059669, #047857); box-shadow: 0 8px 32px rgba(16,185,129,.45); }
+.btn-submit::after { display:none; }
 @keyframes pulse-emerald {
-  0%,100% { box-shadow: 0 4px 16px rgba(16,185,129,.3); }
-  50%     { box-shadow: 0 6px 28px rgba(16,185,129,.48); }
+  0%,100% { box-shadow: 0 4px 20px rgba(16,185,129,.35); transform:translateY(0); }
+  50%     { box-shadow: 0 8px 36px rgba(16,185,129,.5); transform:translateY(-1px); }
 }
 
 /* ═══════════════════════════════════════════
@@ -367,18 +394,22 @@ body {
 ═══════════════════════════════════════════ */
 #social-proof {
   position:fixed; bottom:0; left:0; right:0; z-index:50;
-  padding:10px 20px;
-  background:rgba(248,250,252,.95); backdrop-filter:blur(10px);
+  padding:12px 20px;
+  background:rgba(248,250,252,.96); backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
   border-top:1px solid var(--bdr);
-  box-shadow:0 -1px 8px rgba(15,23,42,.06);
+  box-shadow:0 -2px 12px rgba(15,23,42,.08);
   display:flex; align-items:center; justify-content:center; gap:20px;
   font-size:11px; color:var(--mut); letter-spacing:.02em;
+  font-weight:500;
 }
-.proof-item { display:flex; align-items:center; gap:6px; }
-.proof-dot { width:5px; height:5px; border-radius:50%; background:var(--teal); }
+.proof-item { display:flex; align-items:center; gap:6px; white-space:nowrap; }
+.proof-dot { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:blink 1.6s ease-in-out infinite; }
+.proof-sep { width:3px; height:3px; border-radius:50%; background:var(--mut2); }
 
 @media(max-width:480px) {
-  #social-proof { gap:12px; font-size:10px; padding:8px 12px; }
+  #social-proof { gap:10px; font-size:10px; padding:10px 12px; flex-wrap:wrap; justify-content:center; }
+  .proof-sep { display:none; }
 }
 
 /* ═══════════════════════════════════════════
@@ -409,13 +440,28 @@ body {
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
+/* ── Touch-friendly mobile ── */
 @media(max-width:480px) {
-  #form-wrap { padding:90px 16px 80px; }
+  #form-wrap { padding:88px 16px 80px; }
   .options-grid { grid-template-columns:1fr 1fr; gap:10px; }
-  .option-card { padding:18px 10px; }
-  .option-icon { font-size:24px; }
+  .option-card { padding:20px 12px; min-height:90px; }
+  .option-icon { font-size:26px; }
   .option-label { font-size:12px; }
   .step-question { font-size:clamp(20px,5vw,26px); }
+  .btn-next { padding:16px 24px; width:100%; justify-content:center; }
+  .btn-row { flex-direction:column-reverse; gap:10px; }
+  .btn-back { align-self:center; }
+  .consent-wrap { padding:14px 12px; }
+  .consent-text { font-size:11px; }
+  .info-grid { gap:10px; }
+}
+
+/* ── Larger phones / small tablets ── */
+@media(max-width:380px) {
+  .options-grid { grid-template-columns:1fr; }
+  .option-card { flex-direction:row; padding:16px; min-height:auto; gap:12px; }
+  .option-icon { font-size:24px; }
+  .option-sub { display:none; }
 }
 </style>
 </head>
@@ -583,7 +629,7 @@ body {
   <div class="form-step" data-step="5" id="step-5">
     <div class="step-eyebrow">✍️ Step 5 — In Your Own Words</div>
     <h2 class="step-question">What's been the most frustrating part about your credit situation?</h2>
-    <p class="step-subtext">The more detail you share, the more personalized your analysis will be</p>
+    <p class="step-subtext">The more detail you share, the more personalized your analysis will be. <strong style="color:var(--teal)">(Optional — skip if you prefer)</strong></p>
     <textarea class="form-textarea" id="blocker-input"
       placeholder="e.g. I've been denied twice for a mortgage, I have collections I didn't even know about, and my score keeps dropping even though I'm paying on time..."
       maxlength="800"></textarea>
@@ -595,14 +641,14 @@ body {
 
   <!-- ═══ STEP 6 — Contact Info ═══ -->
   <div class="form-step" data-step="6" id="step-6">
-    <div class="step-eyebrow">👤 Step 6 — Almost Done</div>
-    <h2 class="step-question">Get your personalized credit strategy</h2>
-    <p class="step-subtext">We'll analyze your answers and show you EXACTLY what to do next</p>
+    <div class="step-eyebrow">🔓 Final Step — Unlock Your Results</div>
+    <h2 class="step-question">Your personalized strategy is ready</h2>
+    <p class="step-subtext">Enter your details to unlock your AI-generated credit analysis — <strong>100% free, no credit card</strong></p>
 
     <div class="value-bullets">
-      <div class="value-bullet"><span class="vb-check">✔</span> Custom strategy based on your answers</div>
-      <div class="value-bullet"><span class="vb-check">✔</span> Identify what can be removed or improved</div>
-      <div class="value-bullet"><span class="vb-check">✔</span> Steps to increase your score faster</div>
+      <div class="value-bullet"><span class="vb-check">✔</span> Custom strategy built from your specific answers</div>
+      <div class="value-bullet"><span class="vb-check">✔</span> See which items are likely removable from your report</div>
+      <div class="value-bullet"><span class="vb-check">✔</span> Get your estimated score improvement timeline</div>
     </div>
 
     <div class="info-grid">
@@ -640,8 +686,15 @@ body {
     <div class="btn-row">
       <button class="btn-back" onclick="goBack()">← Back</button>
       <button class="btn-next btn-submit" id="btn-submit" onclick="submitForm()">
-        🔓 Unlock My Personalized Plan →
+        🔓 Unlock My Free Analysis →
       </button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;margin-top:12px;font-size:10px;color:var(--mut2);letter-spacing:.03em">
+      <span>🔒 SSL Encrypted</span>
+      <span>·</span>
+      <span>No spam, ever</span>
+      <span>·</span>
+      <span>Unsubscribe anytime</span>
     </div>
   </div>
 
@@ -650,8 +703,12 @@ body {
 <!-- ── SOCIAL PROOF BAR ── -->
 <div id="social-proof">
   <div class="proof-item"><span class="proof-dot"></span>2,400+ profiles analyzed</div>
-  <div class="proof-item"><span class="proof-dot"></span>AI-powered insights</div>
-  <div class="proof-item"><span class="proof-dot"></span>100% free</div>
+  <span class="proof-sep"></span>
+  <div class="proof-item">⚖️ FCRA compliant</div>
+  <span class="proof-sep"></span>
+  <div class="proof-item">🔒 256-bit encrypted</div>
+  <span class="proof-sep"></span>
+  <div class="proof-item"><span class="proof-dot"></span>100% free — no card required</div>
 </div>
 
 
@@ -1055,8 +1112,8 @@ function classifyProfile() {
   const seriousCount = issues.filter(i => !i.includes('not sure')).length;
   if (SCORING.stackBonus[seriousCount]) leadScore += SCORING.stackBonus[seriousCount];
 
-  // Credit score range
-  const scoreKey = Object.keys(SCORING.scores).find(k => score.includes(k.replace(/\s+/g, '')));
+  // Credit score range — compare both sides lowercase, no whitespace stripping
+  const scoreKey = Object.keys(SCORING.scores).find(k => score.includes(k));
   if (scoreKey) leadScore += SCORING.scores[scoreKey].score;
 
   // Timeline
@@ -1177,9 +1234,8 @@ function submitForm() {
     blockerTags:      classification.blockerTags,
   };
 
-  /* ⚠️ WEBHOOK — Send lead data to GoHighLevel (fire-and-forget) */
-  const GHL_WEBHOOK = 'https://services.leadconnectorhq.com/hooks/da0KTegxFQ62eqS73TQv/webhook-trigger/73b8546c-54a7-491f-ae2c-8575e976fc34';
-  fetch(GHL_WEBHOOK, {
+  /* ── Send lead data via serverless proxy (webhook URL hidden server-side) ── */
+  fetch('/api/submit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -1201,8 +1257,8 @@ function submitForm() {
       recommendedOffer: classification.recommendedOffer,
     }),
   })
-  .then(r => console.log('[CPC] Webhook sent:', r.status))
-  .catch(e => console.warn('[CPC] Webhook error (non-blocking):', e));
+  .then(r => console.log('[CPC] Lead submitted:', r.status))
+  .catch(e => console.warn('[CPC] Submit error (non-blocking):', e));
 
   /* ⚠️ Store in localStorage for results page to read */
   localStorage.setItem('creditData', JSON.stringify(creditData));

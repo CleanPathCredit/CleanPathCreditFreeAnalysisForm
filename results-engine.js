@@ -144,6 +144,50 @@ function getAIScore() {
   return { label:'Analysis Pending', sub:'Profile risk factors detected', pct:0.42, tier:'mid' };
 }
 
+function getHeroMetrics() {
+  let impact, impactColor, potential, potentialColor, priority, priorityColor, microcopy;
+
+  // Impact level (how much damage the current profile is doing)
+  if (D.painLevel === 'SEVERE' || scoreIs('500')) {
+    impact = 'Severe'; impactColor = 'red';
+  } else if (D.painLevel === 'MODERATE' || scoreIs('600')) {
+    impact = 'Moderate'; impactColor = 'amber';
+  } else {
+    impact = 'Low'; impactColor = 'green';
+  }
+
+  // Improvement potential
+  if (scoreIs('500') || D.painLevel === 'SEVERE') {
+    potential = 'Very High'; potentialColor = 'green';
+  } else if (scoreIs('700') && D.painLevel === 'LIGHT') {
+    potential = 'Moderate'; potentialColor = 'amber';
+  } else {
+    potential = 'High'; potentialColor = 'green';
+  }
+
+  // Priority timeline
+  if (D.urgency === 'HIGH' || timeIs('asap')) {
+    priority = 'Urgent'; priorityColor = 'red';
+  } else if (D.urgency === 'MEDIUM' || timeIs('30')) {
+    priority = '30 Days'; priorityColor = 'amber';
+  } else if (timeIs('exploring')) {
+    priority = 'Flexible'; priorityColor = 'green';
+  } else {
+    priority = '60 Days'; priorityColor = 'amber';
+  }
+
+  // Microcopy under hero — context-sensitive
+  if (D.profile === 'REBUILD') {
+    microcopy = "Your profile needs work — but the path forward is clearer than you think.";
+  } else if (D.profile === 'OPTIMIZATION') {
+    microcopy = "You're in a strong position. A few targeted moves can unlock premium terms.";
+  } else {
+    microcopy = "You're closer than you think — but not fully approval-ready yet.";
+  }
+
+  return { impact, impactColor, potential, potentialColor, priority, priorityColor, microcopy };
+}
+
 function getSummaryCards() {
   let items='3–7 likely factors', improve='High', time='30–60 Days';
   if (scoreIs('500')) { items='5–12 likely blockers'; improve='Very High'; time=timeIs('asap')?'Fast-Track Priority':'45–90 Days'; }
@@ -553,6 +597,19 @@ function render() {
       <div><div class="pb-text">${badge.label}</div><div class="pb-desc">${badge.desc}</div></div>
     </div>`;
   }
+
+  /* Hero metrics — Impact Level, Improvement Potential, Priority */
+  const hm = getHeroMetrics();
+  const hmImpact = $('hm-impact');
+  const hmPotential = $('hm-potential');
+  const hmPriority = $('hm-priority');
+  if (hmImpact) { hmImpact.textContent = hm.impact; hmImpact.className = 'hm-val ' + hm.impactColor; }
+  if (hmPotential) { hmPotential.textContent = hm.potential; hmPotential.className = 'hm-val ' + hm.potentialColor; }
+  if (hmPriority) { hmPriority.textContent = hm.priority; hmPriority.className = 'hm-val ' + hm.priorityColor; }
+
+  /* Hero microcopy — context-sensitive */
+  const mcEl = $('hero-microcopy');
+  if (mcEl) mcEl.textContent = hm.microcopy;
 
   /* Summary cards */
   const fg = $('findings-grid');

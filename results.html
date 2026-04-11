@@ -150,13 +150,16 @@ main {
 .card.flush { padding:0 }
 
 /* ════════════════════════════════════════════
-   SCROLL REVEAL
+   SCROLL REVEAL — staggered entrance
 ════════════════════════════════════════════ */
 .reveal {
-  opacity:0; transform:translateY(20px);
-  transition:opacity .6s var(--ease), transform .6s var(--ease);
+  opacity:0; transform:translateY(28px);
+  transition:opacity .7s var(--ease), transform .7s var(--ease);
 }
 .reveal.on { opacity:1; transform:none }
+.reveal:nth-child(2) { transition-delay:.05s }
+.reveal:nth-child(3) { transition-delay:.1s }
+.reveal:nth-child(4) { transition-delay:.15s }
 
 /* ════════════════════════════════════════════
    ── SECTION 1: HERO ──
@@ -321,6 +324,61 @@ main {
 .os-label    { font-size:11px; color:var(--mut); margin-top:3px }
 
 /* ════════════════════════════════════════════
+   ── HERO METRICS (under score ring) ──
+════════════════════════════════════════════ */
+.hero-metrics {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+  margin-top:22px; margin-bottom:6px;
+}
+@media(max-width:440px) { .hero-metrics { gap:8px } }
+.hm-item {
+  text-align:center; padding:14px 8px;
+  background:var(--card2); border:1px solid var(--bdr); border-radius:var(--rs);
+}
+.hm-val  { font-family:var(--fd); font-size:14px; font-weight:800; margin-bottom:3px }
+.hm-val.red    { color:var(--red) }
+.hm-val.amber  { color:var(--amb) }
+.hm-val.green  { color:var(--teal) }
+.hm-label { font-size:10px; color:var(--mut); text-transform:uppercase; letter-spacing:.08em; font-weight:600 }
+
+.hero-microcopy {
+  text-align:center; font-size:13px; color:var(--mut); margin-top:14px;
+  font-style:italic; line-height:1.5;
+}
+
+/* ════════════════════════════════════════════
+   ── SECTION 6b: DECISION TRANSITION ──
+════════════════════════════════════════════ */
+#decision-transition {
+  border-radius:var(--r); padding:32px 24px;
+  background:linear-gradient(135deg, rgba(13,148,136,.04), rgba(37,99,235,.04));
+  border:1.5px solid var(--bhi);
+  text-align:center;
+}
+.dt-eyebrow { font-family:var(--fd); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); margin-bottom:10px }
+.dt-headline { font-family:var(--fd); font-size:clamp(20px,4vw,28px); font-weight:800; color:var(--txt); margin-bottom:8px }
+.dt-body     { font-size:14px; color:var(--mut); margin-bottom:22px }
+.dt-paths    { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:22px; text-align:left }
+@media(max-width:520px) { .dt-paths { grid-template-columns:1fr } }
+.dt-path {
+  padding:20px 18px; border-radius:var(--rs); position:relative;
+}
+.dt-path-slow {
+  background:rgba(225,29,72,.04); border:1px solid rgba(225,29,72,.15);
+}
+.dt-path-fast {
+  background:rgba(16,185,129,.06); border:1.5px solid rgba(16,185,129,.25);
+  box-shadow:0 4px 16px rgba(16,185,129,.08);
+}
+.dt-path-icon  { font-size:24px; margin-bottom:8px }
+.dt-path-label { font-family:var(--fd); font-size:14px; font-weight:800; margin-bottom:6px }
+.dt-path-slow .dt-path-label { color:var(--red) }
+.dt-path-fast .dt-path-label { color:#059669 }
+.dt-path-desc  { font-size:13px; color:var(--mut); line-height:1.6 }
+.dt-closer     { font-size:15px; color:var(--txt); font-weight:500 }
+.dt-closer strong { color:var(--teal) }
+
+/* ════════════════════════════════════════════
    ── SECTION 7: PRICING ──
 ════════════════════════════════════════════ */
 #pricing-section { padding:32px 22px; overflow:visible; max-width:900px; width:100% }
@@ -336,19 +394,26 @@ main {
   background:var(--card); border:1.5px solid var(--bdr); border-radius:var(--r);
   padding:26px 22px; display:flex; flex-direction:column; gap:0;
   position:relative; overflow:visible;
-  transition:box-shadow .3s var(--ease), border-color .3s var(--ease);
+  transition:box-shadow .35s var(--ease), border-color .35s var(--ease), transform .35s var(--ease);
 }
-.tier-card:hover { box-shadow:0 8px 32px rgba(15,23,42,.10); border-color:var(--bhi) }
+@media(hover:hover) {
+  .tier-card:hover { box-shadow:0 12px 40px rgba(15,23,42,.12); border-color:var(--bhi); transform:translateY(-4px); }
+}
+.tier-card:active { transform:scale(.99); transition-duration:.1s; }
 
 /* Recommended (injected by JS via applyRecommendedOffer) */
-.tier-card.recommended { border:2.5px solid var(--em); box-shadow:0 12px 44px rgba(16,185,129,.16) }
+.tier-card.recommended { border:2.5px solid var(--em); box-shadow:0 12px 44px rgba(16,185,129,.18) }
 .tier-rec-badge {
   position:absolute; top:-14px; left:50%; transform:translateX(-50%);
-  background:var(--em); color:#fff;
+  background:linear-gradient(135deg, #10b981, #059669); color:#fff;
   font-family:var(--fd); font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
-  padding:4px 16px; border-radius:99px; white-space:nowrap;
+  padding:5px 18px; border-radius:99px; white-space:nowrap;
+  box-shadow:0 2px 12px rgba(16,185,129,.3);
+  animation:recPulse 2.5s ease-in-out infinite;
 }
-@media(min-width:861px) { .tier-card.recommended { transform:scale(1.04) } }
+@keyframes recPulse { 0%,100%{box-shadow:0 2px 12px rgba(16,185,129,.3)} 50%{box-shadow:0 4px 20px rgba(16,185,129,.5)} }
+@media(min-width:861px) { .tier-card.recommended { transform:scale(1.04) }
+  .tier-card.recommended:hover { transform:scale(1.06) translateY(-4px) } }
 
 /* Tier components */
 .tier-eyebrow  { font-family:var(--fd); font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); margin-bottom:6px }
@@ -430,6 +495,28 @@ main {
 /* Calendar links */
 .cal-buttons { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px }
 @media(max-width:480px) { .cal-buttons { grid-template-columns:1fr } }
+
+/* ════════════════════════════════════════════
+   MOBILE POLISH
+════════════════════════════════════════════ */
+@media(max-width:480px) {
+  main { padding:28px 12px 140px; gap:16px }
+  .card { padding:22px 16px }
+  #hero { padding:32px 16px 28px }
+  .score-ring { width:148px; height:148px }
+  #hero h1 { font-size:clamp(20px,5vw,32px) }
+  .hero-sub { font-size:14px }
+  .hero-call-pill { padding:12px 22px; font-size:12px }
+  #pricing-section { padding:24px 14px }
+  .pricing-headline { font-size:clamp(17px,4vw,22px) }
+  .tier-card { padding:22px 16px }
+  .tier-price { font-size:26px }
+  .call-btn { padding:15px; font-size:15px }
+  .scarcity-headline { font-size:clamp(18px,4vw,24px) }
+  .guarantee-inner { gap:14px }
+  .guarantee-icon { font-size:36px }
+  .guarantee-title { font-size:15px }
+}
 .cal-btn {
   display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 8px;
   background:var(--card2); border:1px solid var(--bdr); border-radius:var(--rs);
@@ -501,18 +588,25 @@ main {
 ════════════════════════════════════════════ */
 #sticky-call {
   display:none; position:fixed; bottom:0; left:0; right:0; z-index:999;
-  padding:10px 14px;
+  padding:12px 16px;
   background:rgba(248,250,252,.97); backdrop-filter:blur(16px);
-  border-top:1px solid rgba(225,29,72,.2);
-  box-shadow:0 -2px 12px rgba(15,23,42,.08);
+  -webkit-backdrop-filter:blur(16px);
+  border-top:1px solid rgba(225,29,72,.15);
+  box-shadow:0 -4px 20px rgba(15,23,42,.1);
+  transform:translateY(100%);
+  transition:transform .4s var(--ease);
 }
+#sticky-call.visible { transform:translateY(0); }
 #sticky-call a {
   display:flex; align-items:center; justify-content:center; gap:10px;
-  width:100%; padding:15px; background:var(--gradr);
-  border-radius:var(--rs); color:#fff;
+  width:100%; padding:16px; background:linear-gradient(135deg, #e11d48, #d97706);
+  border-radius:12px; color:#fff;
   font-family:var(--fd); font-size:16px; font-weight:800;
   text-decoration:none; letter-spacing:.02em;
+  box-shadow:0 4px 16px rgba(225,29,72,.25);
+  -webkit-tap-highlight-color:transparent;
 }
+#sticky-call a:active { transform:scale(.98); }
 @media(max-width:640px) { #sticky-call { display:block } body { padding-bottom:80px } }
 
 /* ════════════════════════════════════════════
@@ -655,6 +749,16 @@ main {
     <!-- Profile type badge (injected by engine) -->
     <div id="profile-badge-wrap"></div>
 
+    <!-- 3 key metrics — populated by engine -->
+    <div class="hero-metrics" id="hero-metrics">
+      <div class="hm-item"><div class="hm-val" id="hm-impact">—</div><div class="hm-label">Impact Level</div></div>
+      <div class="hm-item"><div class="hm-val" id="hm-potential">—</div><div class="hm-label">Improvement</div></div>
+      <div class="hm-item"><div class="hm-val" id="hm-priority">—</div><div class="hm-label">Priority</div></div>
+    </div>
+
+    <!-- Microcopy — reassurance nudge -->
+    <p class="hero-microcopy" id="hero-microcopy">You're closer than you think — but not fully approval-ready yet.</p>
+
     <!-- Primary CTA scrolls to pricing -->
     <div class="center">
       <button class="hero-call-pill" id="hero-call-pill"
@@ -734,6 +838,33 @@ main {
     <div class="opp-banner" id="opp-banner"></div>
     <ul class="opp-list" id="opp-list"></ul>
     <div class="opp-stats" id="opp-stats"></div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       6b. DECISION TRANSITION
+       Psychological bridge — gives user permission
+       to choose and frames the purchase as the logical next step
+  ══════════════════════════════════════ -->
+  <div id="decision-transition" class="reveal">
+    <div class="dt-inner">
+      <div class="dt-eyebrow">⚡ Your Next Step</div>
+      <h2 class="dt-headline">Now — here's the decision</h2>
+      <p class="dt-body">You have two paths from here:</p>
+      <div class="dt-paths">
+        <div class="dt-path dt-path-slow">
+          <div class="dt-path-icon">🐌</div>
+          <div class="dt-path-label">The Slow Path</div>
+          <div class="dt-path-desc">Try to figure it out yourself — research disputes, draft letters, track bureau responses, and hope for the best. Most DIYers see minimal results after months of effort.</div>
+        </div>
+        <div class="dt-path dt-path-fast">
+          <div class="dt-path-icon">⚡</div>
+          <div class="dt-path-label">The Proven Path</div>
+          <div class="dt-path-desc">Follow a legally-grounded, sequenced strategy built around your specific profile. Get expert-level execution — and real results in weeks, not months.</div>
+        </div>
+      </div>
+      <p class="dt-closer">The difference isn't just speed — it's <strong>whether it actually works.</strong></p>
+    </div>
   </div>
 
 
@@ -1096,16 +1227,21 @@ function downloadPDF() {
   setTimeout(() => { document.title = prev }, 1000);
 }
 
-/* ── Scroll indicator ── */
+/* ── Scroll indicator + sticky CTA slide-in ── */
 (function() {
   const ind = document.getElementById('scroll-indicator');
-  if (!ind) return;
-  let hidden = false;
+  const sticky = document.getElementById('sticky-call');
+  let indHidden = false;
+  let stickyShown = false;
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 220 && !hidden) {
-      ind.classList.add('hidden'); hidden = true;
-    } else if (window.scrollY <= 220 && hidden) {
-      ind.classList.remove('hidden'); hidden = false;
+    const y = window.scrollY;
+    if (ind) {
+      if (y > 220 && !indHidden) { ind.classList.add('hidden'); indHidden = true; }
+      else if (y <= 220 && indHidden) { ind.classList.remove('hidden'); indHidden = false; }
+    }
+    if (sticky) {
+      if (y > 600 && !stickyShown) { sticky.classList.add('visible'); stickyShown = true; }
+      else if (y <= 600 && stickyShown) { sticky.classList.remove('visible'); stickyShown = false; }
     }
   }, { passive:true });
 })();
