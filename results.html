@@ -4,20 +4,23 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Your Credit Analysis — Clean Path Credit</title>
+<meta name="description" content="Your personalized credit analysis from Clean Path Credit."/>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script async src="https://js.stripe.com/v3/buy-button.js"></script>
 <style>
-/* ═══════════════════════════════════════════
-   TOKENS
-═══════════════════════════════════════════ */
-:root{
+
+/* ════════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════════ */
+:root {
   --bg:    #f8fafc;
   --card:  #ffffff;
   --card2: #f1f5f9;
   --bdr:   #e2e8f0;
-  --bhi:   rgba(13,148,136,.22);
+  --bhi:   rgba(13,148,136,.20);
   --teal:  #0d9488;
+  --em:    #10b981;  /* emerald — primary CTA */
   --blue:  #2563eb;
   --purp:  #7c3aed;
   --red:   #e11d48;
@@ -32,431 +35,541 @@
   --fd:    'Syne',    sans-serif;
   --fb:    'DM Sans', sans-serif;
   --ease:  cubic-bezier(.4,0,.2,1);
-  --max:   740px;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{
-  font-family:var(--fb);background:var(--bg);color:var(--txt);
-  min-height:100vh;overflow-x:hidden;
-  background-image:
-    radial-gradient(ellipse 80% 40% at 50% -8%,rgba(13,148,136,.06) 0%,transparent 60%);
-  background-size:100% 100%;
+  --max:   760px;
+  --sh:    0 1px 4px rgba(15,23,42,.06), 0 4px 16px rgba(15,23,42,.04);
 }
 
-/* ── UTILS ── */
-.grad-text{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.center{text-align:center}
-.eyebrow{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal)}
-.sec-title{font-family:var(--fd);font-size:clamp(16px,3vw,20px);font-weight:800;line-height:1.2}
+/* ════════════════════════════════════════════
+   BASE
+════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+html { scroll-behavior:smooth }
+body {
+  font-family:var(--fb); background:var(--bg); color:var(--txt);
+  min-height:100vh; overflow-x:hidden;
+  background-image: radial-gradient(ellipse 80% 40% at 50% -8%, rgba(13,148,136,.06) 0%, transparent 60%);
+}
+img { max-width:100%; display:block }
+a { color:inherit }
 
-/* ── PAGE LOADER ── */
-#page-loader{
-  position:fixed;inset:0;z-index:9999;background:#f8fafc;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;
+/* ════════════════════════════════════════════
+   UTILITY
+════════════════════════════════════════════ */
+.grad-text { background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text }
+.center    { text-align:center }
+.eyebrow   { font-family:var(--fd); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--teal) }
+
+/* ════════════════════════════════════════════
+   PAGE LOADER
+════════════════════════════════════════════ */
+#page-loader {
+  position:fixed; inset:0; z-index:9999; background:#f8fafc;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
   transition:opacity .65s var(--ease);
 }
-#page-loader.out{opacity:0;pointer-events:none}
-.loader-ring{width:52px;height:52px;border-radius:50%;border:3px solid rgba(61,232,192,.12);border-top-color:var(--teal);animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loader-msgs{font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--teal);height:36px;overflow:hidden;position:relative;width:min(300px,88vw);text-align:center}
-.loader-msgs span{position:absolute;left:0;right:0;top:0;opacity:0;transform:translateY(7px);transition:opacity .35s,transform .35s;white-space:normal;line-height:1.4}
-.loader-msgs span.on{opacity:1;transform:none}
+#page-loader.out { opacity:0; pointer-events:none }
+.loader-ring {
+  width:52px; height:52px; border-radius:50%;
+  border:3px solid rgba(13,148,136,.12); border-top-color:var(--teal);
+  animation:spin .8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg) } }
+.loader-msgs {
+  font-family:var(--fd); font-size:12px; font-weight:700; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--teal);
+  height:36px; overflow:hidden; position:relative; width:min(300px,88vw); text-align:center;
+}
+.loader-msgs span {
+  position:absolute; left:0; right:0; top:0;
+  opacity:0; transform:translateY(7px);
+  transition:opacity .35s, transform .35s; white-space:normal; line-height:1.4;
+}
+.loader-msgs span.on { opacity:1; transform:none }
 
-/* ── TOP BAR ── */
-#top-bar{
-  position:sticky;top:0;z-index:100;width:100%;padding:0 24px;height:56px;
-  display:flex;align-items:center;justify-content:space-between;
-  background:rgba(248,250,252,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);
+/* ════════════════════════════════════════════
+   TOP BAR
+════════════════════════════════════════════ */
+#top-bar {
+  position:sticky; top:0; z-index:100; width:100%; padding:0 24px; height:56px;
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(248,250,252,.96); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bdr);
   box-shadow:0 1px 3px rgba(15,23,42,.06);
 }
-.nav-logo-wrap{display:flex;flex-direction:column;line-height:1}
-.nav-logo{font-family:var(--fd);font-size:15px;font-weight:800;letter-spacing:.04em}
-.nav-ai-badge{font-size:8.5px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);opacity:.65;margin-top:2px}
-.nav-pill{display:flex;align-items:center;gap:7px;padding:5px 13px;border-radius:99px;background:rgba(13,148,136,.08);border:1px solid rgba(13,148,136,.2);font-size:12px;font-weight:600;color:var(--teal)}
-.nav-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:blink 1.6s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.nav-logo-wrap { display:flex; align-items:center; gap:10px }
+.nav-logo      { font-family:var(--fd); font-size:15px; font-weight:800; letter-spacing:.04em }
+.nav-ai-badge  { font-size:8.5px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); opacity:.65; margin-top:2px }
+.nav-pill      { display:flex; align-items:center; gap:7px; padding:5px 13px; border-radius:99px; background:rgba(13,148,136,.08); border:1px solid rgba(13,148,136,.2); font-size:12px; font-weight:600; color:var(--teal) }
+.nav-pill .dot { width:6px; height:6px; border-radius:50%; background:var(--teal); animation:blink 1.6s ease-in-out infinite }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-/* ── MAIN ── */
-main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;flex-direction:column;gap:26px;align-items:stretch}
-
-/* ── CARD ── */
-.card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:30px 26px;position:relative;overflow:hidden}
-.card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:var(--grad);opacity:.4}
-
-/* ── REVEAL ── */
-.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
-.reveal.on{opacity:1;transform:none}
-
-/* ══════════════════════════════════════
-   HERO
-══════════════════════════════════════ */
-#hero{padding:40px 26px 34px;text-align:center}
-.score-ring-wrap{display:flex;justify-content:center;margin-bottom:26px}
-.score-ring{position:relative;width:160px;height:160px;aspect-ratio:1/1;flex-shrink:0;filter:drop-shadow(0 4px 20px rgba(16,185,129,.22))}
-.score-ring svg{width:100%;height:100%;display:block;overflow:visible;transform:rotate(-90deg)}
-.ring-bg{fill:none;stroke:#e2e8f0;stroke-width:10}
-.ring-fill{fill:none;stroke-width:10;stroke-linecap:round;stroke:url(#rg-high);stroke-dasharray:302;stroke-dashoffset:302;transition:stroke-dashoffset 2.2s var(--ease)}
-.ring-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
-.rl-val{font-family:var(--fd);font-size:14px;font-weight:800;color:var(--teal);text-align:center;max-width:100px;line-height:1.2}
-.rl-sub{font-size:11px;color:var(--mut);text-align:center;max-width:100px;line-height:1.3}
-#hero h1{font-family:var(--fd);font-size:clamp(23px,5.5vw,40px);font-weight:800;line-height:1.1;margin-bottom:14px}
-.hero-sub{font-size:15px;color:var(--mut);line-height:1.65;max-width:520px;margin:0 auto}
-.hero-sub strong{color:var(--txt)}
-.hero-call-pill{
-  display:inline-flex;align-items:center;gap:9px;margin-top:22px;
-  padding:13px 26px;background:#10b981;border-radius:99px;
-  color:#fff;font-family:var(--fd);font-size:13px;font-weight:700;
-  text-decoration:none;letter-spacing:.02em;cursor:pointer;border:none;
-  box-shadow:0 4px 18px rgba(16,185,129,.3);transition:background .2s,box-shadow .2s,transform .15s;
+/* ════════════════════════════════════════════
+   SCROLL INDICATOR
+════════════════════════════════════════════ */
+#scroll-indicator {
+  position:fixed; bottom:70px; left:50%; transform:translateX(-50%); z-index:90;
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  opacity:1; transition:opacity .5s var(--ease); pointer-events:none;
 }
-.hero-call-pill:hover{background:#059669;box-shadow:0 6px 24px rgba(16,185,129,.4);transform:translateY(-1px);}
-.hero-call-pill:active{transform:scale(.98)}
-
-/* ── SCROLL INDICATOR ── */
-#scroll-indicator{
-  position:fixed;bottom:70px;left:50%;transform:translateX(-50%);z-index:90;
-  display:flex;flex-direction:column;align-items:center;gap:6px;
-  opacity:1;transition:opacity .5s var(--ease);pointer-events:none;
+#scroll-indicator.hidden { opacity:0 }
+.scroll-arrow {
+  width:28px; height:28px; border-radius:50%;
+  background:rgba(13,148,136,.10); border:1px solid rgba(13,148,136,.2);
+  display:flex; align-items:center; justify-content:center;
+  animation:bounceArrow 2s ease-in-out infinite;
 }
-#scroll-indicator.hidden{opacity:0}
-.scroll-arrow{width:28px;height:28px;border-radius:50%;background:rgba(61,232,192,.12);border:1px solid rgba(61,232,192,.25);display:flex;align-items:center;justify-content:center;animation:bounceArrow 2s ease-in-out infinite}
-.scroll-arrow svg{width:14px;height:14px;fill:none;stroke:var(--teal);stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.scroll-label{font-family:var(--fd);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);opacity:.7}
-@keyframes bounceArrow{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+.scroll-arrow svg { width:14px; height:14px; fill:none; stroke:var(--teal); stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round }
+.scroll-label { font-family:var(--fd); font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); opacity:.7 }
+@keyframes bounceArrow { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
 
-/* ══════════════════════════════════════
-   PROFILE TYPE BADGE
-══════════════════════════════════════ */
-.profile-badge{display:flex;align-items:center;gap:12px;padding:16px 18px;border-radius:var(--rs);margin:16px 0 8px}
-.profile-badge.rebuild{background:rgba(255,90,126,.08);border:1px solid rgba(255,90,126,.2)}
-.profile-badge.recovery{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2)}
-.profile-badge.optimization{background:rgba(61,232,192,.08);border:1px solid rgba(61,232,192,.2)}
-.pb-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.profile-badge.rebuild .pb-dot{background:var(--red)}
-.profile-badge.recovery .pb-dot{background:var(--amb)}
-.profile-badge.optimization .pb-dot{background:var(--teal)}
-.pb-text{font-family:var(--fd);font-size:14px;font-weight:700}
-.profile-badge.rebuild .pb-text{color:var(--red)}
-.profile-badge.recovery .pb-text{color:var(--amb)}
-.profile-badge.optimization .pb-text{color:var(--teal)}
-.pb-desc{font-size:12px;color:var(--mut);margin-top:2px;line-height:1.4}
-
-/* ══════════════════════════════════════
-   SUMMARY CARDS
-══════════════════════════════════════ */
-.section-title{font-family:var(--fd);font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:18px}
-.findings-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-@media(max-width:520px){.findings-grid{grid-template-columns:1fr}}
-.finding-item{
-  background:var(--card2);border:1px solid var(--bdr);border-radius:var(--rs);
-  padding:18px 12px;text-align:center;position:relative;overflow:hidden;
-  opacity:0;transform:translateY(10px);transition:opacity .5s var(--ease),transform .5s var(--ease);
+/* ════════════════════════════════════════════
+   MAIN LAYOUT
+════════════════════════════════════════════ */
+main {
+  max-width:var(--max); margin:0 auto;
+  padding:36px 16px 140px;
+  display:flex; flex-direction:column; gap:20px;
 }
-.finding-item.on{opacity:1;transform:none}
-.finding-item::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad);opacity:.6}
-.fi-icon{font-size:22px;margin-bottom:9px}
-.fi-val{font-family:var(--fd);font-size:17px;font-weight:800;margin-bottom:4px;line-height:1.2}
-.fi-label{font-size:11px;color:var(--mut);line-height:1.4}
+@media(min-width:600px) { main { padding:44px 24px 160px } }
 
-/* ══════════════════════════════════════
-   DIAGNOSIS
-══════════════════════════════════════ */
-.diag-intro{font-size:13px;color:var(--mut);margin-bottom:16px;line-height:1.55}
-.diag-items{display:flex;flex-direction:column;gap:10px}
-.diag-item{
-  display:flex;gap:13px;align-items:flex-start;padding:16px 14px;
-  background:var(--card2);border:1px solid var(--bdr);border-radius:var(--rs);
-  opacity:0;transform:translateX(-12px);transition:opacity .5s var(--ease),transform .5s var(--ease);
+/* ════════════════════════════════════════════
+   CARD SYSTEM
+════════════════════════════════════════════ */
+.card {
+  background:var(--card); border:1px solid var(--bdr);
+  border-radius:var(--r); padding:28px 22px;
+  position:relative; overflow:hidden;
+  box-shadow:var(--sh);
 }
-.diag-item.on{opacity:1;transform:none}
-.di-icon{width:36px;height:36px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:18px;background:rgba(255,90,126,.1);border:1px solid rgba(255,90,126,.2)}
-.diag-item.warn .di-icon{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.25)}
-.diag-item.ok   .di-icon{background:rgba(61,232,192,.1);border-color:rgba(61,232,192,.25)}
-.di-title{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:4px}
-.di-desc{font-size:13px;color:var(--mut);line-height:1.55}
-
-/* ══════════════════════════════════════
-   GOOD NEWS BLOCK
-══════════════════════════════════════ */
-.good-news{background:linear-gradient(135deg,rgba(61,232,192,.06),rgba(79,163,255,.06));border:1px solid rgba(61,232,192,.18);border-radius:var(--rs);padding:20px 18px;margin-top:16px}
-.gn-title{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--teal);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-.gn-body{font-size:13px;color:var(--mut);line-height:1.6}
-.gn-body strong{color:var(--txt)}
-
-/* ══════════════════════════════════════
-   USER INPUT QUOTE
-══════════════════════════════════════ */
-.user-quote{background:var(--card2);border-left:3px solid var(--teal);border-radius:0 var(--rs) var(--rs) 0;padding:16px 18px;margin-top:16px}
-.uq-label{font-family:var(--fd);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--teal);margin-bottom:6px}
-.uq-text{font-size:13px;color:var(--mut);line-height:1.55;font-style:italic}
-.uq-response{font-size:13px;color:var(--txt);line-height:1.55;margin-top:10px;font-style:normal}
-
-/* ══════════════════════════════════════
-   OPPORTUNITY
-══════════════════════════════════════ */
-.opp-banner{background:linear-gradient(135deg,rgba(61,232,192,.07),rgba(79,163,255,.07));border:1px solid var(--bhi);border-radius:var(--rs);padding:18px;font-size:14px;line-height:1.65;margin-top:12px}
-.opp-banner strong{color:var(--teal)}
-.opp-list{list-style:none;margin-top:14px;display:flex;flex-direction:column;gap:8px}
-.opp-list li{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.5}
-.opp-list li::before{content:'→';color:var(--teal);font-weight:700;flex-shrink:0;margin-top:1px}
-.opp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px}
-@media(max-width:480px){.opp-stats{grid-template-columns:1fr 1fr}}
-.opp-stat{background:var(--card2);border:1px solid var(--bdr);border-radius:var(--rs);padding:14px 10px;text-align:center}
-.os-val{font-family:var(--fd);font-size:17px;font-weight:800}
-.os-label{font-size:11px;color:var(--mut);margin-top:3px}
-
-/* ══════════════════════════════════════
-   WHY IT MATTERS
-══════════════════════════════════════ */
-#why-matters .wm-body{font-size:14px;color:var(--mut);line-height:1.75;margin-top:12px}
-#why-matters .wm-body strong{color:var(--txt)}
-
-/* ══════════════════════════════════════
-   GENERIC vs CLEAN PATH
-══════════════════════════════════════ */
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-@media(max-width:480px){.compare-grid{grid-template-columns:1fr}}
-.compare-col{border-radius:var(--rs);padding:20px}
-.compare-col.bad{background:rgba(255,90,126,.05);border:1px solid rgba(255,90,126,.18)}
-.compare-col.good{background:rgba(61,232,192,.05);border:1px solid rgba(61,232,192,.2)}
-.col-head{font-family:var(--fd);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
-.compare-col.bad  .col-head{color:var(--red)}
-.compare-col.good .col-head{color:var(--teal)}
-.compare-col ul{list-style:none;display:flex;flex-direction:column;gap:8px}
-.compare-col ul li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--mut);line-height:1.45}
-.li-ico{flex-shrink:0;font-size:14px}
-
-/* ══════════════════════════════════════
-   WHAT HAPPENS ON THE CALL
-══════════════════════════════════════ */
-.call-steps{display:flex;flex-direction:column;margin-top:16px}
-.call-step{display:flex;gap:16px;padding-bottom:22px}
-.call-step:last-child{padding-bottom:0}
-.cs-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
-.cs-num{width:30px;height:30px;border-radius:50%;background:var(--grad);color:#07090f;font-family:var(--fd);font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
-.cs-line{width:2px;flex:1;min-height:16px;background:linear-gradient(to bottom,rgba(61,232,192,.3),transparent);margin-top:4px}
-.call-step:last-child .cs-line{display:none}
-.cs-body{padding-top:3px}
-.cs-title{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:3px}
-.cs-desc{font-size:13px;color:var(--mut);line-height:1.55}
-
-/* ══════════════════════════════════════
-   STRATEGY STEPS
-══════════════════════════════════════ */
-.strat-steps{display:flex;flex-direction:column}
-.strat-step{display:flex;gap:14px;padding-bottom:22px}
-.strat-step:last-child{padding-bottom:0}
-.ss-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0}
-.ss-num{width:30px;height:30px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:12px;font-weight:800;color:#07090f}
-.ss-line{width:2px;flex:1;min-height:18px;background:linear-gradient(to bottom,rgba(61,232,192,.3),transparent);margin-top:4px}
-.strat-step:last-child .ss-line{display:none}
-.ss-body{padding-top:3px}
-.ss-title{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:4px}
-.ss-desc{font-size:13px;color:var(--mut);line-height:1.6}
-
-/* ══════════════════════════════════════
-   URGENCY BANNER
-══════════════════════════════════════ */
-#urgency-banner{background:rgba(255,90,126,.07);border:1px solid rgba(255,90,126,.2);border-radius:var(--r);padding:20px 22px;display:flex;align-items:flex-start;gap:14px}
-.ub-icon{font-size:26px;flex-shrink:0;margin-top:2px}
-.ub-title{font-family:var(--fd);font-size:14px;font-weight:700;color:var(--red);margin-bottom:5px}
-.ub-desc{font-size:13px;color:var(--mut);line-height:1.55}
-
-/* ══════════════════════════════════════
-   BOOKING SECTION
-══════════════════════════════════════ */
-#booking{padding:32px 26px}
-#booking h2{font-family:var(--fd);font-size:clamp(19px,4vw,26px);font-weight:800;line-height:1.15;margin:8px 0 10px}
-.book-sub{font-size:14px;color:var(--mut);line-height:1.65;margin-bottom:22px;max-width:500px}
-.calendly-wrap{border-radius:var(--rs);overflow:hidden;border:1px solid var(--bhi);margin-bottom:22px;background:var(--card2)}
-
-/* CALL BUTTON */
-.call-btn{
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  width:100%;padding:17px 24px;background:var(--gradr);border:none;border-radius:var(--rs);
-  color:#fff;font-family:var(--fd);font-size:17px;font-weight:800;
-  letter-spacing:.02em;text-decoration:none;cursor:pointer;
-  position:relative;overflow:hidden;transition:transform .2s,opacity .2s;
-  margin-bottom:10px;box-shadow:0 0 30px rgba(255,90,126,.2);
-  animation:pulse-btn 2.8s ease-in-out infinite;
+/* Subtle gradient accent on card top edge */
+.card::before {
+  content:''; position:absolute; top:0; left:10%; right:10%; height:1px;
+  background:var(--grad); opacity:.35;
 }
-@keyframes pulse-btn{0%,100%{box-shadow:0 0 24px rgba(255,90,126,.2)}50%{box-shadow:0 0 42px rgba(255,90,126,.38)}}
-.call-btn:active{transform:scale(.98)}
-.cb-pulse{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.5);animation:blink 1.4s ease-in-out infinite;flex-shrink:0}
-.call-disclaimer{text-align:center;font-size:11px;color:var(--mut2);margin-top:4px}
+/* Full-bleed cards (no side padding override) */
+.card.flush { padding:0 }
 
-/* ADD TO CALENDAR */
-.cal-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
-@media(max-width:480px){.cal-buttons{grid-template-columns:1fr}}
-.cal-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:var(--card2);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--txt);font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;transition:border-color .25s,background .25s,color .25s}
-.cal-btn:hover{border-color:rgba(61,232,192,.25);background:rgba(61,232,192,.05);color:var(--teal)}
-.cal-icon{font-size:22px}
+/* ════════════════════════════════════════════
+   SCROLL REVEAL
+════════════════════════════════════════════ */
+.reveal {
+  opacity:0; transform:translateY(20px);
+  transition:opacity .6s var(--ease), transform .6s var(--ease);
+}
+.reveal.on { opacity:1; transform:none }
 
-/* ══════════════════════════════════════
-   TRUST STACK
-══════════════════════════════════════ */
-.trust-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-@media(max-width:440px){.trust-grid{grid-template-columns:1fr}}
-.trust-item{display:flex;align-items:flex-start;gap:10px;padding:14px;background:var(--card2);border:1px solid var(--bdr);border-radius:var(--rs)}
-.ti-icon{font-size:19px;flex-shrink:0;margin-top:1px}
-.ti-title{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:3px}
-.ti-desc{font-size:11px;color:var(--mut);line-height:1.45}
+/* ════════════════════════════════════════════
+   ── SECTION 1: HERO ──
+════════════════════════════════════════════ */
+#hero { padding:40px 22px 36px; text-align:center }
 
-/* ══════════════════════════════════════
-   STICKY MOBILE CALL BAR (no phone number)
-══════════════════════════════════════ */
-#sticky-call{display:none;position:fixed;bottom:0;left:0;right:0;z-index:999;padding:10px 14px;background:rgba(248,250,252,.97);backdrop-filter:blur(16px);border-top:1px solid rgba(225,29,72,.25);box-shadow:0 -2px 12px rgba(15,23,42,.08)}
-#sticky-call a{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:15px;background:var(--gradr);border-radius:var(--rs);color:#fff;font-family:var(--fd);font-size:16px;font-weight:800;text-decoration:none;letter-spacing:.02em}
-@media(max-width:640px){#sticky-call{display:block}body{padding-bottom:80px}}
+/* Score ring */
+.score-ring-wrap { display:flex; justify-content:center; margin-bottom:28px }
+.score-ring {
+  position:relative; width:172px; height:172px;
+  aspect-ratio:1/1; flex-shrink:0;
+  filter:drop-shadow(0 4px 22px rgba(16,185,129,.22));
+}
+.score-ring svg { width:100%; height:100%; display:block; overflow:visible; transform:rotate(-90deg) }
+.ring-bg   { fill:none; stroke:#e2e8f0; stroke-width:10 }
+.ring-fill { fill:none; stroke-width:10; stroke-linecap:round; stroke:url(#rg-high); stroke-dasharray:302; stroke-dashoffset:302; transition:stroke-dashoffset 2.2s var(--ease) }
+.ring-label {
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:3px;
+}
+.rl-val { font-family:var(--fd); font-size:14px; font-weight:800; color:var(--teal); text-align:center; max-width:110px; line-height:1.2 }
+.rl-sub { font-size:11px; color:var(--mut); text-align:center; max-width:110px; line-height:1.3 }
+/* Score ring caption below the ring */
+.ring-caption { font-family:var(--fd); font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--mut2); margin-top:8px }
 
-/* ══════════════════════════════════════
-   BOOKING REASSURANCE
-══════════════════════════════════════ */
-.booking-reassurance{display:flex;flex-direction:column;gap:6px;margin-top:14px;padding:12px 14px;background:var(--card2);border:1px solid var(--bdr);border-radius:var(--rs)}
-.br-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut)}
-.br-item .br-icon{color:var(--teal);font-weight:700;flex-shrink:0}
+/* Hero text */
+#hero h1 { font-family:var(--fd); font-size:clamp(24px,5.5vw,40px); font-weight:800; line-height:1.1; margin-bottom:12px }
+.hero-sub { font-size:15px; color:var(--mut); line-height:1.7; max-width:520px; margin:0 auto }
+.hero-sub strong { color:var(--txt) }
 
-/* ══════════════════════════════════════
-   SCARCITY / COST-OF-WAITING ALERT
-══════════════════════════════════════ */
-#scarcity-section{border-radius:var(--r);padding:28px 26px}
-.scarcity-label{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:10px;display:flex;align-items:center;gap:8px}
-.scarcity-headline{font-family:var(--fd);font-size:clamp(20px,4vw,28px);font-weight:800;color:#0f172a;margin-bottom:16px;line-height:1.15}
-.scarcity-body{font-size:14px;line-height:1.75;color:#334155}
+/* Profile badge */
+.profile-badge { display:flex; align-items:center; gap:12px; padding:14px 18px; border-radius:var(--rs); margin:18px 0 6px }
+.profile-badge.rebuild      { background:rgba(225,29,72,.06);   border:1px solid rgba(225,29,72,.2) }
+.profile-badge.recovery     { background:rgba(217,119,6,.06);   border:1px solid rgba(217,119,6,.2) }
+.profile-badge.optimization { background:rgba(13,148,136,.06);  border:1px solid rgba(13,148,136,.2) }
+.pb-dot { width:12px; height:12px; border-radius:50%; flex-shrink:0 }
+.profile-badge.rebuild      .pb-dot { background:var(--red) }
+.profile-badge.recovery     .pb-dot { background:var(--amb) }
+.profile-badge.optimization .pb-dot { background:var(--teal) }
+.pb-text { font-family:var(--fd); font-size:14px; font-weight:700 }
+.profile-badge.rebuild      .pb-text { color:var(--red) }
+.profile-badge.recovery     .pb-text { color:var(--amb) }
+.profile-badge.optimization .pb-text { color:var(--teal) }
+.pb-desc { font-size:12px; color:var(--mut); margin-top:3px; line-height:1.45 }
 
-/* ══════════════════════════════════════
-   PRICING GRID
-══════════════════════════════════════ */
-#pricing-section{padding:32px 26px;overflow:visible;max-width:900px;width:100%}
-.pricing-eyebrow{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);text-align:center;margin-bottom:10px}
-.pricing-headline{font-family:var(--fd);font-size:clamp(18px,3.5vw,24px);font-weight:800;color:var(--txt);text-align:center;margin-bottom:6px}
-.pricing-sub{font-size:13px;color:var(--mut);text-align:center;margin-bottom:28px}
-.pricing-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-items:start;padding-top:20px}
-@media(max-width:860px){.pricing-grid{grid-template-columns:1fr;max-width:480px;margin:0 auto}}
+/* Hero CTA */
+.hero-call-pill {
+  display:inline-flex; align-items:center; gap:9px; margin-top:22px;
+  padding:14px 28px; background:var(--em); border-radius:99px;
+  color:#fff; font-family:var(--fd); font-size:13px; font-weight:700;
+  text-decoration:none; letter-spacing:.02em; cursor:pointer; border:none;
+  box-shadow:0 4px 20px rgba(16,185,129,.3);
+  transition:background .2s, box-shadow .2s, transform .15s;
+}
+.hero-call-pill:hover  { background:#059669; box-shadow:0 6px 28px rgba(16,185,129,.4); transform:translateY(-1px) }
+.hero-call-pill:active { transform:scale(.98) }
 
-.tier-card{position:relative;border-radius:var(--r);padding:28px 22px;display:flex;flex-direction:column;gap:0;transition:box-shadow .25s}
-.tier-card.tier-1{background:#fff;border:1.5px solid #e2e8f0}
-.tier-card.tier-2{background:#fff;border:2px solid #10b981;box-shadow:0 12px 40px rgba(16,185,129,.15)}
-@media(min-width:861px){.tier-card.tier-2{transform:scale(1.04)}}
-.tier-card.tier-3{background:#f8fafc;border:2px solid #1e3a5f}
+/* ════════════════════════════════════════════
+   ── SECTION 2: WHAT THIS MEANS ──
+════════════════════════════════════════════ */
+#what-this-means .wtm-label-top {
+  font-family:var(--fd); font-size:11px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--teal); margin-bottom:8px;
+}
+#what-this-means h2 {
+  font-family:var(--fd); font-size:clamp(17px,3.5vw,22px); font-weight:800;
+  line-height:1.2; margin-bottom:12px;
+}
+#wtm-body { font-size:14px; color:var(--mut); line-height:1.75 }
+#wtm-body strong { color:var(--txt) }
+.wtm-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px }
+@media(max-width:480px) { .wtm-grid { grid-template-columns:1fr } }
+.wtm-item {
+  background:var(--card2); border:1px solid var(--bdr); border-radius:var(--rs); padding:16px 14px;
+}
+.wtm-icon  { font-size:22px; margin-bottom:8px }
+.wtm-label { font-family:var(--fd); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--mut); margin-bottom:5px }
+.wtm-value { font-size:13px; color:var(--txt); line-height:1.55 }
 
-.tier-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:5px 16px;border-radius:99px;white-space:nowrap}
+/* ════════════════════════════════════════════
+   ── SECTION 3: COST OF WAITING ──
+════════════════════════════════════════════ */
+#scarcity-section {
+  border-radius:var(--r); padding:28px 22px;
+  background:#fff5f5; border:1.5px solid #fecaca;
+}
+.scarcity-label {
+  font-family:var(--fd); font-size:11px; font-weight:700; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--red); margin-bottom:10px;
+  display:flex; align-items:center; gap:8px;
+}
+.scarcity-headline {
+  font-family:var(--fd); font-size:clamp(20px,4vw,28px); font-weight:800;
+  color:var(--txt); margin-bottom:14px; line-height:1.15;
+}
+.scarcity-body { font-size:14px; line-height:1.8; color:#334155 }
 
-.tier-name{font-family:var(--fd);font-size:14px;font-weight:800;letter-spacing:.02em;margin-bottom:6px}
-.tier-card.tier-1 .tier-name{color:#475569}
-.tier-card.tier-2 .tier-name{color:#065f46}
-.tier-card.tier-3 .tier-name{color:#1e3a5f}
+/* ════════════════════════════════════════════
+   ── SECTION 4: AI SUMMARY CARDS ──
+════════════════════════════════════════════ */
+.section-title {
+  font-family:var(--fd); font-size:15px; font-weight:700;
+  display:flex; align-items:center; gap:8px; margin-bottom:18px;
+}
+.findings-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px }
+@media(max-width:480px) { .findings-grid { grid-template-columns:1fr } }
+.finding-item {
+  background:var(--card2); border:1px solid var(--bdr); border-radius:var(--rs);
+  padding:18px 12px; text-align:center; position:relative; overflow:hidden;
+  opacity:0; transform:translateY(10px); transition:opacity .5s var(--ease), transform .5s var(--ease);
+}
+.finding-item.on  { opacity:1; transform:none }
+.finding-item::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:var(--grad); opacity:.6 }
+.fi-icon  { font-size:22px; margin-bottom:9px }
+.fi-val   { font-family:var(--fd); font-size:17px; font-weight:800; margin-bottom:4px; line-height:1.2 }
+.fi-label { font-size:11px; color:var(--mut); line-height:1.4 }
 
-.tier-price{font-family:var(--fd);font-size:clamp(26px,4vw,34px);font-weight:800;line-height:1;margin-bottom:4px}
-.tier-card.tier-1 .tier-price{color:#0f172a}
-.tier-card.tier-2 .tier-price{color:#065f46}
-.tier-card.tier-3 .tier-price{color:#1e3a5f}
+/* ════════════════════════════════════════════
+   ── SECTION 5: DIAGNOSIS / BLOCKERS ──
+════════════════════════════════════════════ */
+.diag-intro { font-size:13px; color:var(--mut); margin-bottom:16px; line-height:1.6 }
+.diag-items { display:flex; flex-direction:column; gap:10px }
+.diag-item {
+  display:flex; gap:13px; align-items:flex-start; padding:16px 14px;
+  background:var(--card2); border:1px solid var(--bdr); border-radius:var(--rs);
+  opacity:0; transform:translateX(-12px); transition:opacity .5s var(--ease), transform .5s var(--ease);
+}
+.diag-item.on   { opacity:1; transform:none }
+.diag-item.warn { border-left:3px solid var(--amb) }
+.diag-item.ok   { border-left:3px solid var(--teal) }
+.diag-item:not(.warn):not(.ok) { border-left:3px solid var(--red) }
+.di-icon  { width:36px; height:36px; border-radius:8px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:18px; background:rgba(225,29,72,.08); border:1px solid rgba(225,29,72,.15) }
+.diag-item.warn .di-icon { background:rgba(217,119,6,.08);  border-color:rgba(217,119,6,.2) }
+.diag-item.ok   .di-icon { background:rgba(13,148,136,.08); border-color:rgba(13,148,136,.2) }
+.di-title { font-family:var(--fd); font-size:13px; font-weight:700; margin-bottom:4px }
+.di-desc  { font-size:13px; color:var(--mut); line-height:1.55 }
 
-.tier-cadence{font-size:12px;color:var(--mut);margin-bottom:18px}
-.tier-divider{border:none;border-top:1px solid var(--bdr);margin:0 0 16px}
-.tier-features{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:22px;flex:1}
-.tier-features li{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:#334155;line-height:1.45}
-.tier-features li::before{content:'✓';font-weight:800;flex-shrink:0;margin-top:1px}
-.tier-card.tier-1 .tier-features li::before{color:#64748b}
-.tier-card.tier-2 .tier-features li::before{color:#10b981}
-.tier-card.tier-3 .tier-features li::before{color:#2563eb}
+/* Good news block */
+.good-news { background:linear-gradient(135deg,rgba(13,148,136,.05),rgba(37,99,235,.05)); border:1px solid rgba(13,148,136,.16); border-radius:var(--rs); padding:18px; margin-top:16px }
+.gn-title  { font-family:var(--fd); font-size:13px; font-weight:700; color:var(--teal); margin-bottom:7px; display:flex; align-items:center; gap:8px }
+.gn-body   { font-size:13px; color:var(--mut); line-height:1.65 }
+.gn-body strong { color:var(--txt) }
 
-.tier-cta{margin-top:auto;overflow:visible}
-.tier-cta stripe-buy-button{display:block;width:100%}
-.tier-stripe-placeholder{background:var(--card2);border:1.5px dashed var(--bdr);border-radius:var(--rs);padding:16px;text-align:center;font-size:12px;color:var(--mut2);font-family:var(--fd)}
+/* User quote (shown when blocker text exists) */
+.user-quote      { background:var(--card2); border-left:3px solid var(--teal); border-radius:0 var(--rs) var(--rs) 0; padding:16px 18px; margin-top:16px }
+.uq-label        { font-family:var(--fd); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--teal); margin-bottom:6px }
+.uq-text         { font-size:13px; color:var(--mut); line-height:1.6; font-style:italic }
+.uq-response     { font-size:13px; color:var(--txt); line-height:1.55; margin-top:10px }
 
-/* ══════════════════════════════════════
-   120-DAY GUARANTEE
-══════════════════════════════════════ */
-#guarantee-section{padding:28px 26px;background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:var(--r)}
-.guarantee-inner{display:flex;gap:18px;align-items:flex-start}
-@media(max-width:520px){.guarantee-inner{flex-direction:column;align-items:center;text-align:center}}
-.guarantee-icon{font-size:44px;flex-shrink:0;line-height:1}
-.guarantee-label{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1d4ed8;margin-bottom:6px}
-.guarantee-title{font-family:var(--fd);font-size:18px;font-weight:800;color:#1e3a5f;margin-bottom:10px}
-.guarantee-body{font-size:13px;color:#334155;line-height:1.75}
+/* ════════════════════════════════════════════
+   ── SECTION 6: OPPORTUNITY ──
+════════════════════════════════════════════ */
+.opp-banner  { background:linear-gradient(135deg,rgba(13,148,136,.06),rgba(37,99,235,.06)); border:1px solid var(--bhi); border-radius:var(--rs); padding:18px; font-size:14px; line-height:1.7; margin-top:12px }
+.opp-banner strong { color:var(--teal) }
+.opp-list    { list-style:none; margin-top:14px; display:flex; flex-direction:column; gap:8px }
+.opp-list li { display:flex; align-items:flex-start; gap:8px; font-size:13px; line-height:1.5 }
+.opp-list li::before { content:'→'; color:var(--teal); font-weight:700; flex-shrink:0; margin-top:1px }
+.opp-stats   { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:16px }
+@media(max-width:440px) { .opp-stats { grid-template-columns:1fr 1fr } }
+.opp-stat    { background:var(--card2); border:1px solid var(--bdr); border-radius:var(--rs); padding:14px 10px; text-align:center }
+.os-val      { font-family:var(--fd); font-size:17px; font-weight:800 }
+.os-label    { font-size:11px; color:var(--mut); margin-top:3px }
 
-/* ══════════════════════════════════════
-   WHAT THIS MEANS SECTION
-══════════════════════════════════════ */
-#what-this-means .wtm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-@media(max-width:480px){#what-this-means .wtm-grid{grid-template-columns:1fr}}
-.wtm-item{background:var(--card2);border:1px solid var(--bdr);border-radius:var(--rs);padding:16px 14px}
-.wtm-icon{font-size:20px;margin-bottom:8px}
-.wtm-label{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
-.wtm-value{font-size:13px;color:var(--txt);line-height:1.5}
-.wtm-body{font-size:14px;color:var(--mut);line-height:1.75;margin-top:12px}
-.wtm-body strong{color:var(--txt)}
+/* ════════════════════════════════════════════
+   ── SECTION 7: PRICING ──
+════════════════════════════════════════════ */
+#pricing-section { padding:32px 22px; overflow:visible; max-width:900px; width:100% }
+.pricing-eyebrow  { font-family:var(--fd); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); text-align:center; margin-bottom:10px }
+.pricing-headline { font-family:var(--fd); font-size:clamp(19px,3.5vw,26px); font-weight:800; color:var(--txt); text-align:center; margin-bottom:6px }
+.pricing-sub      { font-size:13px; color:var(--mut); text-align:center; margin-bottom:32px; line-height:1.6 }
 
-/* ══════════════════════════════════════
-   RECOMMENDED OFFER (dynamic class)
-══════════════════════════════════════ */
-.tier-card.recommended{border:2.5px solid #10b981;box-shadow:0 14px 48px rgba(16,185,129,.18);position:relative}
-.tier-rec-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 14px;border-radius:99px;white-space:nowrap}
-@media(min-width:861px){.tier-card.recommended{transform:scale(1.04)}}
+.pricing-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; align-items:start; padding-top:22px }
+@media(max-width:860px) { .pricing-grid { grid-template-columns:1fr; max-width:480px; margin:0 auto } }
 
-/* ══════════════════════════════════════
-   FAQ SECTION
-══════════════════════════════════════ */
-#faq-section{padding:28px 26px}
-.faq-item{border-bottom:1px solid var(--bdr);padding:16px 0}
-.faq-item:last-child{border-bottom:none}
-.faq-q{font-family:var(--fd);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--txt)}
-.faq-q::after{content:'＋';font-size:18px;color:var(--teal);flex-shrink:0;transition:transform .25s}
-.faq-item.open .faq-q::after{transform:rotate(45deg)}
-.faq-a{font-size:13px;color:var(--mut);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .4s var(--ease),padding .3s}
-.faq-item.open .faq-a{max-height:400px;padding-top:10px}
+/* Tier card base */
+.tier-card {
+  background:var(--card); border:1.5px solid var(--bdr); border-radius:var(--r);
+  padding:26px 22px; display:flex; flex-direction:column; gap:0;
+  position:relative; overflow:visible;
+  transition:box-shadow .3s var(--ease), border-color .3s var(--ease);
+}
+.tier-card:hover { box-shadow:0 8px 32px rgba(15,23,42,.10); border-color:var(--bhi) }
 
-/* ══════════════════════════════════════
-   PDF DOWNLOAD SECTION
-══════════════════════════════════════ */
-#pdf-section{padding:28px 26px;background:linear-gradient(135deg,rgba(13,148,136,.04),rgba(37,99,235,.04));border:1px solid var(--bhi);border-radius:var(--r);text-align:center}
-.pdf-icon{font-size:36px;margin-bottom:12px}
-.pdf-title{font-family:var(--fd);font-size:17px;font-weight:800;margin-bottom:6px}
-.pdf-sub{font-size:13px;color:var(--mut);margin-bottom:18px;line-height:1.55}
-.btn-pdf{display:inline-flex;align-items:center;gap:9px;padding:13px 26px;background:var(--card);border:1.5px solid var(--teal);border-radius:99px;color:var(--teal);font-family:var(--fd);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:background .2s,color .2s,box-shadow .2s}
-.btn-pdf:hover{background:rgba(13,148,136,.06);box-shadow:0 4px 16px rgba(13,148,136,.15)}
-.pdf-note{font-size:11px;color:var(--mut2);margin-top:10px;line-height:1.4}
+/* Recommended (injected by JS via applyRecommendedOffer) */
+.tier-card.recommended { border:2.5px solid var(--em); box-shadow:0 12px 44px rgba(16,185,129,.16) }
+.tier-rec-badge {
+  position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+  background:var(--em); color:#fff;
+  font-family:var(--fd); font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+  padding:4px 16px; border-radius:99px; white-space:nowrap;
+}
+@media(min-width:861px) { .tier-card.recommended { transform:scale(1.04) } }
 
-/* ══════════════════════════════════════
+/* Tier components */
+.tier-eyebrow  { font-family:var(--fd); font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--mut); margin-bottom:6px }
+.tier-name     { font-family:var(--fd); font-size:16px; font-weight:800; color:var(--txt); line-height:1.2; margin-bottom:6px }
+.tier-tagline  { font-size:12px; color:var(--mut); line-height:1.5; margin-bottom:16px }
+.tier-price-row{ display:flex; align-items:baseline; gap:6px; margin-bottom:4px }
+.tier-price    { font-family:var(--fd); font-size:30px; font-weight:800; color:var(--txt) }
+.tier-period   { font-size:12px; color:var(--mut) }
+.tier-cadence  { font-size:11px; color:var(--mut2); margin-bottom:16px }
+.tier-divider  { border:none; border-top:1px solid var(--bdr); margin:16px 0 }
+.tier-for      { font-size:12px; color:var(--mut); line-height:1.55; background:var(--card2); border-radius:var(--rs); padding:12px; margin-bottom:14px; border:1px solid var(--bdr) }
+.tier-for strong { color:var(--teal) }
+.tier-features { list-style:none; display:flex; flex-direction:column; gap:8px; margin-bottom:20px }
+.tier-features li { display:flex; align-items:flex-start; gap:8px; font-size:13px; color:var(--txt); line-height:1.4 }
+.tier-features li::before { content:'✓'; color:var(--em); font-weight:800; flex-shrink:0 }
+.tier-cta { margin-top:auto; overflow:visible }
+.tier-cta stripe-buy-button { display:block; width:100% }
+
+/* Print-only Stripe payment link (visible in PDF, hidden on screen) */
+.pdf-stripe-link { display:none; font-size:12px; color:var(--teal); text-decoration:underline; margin-top:8px; word-break:break-all }
+
+/* ════════════════════════════════════════════
+   ── SECTION 8: GUARANTEE ──
+════════════════════════════════════════════ */
+#guarantee-section { padding:26px 22px; background:#eff6ff; border:1.5px solid #bfdbfe; border-radius:var(--r) }
+.guarantee-inner  { display:flex; gap:18px; align-items:flex-start }
+@media(max-width:520px) { .guarantee-inner { flex-direction:column; align-items:center; text-align:center } }
+.guarantee-icon   { font-size:44px; flex-shrink:0; line-height:1 }
+.guarantee-label  { font-family:var(--fd); font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:#1d4ed8; margin-bottom:6px }
+.guarantee-title  { font-family:var(--fd); font-size:17px; font-weight:800; color:#1e3a5f; margin-bottom:8px }
+.guarantee-body   { font-size:13px; color:#334155; line-height:1.75 }
+
+/* ════════════════════════════════════════════
+   ── SECTION 9: BOOK A CALL ──
+════════════════════════════════════════════ */
+#booking { padding:32px 22px }
+#booking h2   { font-family:var(--fd); font-size:clamp(18px,4vw,24px); font-weight:800; line-height:1.15; margin:8px 0 10px }
+.book-sub     { font-size:14px; color:var(--mut); line-height:1.65; margin-bottom:22px; max-width:500px }
+.booking-badge {
+  display:inline-flex; align-items:center; gap:7px; padding:6px 14px;
+  background:rgba(13,148,136,.08); border:1px solid rgba(13,148,136,.2);
+  border-radius:99px; font-family:var(--fd); font-size:11px; font-weight:700;
+  color:var(--teal); letter-spacing:.04em; text-transform:uppercase; margin-bottom:20px;
+}
+/* Call steps inside booking (for "what happens on call") */
+.call-steps { display:flex; flex-direction:column; margin-top:16px }
+.call-step  { display:flex; gap:16px; padding-bottom:22px }
+.call-step:last-child { padding-bottom:0 }
+.cs-left { display:flex; flex-direction:column; align-items:center; flex-shrink:0 }
+.cs-num  { width:30px; height:30px; border-radius:50%; background:var(--grad); color:#fff; font-family:var(--fd); font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center }
+.cs-line { width:2px; flex:1; min-height:16px; background:linear-gradient(to bottom,rgba(13,148,136,.25),transparent); margin-top:4px }
+.call-step:last-child .cs-line { display:none }
+.cs-body  { padding-top:3px }
+.cs-title { font-family:var(--fd); font-size:13px; font-weight:700; margin-bottom:3px }
+.cs-desc  { font-size:13px; color:var(--mut); line-height:1.55 }
+
+/* Calendly container */
+.calendly-wrap { border-radius:var(--rs); overflow:hidden; border:1px solid var(--bhi); margin-bottom:20px; background:var(--card2) }
+
+/* Main call button */
+.call-btn {
+  display:flex; align-items:center; justify-content:center; gap:11px;
+  width:100%; padding:17px; border-radius:var(--rs);
+  background:var(--gradr); color:#fff;
+  font-family:var(--fd); font-size:16px; font-weight:800;
+  text-decoration:none; letter-spacing:.02em; cursor:pointer; border:none;
+  margin-bottom:10px; box-shadow:0 4px 24px rgba(225,29,72,.2);
+  animation:pulsebtn 2.8s ease-in-out infinite;
+}
+@keyframes pulsebtn { 0%,100%{box-shadow:0 4px 24px rgba(225,29,72,.2)} 50%{box-shadow:0 6px 36px rgba(225,29,72,.38)} }
+.cb-pulse       { width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.55); animation:blink 1.4s ease-in-out infinite; flex-shrink:0 }
+.call-disclaimer{ text-align:center; font-size:11px; color:var(--mut2); margin-top:4px }
+
+/* Booking reassurance */
+.booking-reassurance { display:flex; flex-direction:column; gap:6px; margin-top:14px; padding:12px 14px; background:var(--card2); border:1px solid var(--bdr); border-radius:var(--rs) }
+.br-item      { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--mut) }
+.br-item .br-icon { color:var(--teal); font-weight:700; flex-shrink:0 }
+
+/* Calendar links */
+.cal-buttons { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-top:12px }
+@media(max-width:480px) { .cal-buttons { grid-template-columns:1fr } }
+.cal-btn {
+  display:flex; flex-direction:column; align-items:center; gap:6px; padding:14px 8px;
+  background:var(--card2); border:1px solid var(--bdr); border-radius:var(--rs);
+  color:var(--txt); font-size:12px; font-weight:600; text-decoration:none; cursor:pointer;
+  transition:border-color .25s, background .25s, color .25s;
+}
+.cal-btn:hover { border-color:rgba(13,148,136,.25); background:rgba(13,148,136,.04); color:var(--teal) }
+.cal-icon { font-size:22px }
+
+/* ════════════════════════════════════════════
+   ── SECTION 10: FAQ ──
+════════════════════════════════════════════ */
+#faq-section { padding:28px 22px }
+.faq-heading { font-family:var(--fd); font-size:clamp(17px,3.5vw,22px); font-weight:800; text-align:center; margin-bottom:20px }
+.faq-item    { border-bottom:1px solid var(--bdr); }
+.faq-item:first-of-type { border-top:1px solid var(--bdr) }
+.faq-q {
+  font-family:var(--fd); font-size:14px; font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  color:var(--txt); padding:16px 0; user-select:none;
+}
+.faq-toggle { font-size:20px; color:var(--teal); flex-shrink:0; line-height:1; transition:transform .25s var(--ease) }
+.faq-item.open .faq-toggle { transform:rotate(45deg) }
+.faq-a {
+  font-size:13px; color:var(--mut); line-height:1.75;
+  max-height:0; overflow:hidden; transition:max-height .4s var(--ease), padding .3s;
+}
+.faq-item.open .faq-a { max-height:400px; padding-bottom:16px }
+
+/* ════════════════════════════════════════════
+   ── SECTION 11: PDF DOWNLOAD ──
+════════════════════════════════════════════ */
+#pdf-section {
+  padding:28px 22px;
+  background:linear-gradient(135deg,rgba(13,148,136,.04),rgba(37,99,235,.04));
+  border:1px solid var(--bhi); border-radius:var(--r); text-align:center;
+}
+.pdf-icon  { font-size:36px; margin-bottom:10px }
+.pdf-title { font-family:var(--fd); font-size:17px; font-weight:800; margin-bottom:6px }
+.pdf-sub   { font-size:13px; color:var(--mut); margin-bottom:18px; line-height:1.6; max-width:400px; margin-left:auto; margin-right:auto }
+.btn-pdf {
+  display:inline-flex; align-items:center; gap:9px; padding:13px 26px;
+  background:var(--card); border:1.5px solid var(--teal); border-radius:99px;
+  color:var(--teal); font-family:var(--fd); font-size:13px; font-weight:700;
+  cursor:pointer; letter-spacing:.02em;
+  transition:background .2s, box-shadow .2s;
+}
+.btn-pdf:hover { background:rgba(13,148,136,.06); box-shadow:0 4px 16px rgba(13,148,136,.14) }
+.pdf-note { font-size:11px; color:var(--mut2); margin-top:10px; line-height:1.4 }
+
+/* ════════════════════════════════════════════
+   ── SECTION 12: TRUST STACK ──
+════════════════════════════════════════════ */
+#trust { padding:28px 22px }
+.trust-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px }
+@media(max-width:440px) { .trust-grid { grid-template-columns:1fr } }
+.trust-item  { display:flex; align-items:flex-start; gap:10px; padding:14px; background:var(--card2); border:1px solid var(--bdr); border-radius:var(--rs) }
+.ti-icon     { font-size:19px; flex-shrink:0; margin-top:1px }
+.ti-title    { font-family:var(--fd); font-size:13px; font-weight:700; margin-bottom:3px }
+.ti-desc     { font-size:11px; color:var(--mut); line-height:1.5 }
+
+/* ════════════════════════════════════════════
+   URGENCY BANNER (hidden in new layout, kept for engine compat)
+════════════════════════════════════════════ */
+#urgency-banner { display:none }
+
+/* ════════════════════════════════════════════
+   STICKY MOBILE CTA
+════════════════════════════════════════════ */
+#sticky-call {
+  display:none; position:fixed; bottom:0; left:0; right:0; z-index:999;
+  padding:10px 14px;
+  background:rgba(248,250,252,.97); backdrop-filter:blur(16px);
+  border-top:1px solid rgba(225,29,72,.2);
+  box-shadow:0 -2px 12px rgba(15,23,42,.08);
+}
+#sticky-call a {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; padding:15px; background:var(--gradr);
+  border-radius:var(--rs); color:#fff;
+  font-family:var(--fd); font-size:16px; font-weight:800;
+  text-decoration:none; letter-spacing:.02em;
+}
+@media(max-width:640px) { #sticky-call { display:block } body { padding-bottom:80px } }
+
+/* ════════════════════════════════════════════
+   HIDDEN COMPAT STUBS
+   (results-engine.js writes to these IDs;
+    keeping them in DOM but hidden avoids errors)
+════════════════════════════════════════════ */
+#strategy, #comparison, #on-call, #why-matters, #user-quote-card { display:none }
+
+/* ════════════════════════════════════════════
    PRINT / PDF STYLES
-   Browser print-to-PDF preserves <a> clickability.
-   Use Chrome → Print → Save as PDF for best results.
-   For server-side rendering: puppeteer / playwright headless.
-══════════════════════════════════════ */
+   Browser print-to-PDF (Chrome/Edge) preserves
+   <a> href clickability as real PDF hyperlinks.
+
+   For server-side PDF with full fidelity:
+   puppeteer: page.pdf({ printBackground:true, format:'Letter' })
+════════════════════════════════════════════ */
 @media print {
-  /* Hide everything that isn't content */
-  #page-loader,#top-bar,#progress-bar,#scroll-indicator,
-  #sticky-call,.hero-call-pill,#pdf-section,.btn-pdf,
-  #urgency-banner,.call-btn,.call-disclaimer,.cal-buttons,
-  .calendly-wrap,#booking .eyebrow,.booking-reassurance,
-  .faq-q::after{display:none!important}
+  /* Hide non-content chrome */
+  #page-loader, #top-bar, #scroll-indicator, #sticky-call,
+  .hero-call-pill, #pdf-section, .btn-pdf,
+  .call-btn, .call-disclaimer, .cal-buttons, .calendly-wrap,
+  .booking-badge, .booking-reassurance, #urgency-banner { display:none !important }
 
-  body{background:#fff!important;color:#000!important;font-size:12px}
-  main{padding:10px 0!important}
-  .card,.reveal{box-shadow:none!important;border:1px solid #e2e8f0!important;page-break-inside:avoid}
-  .reveal{opacity:1!important;transform:none!important}
-  #pricing-section{max-width:100%!important;overflow:visible!important}
-  .pricing-grid{grid-template-columns:1fr!important}
-  .tier-card{page-break-inside:avoid;margin-bottom:12px}
+  body { background:#fff !important; color:#000 !important }
+  main { padding:0 !important; gap:14px !important }
 
-  /* Show Stripe payment URLs as text for PDF clickability */
-  .pdf-stripe-link{display:block!important;font-size:11px;color:#0d9488;text-decoration:underline;margin-top:8px;word-break:break-all}
-  stripe-buy-button{display:none!important}
+  .card, .reveal, #scarcity-section, #guarantee-section, #faq-section, #pricing-section {
+    box-shadow:none !important; border:1px solid #e2e8f0 !important;
+    page-break-inside:avoid; break-inside:avoid;
+  }
+  .reveal { opacity:1 !important; transform:none !important }
 
-  /* Show full URLs on all links */
-  a[href^="http"]::after{content:" (" attr(href) ")";font-size:10px;color:#64748b}
-  a[href^="http"].pdf-stripe-link::after{display:none}
+  /* Show Stripe payment URLs as clickable text in PDF */
+  .pdf-stripe-link { display:block !important }
+  stripe-buy-button { display:none !important }
 
-  /* Page header for PDF */
-  main::before{content:"Clean Path Credit — Personalized Analysis";display:block;font-family:sans-serif;font-size:14px;font-weight:bold;color:#0d9488;padding:10px 0 16px;border-bottom:2px solid #0d9488;margin-bottom:20px}
+  /* Pricing: single-column for clean PDF */
+  .pricing-grid { grid-template-columns:1fr !important }
+  .tier-card { page-break-inside:avoid; margin-bottom:10px }
+  @media(min-width:861px) { .tier-card.recommended { transform:none !important } }
+
+  /* Page header */
+  main::before {
+    content:'Clean Path Credit — Personalized Credit Analysis';
+    display:block; font-family:sans-serif; font-size:13px; font-weight:700;
+    color:#0d9488; padding:8px 0 14px; border-bottom:2px solid #0d9488; margin-bottom:16px;
+  }
 }
+
 </style>
 </head>
 <body>
 
-<!-- ── PAGE LOADER ── -->
+<!-- ════════════════════════════════════════
+     PAGE LOADER
+════════════════════════════════════════ -->
 <div id="page-loader">
   <div class="loader-ring"></div>
   <div class="loader-msgs" id="loader-msgs">
@@ -468,10 +581,12 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
   </div>
 </div>
 
-<!-- ── TOP BAR ── -->
+<!-- ════════════════════════════════════════
+     TOP BAR
+════════════════════════════════════════ -->
 <div id="top-bar">
-  <div class="nav-logo-wrap" style="flex-direction:row;align-items:center;gap:10px">
-    <img src="logo.png" alt="Clean Path Credit" style="height:34px;width:auto;object-fit:contain;display:block"/>
+  <div class="nav-logo-wrap">
+    <img src="logo.png" alt="Clean Path Credit" style="height:34px;width:auto;object-fit:contain"/>
     <div style="display:flex;flex-direction:column;line-height:1">
       <span class="nav-logo grad-text">Clean Path Credit</span>
       <span class="nav-ai-badge">powered by AI</span>
@@ -480,197 +595,216 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
   <div class="nav-pill"><span class="dot"></span>Analysis Complete</div>
 </div>
 
-<!-- ── SCROLL INDICATOR ── -->
+<!-- Scroll indicator -->
 <div id="scroll-indicator">
   <div class="scroll-arrow">
     <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
   </div>
-  <span class="scroll-label">Scroll for full analysis</span>
+  <span class="scroll-label">Scroll for your full analysis</span>
 </div>
 
 <main>
 
-  <!-- ══ 1 — HERO ══ -->
+  <!-- ══════════════════════════════════════
+       1. HERO — Score ring + personalized diagnosis
+  ══════════════════════════════════════ -->
   <div class="card reveal" id="hero">
+
+    <!-- Score ring -->
     <div class="score-ring-wrap">
-      <div class="score-ring">
-        <svg viewBox="0 0 100 100">
-          <defs>
-            <linearGradient id="rg-high" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%"   stop-color="#10b981"/>
-              <stop offset="100%" stop-color="#059669"/>
-            </linearGradient>
-            <linearGradient id="rg-mid" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%"   stop-color="#fbbf24"/>
-              <stop offset="100%" stop-color="#f59e0b"/>
-            </linearGradient>
-            <linearGradient id="rg-low" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%"   stop-color="#f97316"/>
-              <stop offset="100%" stop-color="#ef4444"/>
-            </linearGradient>
-          </defs>
-          <circle class="ring-bg"   cx="50" cy="50" r="48"/>
-          <circle class="ring-fill" cx="50" cy="50" r="48" id="ring-fill"/>
-        </svg>
-        <div class="ring-label">
-          <span class="rl-val" id="ring-val">Analyzing…</span>
-          <span class="rl-sub" id="ring-sub">AI Profile Score</span>
+      <div>
+        <div class="score-ring">
+          <svg viewBox="0 0 100 100">
+            <defs>
+              <!-- Green — strong/high scores -->
+              <linearGradient id="rg-high" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#10b981"/>
+                <stop offset="100%" stop-color="#059669"/>
+              </linearGradient>
+              <!-- Amber — mid/recovery scores -->
+              <linearGradient id="rg-mid" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#fbbf24"/>
+                <stop offset="100%" stop-color="#f59e0b"/>
+              </linearGradient>
+              <!-- Red-orange — low/rebuild scores -->
+              <linearGradient id="rg-low" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#f97316"/>
+                <stop offset="100%" stop-color="#ef4444"/>
+              </linearGradient>
+            </defs>
+            <!-- Track ring (visible gray background) -->
+            <circle class="ring-bg"   cx="50" cy="50" r="48"/>
+            <!-- Fill ring (animated by JS, gradient set by score tier) -->
+            <circle class="ring-fill" cx="50" cy="50" r="48" id="ring-fill"/>
+          </svg>
+          <!-- Label centered inside ring -->
+          <div class="ring-label">
+            <span class="rl-val" id="ring-val">Analyzing…</span>
+            <span class="rl-sub" id="ring-sub">Profile Score</span>
+          </div>
         </div>
+        <div class="ring-caption center">Approval Readiness Score</div>
       </div>
     </div>
-    <div class="eyebrow center" style="margin-bottom:14px">🔍 Personalized Credit Analysis</div>
+
+    <!-- Personalized headline (injected by engine) -->
+    <div class="eyebrow center" style="margin-bottom:12px">🔍 Your Personalized Credit Analysis</div>
     <h1 class="grad-text center" id="hero-headline">Your Credit Analysis Is Ready</h1>
     <p class="hero-sub center" id="hero-sub" style="margin-top:12px"></p>
-    <!-- Profile type badge -->
+
+    <!-- Profile type badge (injected by engine) -->
     <div id="profile-badge-wrap"></div>
+
+    <!-- Primary CTA scrolls to pricing -->
     <div class="center">
-      <button class="hero-call-pill" id="hero-call-pill" onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">
-        ↓ Scroll Down to View Your Plan
+      <button class="hero-call-pill" id="hero-call-pill"
+        onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">
+        ↓ View Your Plan &amp; Next Steps
       </button>
     </div>
-  </div>
 
-  <!-- ══ 1.5 — WHAT THIS MEANS ══ -->
+  </div><!-- /#hero -->
+
+
+  <!-- ══════════════════════════════════════
+       2. WHAT THIS MEANS
+       Plain-English impact — translates score into real-world cost
+  ══════════════════════════════════════ -->
   <div class="card reveal" id="what-this-means">
-    <div class="eyebrow" style="margin-bottom:8px">📖 What This Means For You</div>
-    <div class="sec-title" id="wtm-title" style="margin-bottom:4px"></div>
-    <p class="wtm-body" id="wtm-body"></p>
+    <div class="wtm-label-top">📖 What Your Profile Actually Means</div>
+    <h2 id="wtm-title"></h2>
+    <p id="wtm-body"></p>
     <div class="wtm-grid" id="wtm-grid"></div>
   </div>
 
-  <!-- ══ 1.75 — SCARCITY / COST OF WAITING ══ -->
-  <div id="scarcity-section" class="reveal" style="background:#fff5f5;border:1.5px solid #fecaca">
+
+  <!-- ══════════════════════════════════════
+       3. COST OF WAITING
+       Urgency / pain amplification — goal-specific copy injected by engine
+  ══════════════════════════════════════ -->
+  <div id="scarcity-section" class="reveal">
     <div class="scarcity-label">🚨 The True Cost of Waiting</div>
-    <h2 class="scarcity-headline" id="scarcity-headline">Every Month You Wait Costs You Money</h2>
+    <h2 class="scarcity-headline" id="scarcity-headline">Every Month Without Action Has a Price</h2>
     <p class="scarcity-body" id="scarcity-body"></p>
   </div>
 
-  <!-- ══ 2 — AI SUMMARY CARDS ══ -->
+
+  <!-- ══════════════════════════════════════
+       4. AI ANALYSIS SUMMARY
+       3 key diagnostic metrics
+  ══════════════════════════════════════ -->
   <div class="card reveal" id="ai-summary">
     <div class="section-title"><span>🤖</span> AI Analysis Summary</div>
     <div class="findings-grid" id="findings-grid"></div>
   </div>
 
-  <!-- ══ 3 — DIAGNOSIS ══ -->
+
+  <!-- ══════════════════════════════════════
+       5. DIAGNOSIS — Priority blockers
+  ══════════════════════════════════════ -->
   <div class="card reveal" id="diagnosis">
     <div class="section-title"><span>🩺</span> Your Credit Diagnosis</div>
     <p class="diag-intro" id="diag-intro"></p>
     <div class="diag-items" id="diag-items"></div>
-    <!-- Good news block -->
+    <!-- Good news — always shown after diagnosis to shift from pain to hope -->
     <div class="good-news" id="good-news" style="display:none">
       <div class="gn-title">✅ The Good News</div>
       <div class="gn-body" id="gn-body"></div>
     </div>
   </div>
 
-  <!-- ══ 3.5 — USER INPUT QUOTE ══ -->
+  <!-- User input quote — shown only when free-text blocker field was completed -->
   <div class="card reveal" id="user-quote-card" style="display:none">
-    <div class="section-title"><span>💬</span> What You Told Us</div>
+    <div class="section-title"><span>💬</span> What You Shared With Us</div>
     <div class="user-quote">
-      <div class="uq-label">You mentioned</div>
-      <div class="uq-text" id="uq-text"></div>
+      <div class="uq-label">Your words</div>
+      <div class="uq-text"    id="uq-text"></div>
       <div class="uq-response" id="uq-response"></div>
     </div>
   </div>
 
-  <!-- ══ 4 — OPPORTUNITY ══ -->
+
+  <!-- ══════════════════════════════════════
+       6. WHAT BECOMES POSSIBLE
+       Shifts from pain → possibility before the buy decision
+  ══════════════════════════════════════ -->
   <div class="card reveal" id="opportunity">
     <div class="eyebrow" style="margin-bottom:6px">📈 What Becomes Possible</div>
-    <div class="sec-title" id="opp-title" style="margin-bottom:4px"></div>
+    <div class="section-title" id="opp-title" style="margin-bottom:4px"></div>
     <div class="opp-banner" id="opp-banner"></div>
     <ul class="opp-list" id="opp-list"></ul>
     <div class="opp-stats" id="opp-stats"></div>
   </div>
 
-  <!-- ══ 5 — WHY IT MATTERS ══ -->
-  <div class="card reveal" id="why-matters">
-    <div class="eyebrow" style="margin-bottom:8px">🎯 Why This Matters For You Specifically</div>
-    <div class="sec-title" id="wm-title" style="margin-bottom:12px"></div>
-    <div class="wm-body" id="wm-body"></div>
-  </div>
 
-  <!-- ══ 6 — HOW THE SYSTEM WORKS ══ -->
-  <div class="card reveal" id="strategy">
-    <div class="eyebrow" style="margin-bottom:6px">⚙️ How It Works</div>
-    <div class="sec-title" style="margin-bottom:20px">Our AI-Powered Credit System</div>
-    <div class="strat-steps">
-      <div class="strat-step"><div class="ss-left"><div class="ss-num">1</div><div class="ss-line"></div></div><div class="ss-body"><div class="ss-title">AI-Powered 3-Bureau Audit</div><div class="ss-desc">We scan all three bureaus for inaccuracies, outdated items, and reporting violations — things most people never know to look for.</div></div></div>
-      <div class="strat-step"><div class="ss-left"><div class="ss-num">2</div><div class="ss-line"></div></div><div class="ss-body"><div class="ss-title">Custom Dispute Strategy — Not Templates</div><div class="ss-desc">Every dispute is built around your specific file using FCRA and FDCPA provisions. No copy-paste letters — ever.</div></div></div>
-      <div class="strat-step"><div class="ss-left"><div class="ss-num">3</div><div class="ss-line"></div></div><div class="ss-body"><div class="ss-title">Score Optimization for Your Specific Goal</div><div class="ss-desc">We sequence removals and utilization changes to produce the fastest measurable lift toward exactly what you're trying to qualify for.</div></div></div>
-      <div class="strat-step"><div class="ss-left"><div class="ss-num">4</div><div class="ss-line"></div></div><div class="ss-body"><div class="ss-title">Lender-Ready Positioning</div><div class="ss-desc">We align your full profile to meet the specific thresholds your goal requires — so approvals actually happen and stick.</div></div></div>
-    </div>
-  </div>
-
-  <!-- ══ 7 — GENERIC vs CLEAN PATH ══ -->
-  <div class="card reveal" id="comparison">
-    <div class="eyebrow" style="margin-bottom:8px">⚠️ Why Most Credit Repair Fails</div>
-    <div class="sec-title" style="margin-bottom:4px">Generic Templates vs. Real Strategy</div>
-    <p style="font-size:13px;color:var(--mut);margin:10px 0 16px;line-height:1.55">Most credit repair companies send the same letters to every client. That's not a strategy — it's guesswork. Here's how this is different.</p>
-    <div class="compare-grid">
-      <div class="compare-col bad">
-        <div class="col-head">❌ Generic Repair</div>
-        <ul>
-          <li><span class="li-ico">❌</span>Same template letters for every client</li>
-          <li><span class="li-ico">❌</span>No goal-based prioritization</li>
-          <li><span class="li-ico">❌</span>Disputes without legal grounding</li>
-          <li><span class="li-ico">❌</span>No lender-positioning strategy</li>
-          <li><span class="li-ico">❌</span>Score focus, not approval focus</li>
-        </ul>
-      </div>
-      <div class="compare-col good">
-        <div class="col-head">✅ Clean Path Credit</div>
-        <ul>
-          <li><span class="li-ico">✅</span>AI-assisted audit of your specific file</li>
-          <li><span class="li-ico">✅</span>Strategy built around your approval goal</li>
-          <li><span class="li-ico">✅</span>FCRA &amp; FDCPA-grounded disputes</li>
-          <li><span class="li-ico">✅</span>Lender-specific profile positioning</li>
-          <li><span class="li-ico">✅</span>Optimized to get you approved — not just higher</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ 7.5 — PRICING GRID ══ -->
+  <!-- ══════════════════════════════════════
+       7. BUY SECTION — PRIMARY CONVERSION GOAL
+       Pricing cards with Stripe. Recommended card highlighted by JS.
+       REPLACE_WITH_STRIPE_LINK_1/2/3 below (real IDs pre-filled).
+  ══════════════════════════════════════ -->
   <div class="card reveal" id="pricing-section">
-    <div class="pricing-eyebrow">Choose Your Path</div>
+
+    <div class="pricing-eyebrow">Choose Your Path Forward</div>
     <h2 class="pricing-headline">Select the Right Plan for Your Situation</h2>
-    <p class="pricing-sub">All plans include our FCRA &amp; FDCPA-backed dispute strategy. No generic templates. Ever.</p>
+    <p class="pricing-sub">All plans are backed by FCRA &amp; FDCPA law. No generic templates — ever.<br>Not sure which fits? The strategy call below is free.</p>
 
     <div class="pricing-grid">
 
-      <!-- Tier 1: Clean Path DIY Blueprint -->
+      <!-- ── TIER 1: DIY Blueprint ─────────────── -->
+      <!-- REPLACE_WITH_STRIPE_LINK_1 = buy_btn_1TKC9sCRvEfUoJHH2j25qlzl -->
       <div class="tier-card tier-1" id="offer-diy">
+        <div class="tier-eyebrow">Self-Managed</div>
         <div class="tier-name">Clean Path DIY Blueprint</div>
-        <div class="tier-price">$97</div>
-        <div class="tier-cadence">one-time · self-mailing required</div>
+        <div class="tier-tagline">Understand the process. Take control yourself.</div>
+        <div class="tier-price-row">
+          <span class="tier-price">$97</span>
+          <span class="tier-period">one-time</span>
+        </div>
+        <div class="tier-cadence">Instant access · self-mailing required</div>
         <hr class="tier-divider">
+        <div class="tier-for">
+          <strong>Best for:</strong> People who want to understand exactly how credit repair works and handle the dispute process themselves with professional-grade tools.
+        </div>
         <ul class="tier-features">
-          <li>Proven 609 Letter Templates</li>
-          <li>Step-by-Step Dispute Checklist</li>
-          <li>Complete Mailing Instructions</li>
+          <li>Proven 609 &amp; 623 Dispute Templates</li>
+          <li>Step-By-Step Dispute Checklist</li>
+          <li>Bureau-Specific Mailing Guide</li>
+          <li>Credit-Building Sequencing Map</li>
+          <li>Lifetime access</li>
         </ul>
         <div class="tier-cta">
           <stripe-buy-button
             buy-button-id="buy_btn_1TKC9sCRvEfUoJHH2j25qlzl"
             publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
-          <!-- PDF fallback — visible only in print -->
-          <a class="pdf-stripe-link" style="display:none" href="https://buy.stripe.com/buy_btn_1TKC9sCRvEfUoJHH2j25qlzl">
-            → Get the DIY Blueprint ($97) — click to purchase
+          <!-- Shown only in print/PDF — preserves clickable purchase link -->
+          <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKC9sCRvEfUoJHH2j25qlzl">
+            → Purchase the DIY Blueprint ($97) — click to complete purchase
           </a>
         </div>
       </div>
 
-      <!-- Tier 2: Accelerated Audit -->
+      <!-- ── TIER 2: Accelerated Audit ─────────── -->
+      <!-- REPLACE_WITH_STRIPE_LINK_2 = buy_btn_1TKCHQCRvEfUoJHHRsYycHRA -->
+      <!-- Default recommended; JS overrides based on leadScore -->
       <div class="tier-card tier-2" id="offer-accelerated">
+        <div class="tier-eyebrow">Done-For-You</div>
         <div class="tier-name">Accelerated Audit</div>
-        <div class="tier-price">$497</div>
-        <div class="tier-cadence">one-time payment</div>
+        <div class="tier-tagline">Professional dispute strategy, executed for you.</div>
+        <div class="tier-price-row">
+          <span class="tier-price">$497</span>
+          <span class="tier-period">one-time</span>
+        </div>
+        <div class="tier-cadence">Full 4-round dispute cycle · certified mail included</div>
         <hr class="tier-divider">
+        <div class="tier-for">
+          <strong>Best for:</strong> People who are serious about fixing their credit and want a done-for-you approach — no bureau tracking, no letter drafting, no certified mail coordination required.
+        </div>
         <ul class="tier-features">
-          <li>Done-For-You Service</li>
           <li>Full 4-Round 609 Document Prep</li>
+          <li>Done-For-You Dispute Filing</li>
           <li>Certified Mail Processing Included</li>
+          <li>Score Sequencing Strategy</li>
           <li>120-Day Money-Back Guarantee</li>
         </ul>
         <div class="tier-cta">
@@ -678,88 +812,125 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
             buy-button-id="buy_btn_1TKCHQCRvEfUoJHHRsYycHRA"
             publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
-          <a class="pdf-stripe-link" style="display:none" href="https://buy.stripe.com/buy_btn_1TKCHQCRvEfUoJHHRsYycHRA">
-            → Get the Accelerated Audit ($497) — click to purchase
+          <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKCHQCRvEfUoJHHRsYycHRA">
+            → Get the Accelerated Audit ($497) — click to complete purchase
           </a>
         </div>
       </div>
 
-      <!-- Tier 3: Executive Funding Audit -->
+      <!-- ── TIER 3: Executive Funding Audit ────── -->
+      <!-- REPLACE_WITH_STRIPE_LINK_3 = buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9 -->
       <div class="tier-card tier-3" id="offer-executive">
+        <div class="tier-eyebrow">Premium Strategy</div>
         <div class="tier-name">Executive Funding Audit</div>
-        <div class="tier-price">$2,497</div>
-        <div class="tier-cadence">one-time payment</div>
+        <div class="tier-tagline">Personal + business credit — comprehensive strategy.</div>
+        <div class="tier-price-row">
+          <span class="tier-price">$2,497</span>
+          <span class="tier-period">one-time</span>
+        </div>
+        <div class="tier-cadence">Priority handling · monthly strategy calls included</div>
         <hr class="tier-divider">
+        <div class="tier-for">
+          <strong>Best for:</strong> Business owners and high-intent buyers who need a full-spectrum personal and business credit strategy with direct access to expert support.
+        </div>
         <ul class="tier-features">
           <li>Priority Document Prep</li>
           <li>1-on-1 Monthly Strategy Calls</li>
           <li>Authorized User Tradeline Analysis</li>
           <li>$50K+ Business Credit Blueprint</li>
+          <li>SBA &amp; Lender-Ready Positioning</li>
         </ul>
         <div class="tier-cta">
           <stripe-buy-button
             buy-button-id="buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9"
             publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
-          <a class="pdf-stripe-link" style="display:none" href="https://buy.stripe.com/buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9">
-            → Get the Executive Funding Audit ($2,497) — click to purchase
+          <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9">
+            → Get the Executive Funding Audit ($2,497) — click to complete purchase
           </a>
         </div>
       </div>
 
-    </div>
-  </div>
+    </div><!-- /.pricing-grid -->
+  </div><!-- /#pricing-section -->
 
-  <!-- ══ 7.75 — 120-DAY GUARANTEE ══ -->
+
+  <!-- ══════════════════════════════════════
+       8. 120-DAY GUARANTEE
+       Trust signal immediately following purchase decision
+  ══════════════════════════════════════ -->
   <div id="guarantee-section" class="reveal">
     <div class="guarantee-inner">
       <div class="guarantee-icon">🛡️</div>
       <div>
         <div class="guarantee-label">Our Promise</div>
         <div class="guarantee-title">120-Day Clean Path Promise</div>
-        <p class="guarantee-body">Our Accelerated Audit includes up to four rounds of aggressive, legally-backed disputes sent via certified mail over a full 120-day cycle. We fight them until they either verify the law or delete the mark. If we complete the entire four-round audit cycle and fail to secure the removal of a single inaccurate, unverified, or obsolete item, you get your money back. Period.</p>
+        <p class="guarantee-body">
+          The Accelerated Audit includes four full rounds of legally-grounded disputes filed via certified mail over 120 days. We pursue removals aggressively — until bureaus either verify the law or delete the mark.
+          If we complete the entire four-round cycle and fail to secure the removal of a single inaccurate, unverified, or obsolete item, you receive a full refund. No questions asked.
+        </p>
       </div>
     </div>
   </div>
 
-  <!-- ══ 8 — WHAT HAPPENS ON THE CALL ══ -->
-  <div class="card reveal" id="on-call">
-    <div class="eyebrow" style="margin-bottom:8px">📞 What Happens on the Call</div>
-    <div class="sec-title" id="oncall-title" style="margin-bottom:4px"></div>
-    <p style="font-size:13px;color:var(--mut);margin:10px 0 18px;line-height:1.55">It's 30 minutes. No pressure. No confusing pitch. Just a clear picture of where you stand, what's blocking you, and the smartest next moves — with someone who actually knows how this works.</p>
-    <div class="call-steps">
-      <div class="call-step"><div class="cs-left"><div class="cs-num">1</div><div class="cs-line"></div></div><div class="cs-body"><div class="cs-title">We review your actual situation</div><div class="cs-desc">We look at your goal, score range, and what you've described — then confirm the most likely blockers in your profile.</div></div></div>
-      <div class="call-step"><div class="cs-left"><div class="cs-num">2</div><div class="cs-line"></div></div><div class="cs-body"><div class="cs-title">We identify your highest-impact actions</div><div class="cs-desc">Not a generic checklist. Specific items, specific priorities, in the right order for your timeline and goal.</div></div></div>
-      <div class="call-step"><div class="cs-left"><div class="cs-num">3</div><div class="cs-line"></div></div><div class="cs-body"><div class="cs-title">You leave with a clear next step</div><div class="cs-desc">No confusion. No vague advice. A concrete, sequenced plan — and a decision you can make with full confidence.</div></div></div>
-    </div>
-  </div>
 
-  <!-- ══ 9 — URGENCY ══ -->
-  <div id="urgency-banner" class="reveal">
-    <div class="ub-icon">⏳</div>
-    <div>
-      <div class="ub-title" id="urgency-title"></div>
-      <div class="ub-desc"  id="urgency-desc"></div>
-    </div>
-  </div>
-
-  <!-- ══ 10 — CALENDLY BOOKING ══ -->
+  <!-- ══════════════════════════════════════
+       9. BOOK A CALL — SECONDARY CTA
+       Fallback for people who aren't ready to purchase.
+       REPLACE_WITH_BOOKING_LINK = Calendly URL below.
+  ══════════════════════════════════════ -->
   <div class="card reveal" id="booking">
-    <div class="eyebrow center" style="margin-bottom:8px">📅 Book Your Free Strategy Session</div>
-    <h2 class="center" id="booking-title">Book Your 30-Minute Credit Strategy Session</h2>
-    <p class="book-sub center" id="booking-sub">We'll walk through your profile, identify your highest-impact actions, and map out a clear plan — no cost, no obligation.</p>
 
-    <div class="calendly-wrap">
-      <div class="calendly-inline-widget" data-url="https://calendly.com/perfectcredit780/30min?hide_event_type_details=1" style="min-width:320px;height:700px;"></div>
+    <div class="eyebrow center" style="margin-bottom:8px">📅 Not Ready to Purchase Yet?</div>
+    <h2 class="center" id="booking-title">Book a Free 30-Minute Strategy Session</h2>
+    <p class="book-sub center" id="booking-sub">
+      For people who want expert clarity before committing. We'll review your profile, identify your highest-leverage moves, and give you a clear next step — at zero cost.
+    </p>
+
+    <div class="booking-badge center" style="display:flex;justify-content:center">
+      <span>🔒 Free · No obligation · No pitch</span>
+    </div>
+
+    <!-- What the call covers — static copy -->
+    <div class="call-steps">
+      <div class="call-step">
+        <div class="cs-left"><div class="cs-num">1</div><div class="cs-line"></div></div>
+        <div class="cs-body">
+          <div class="cs-title">We review your actual situation</div>
+          <div class="cs-desc">We go over your goal, your score range, and the answers you provided — then confirm the most likely blockers in your specific profile.</div>
+        </div>
+      </div>
+      <div class="call-step">
+        <div class="cs-left"><div class="cs-num">2</div><div class="cs-line"></div></div>
+        <div class="cs-body">
+          <div class="cs-title">We identify your highest-impact actions</div>
+          <div class="cs-desc">Not a generic checklist. Specific items, in the right order, for your timeline and goal — based on what lenders and bureaus respond to.</div>
+        </div>
+      </div>
+      <div class="call-step">
+        <div class="cs-left"><div class="cs-num">3</div><div class="cs-line"></div></div>
+        <div class="cs-body">
+          <div class="cs-title">You leave with a clear next step</div>
+          <div class="cs-desc">No vague advice. A specific, sequenced plan — and a decision you can make with confidence, whether that's working with us or doing it yourself.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPLACE_WITH_BOOKING_LINK — Calendly inline widget -->
+    <div class="calendly-wrap" style="margin-top:22px">
+      <div class="calendly-inline-widget"
+        data-url="https://calendly.com/perfectcredit780/30min?hide_event_type_details=1&hide_gdpr_banner=1"
+        style="min-width:320px;height:700px;">
+      </div>
       <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
     </div>
 
-    <!-- CTA Button (scrolls to Calendly or calls) -->
+    <!-- Phone CTA -->
     <a href="tel:+13463995606" class="call-btn" id="main-call-btn" style="text-decoration:none">
       <span class="cb-pulse"></span>
       📞 Speak With a Strategist Now
     </a>
-    <p class="call-disclaimer">Available Mon–Fri · 9am–6pm CT · Free · No obligation</p>
+    <p class="call-disclaimer">Mon–Fri · 9am–6pm CT · Free · No obligation</p>
 
     <div class="booking-reassurance">
       <div class="br-item"><span class="br-icon">🔒</span> Limited spots available this week</div>
@@ -770,93 +941,182 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
     <div style="margin-top:24px">
       <p style="font-size:12px;color:var(--mut2);text-align:center;margin-bottom:12px">Already booked? Add it to your calendar:</p>
       <div class="cal-buttons">
-        <a href="#" class="cal-btn" id="cal-google" target="_blank" rel="noopener"><span class="cal-icon">📅</span> Google Calendar</a>
+        <a href="#" class="cal-btn" id="cal-google" target="_blank" rel="noopener"><span class="cal-icon">📅</span> Google</a>
         <a href="#" class="cal-btn" id="cal-outlook" target="_blank" rel="noopener"><span class="cal-icon">📆</span> Outlook</a>
-        <a href="#" class="cal-btn" id="cal-apple" download="strategy-session.ics"><span class="cal-icon">🍎</span> Apple Calendar</a>
+        <a href="#" class="cal-btn" id="cal-apple" download="strategy-session.ics"><span class="cal-icon">🍎</span> Apple</a>
+      </div>
+    </div>
+
+  </div><!-- /#booking -->
+
+
+  <!-- ══════════════════════════════════════
+       10. FAQ — Reduces purchase abandonment
+  ══════════════════════════════════════ -->
+  <div class="card reveal" id="faq-section">
+
+    <h3 class="faq-heading">Questions Before You Decide</h3>
+
+    <div class="faq-item">
+      <div class="faq-q">How is this different from DIY credit repair? <span class="faq-toggle">＋</span></div>
+      <div class="faq-a">DIY credit repair usually means sending generic letters with no legal grounding. Our process is built around your specific file using FCRA and FDCPA provisions — the federal laws that govern exactly what bureaus and collectors must do. Template letters get ignored. Legally-grounded, file-specific disputes move the needle.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">How soon will I see movement on my credit? <span class="faq-toggle">＋</span></div>
+      <div class="faq-a">Most clients see initial bureau responses within 30–45 days of the first dispute round. The full 4-round Accelerated Audit runs over 120 days — that's the cycle needed to pursue removals aggressively across all three bureaus. Your goal and timeline affect how we sequence the strategy.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">Can you guarantee a specific score increase? <span class="faq-toggle">＋</span></div>
+      <div class="faq-a">No legitimate credit service can legally promise a specific score number — and anyone who does is violating the Credit Repair Organizations Act. What we can promise is a legally-sound, personalized strategy built for your file and your goal. That's what actually produces results.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">What does the 120-day guarantee cover? <span class="faq-toggle">＋</span></div>
+      <div class="faq-a">If we complete the full four-round dispute cycle and fail to secure the removal of a single inaccurate, unverified, or obsolete item, you receive a full refund. This applies to the Accelerated Audit. We stand behind the process because it works — when it's done correctly.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q">What if I want to talk to someone before purchasing? <span class="faq-toggle">＋</span></div>
+      <div class="faq-a">That's what the free strategy session above is for. You'll walk away with a clear picture of your profile, your options, and the right next step — no sales pitch, no obligation.</div>
+    </div>
+
+  </div><!-- /#faq-section -->
+
+
+  <!-- ══════════════════════════════════════
+       11. PDF DOWNLOAD
+       TERTIARY CTA — preserve analysis for later review
+  ══════════════════════════════════════ -->
+  <div class="reveal" id="pdf-section">
+    <div class="pdf-icon">📄</div>
+    <div class="pdf-title">Save Your Personalized Analysis</div>
+    <p class="pdf-sub">Download a PDF copy of this report to review, share, or reference later. Purchase links are clickable when opened in Chrome or Edge.</p>
+    <button class="btn-pdf" onclick="downloadPDF()">
+      ⬇ Download My Results as PDF
+    </button>
+    <p class="pdf-note">In the print dialog, select "Save as PDF" and enable "Background graphics" for the best output.</p>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       12. TRUST STACK — Final reassurance
+  ══════════════════════════════════════ -->
+  <div class="card reveal" id="trust">
+    <div class="eyebrow center" style="margin-bottom:16px">🔒 Why Trust Our Process</div>
+    <div class="trust-grid">
+      <div class="trust-item">
+        <span class="ti-icon">⚖️</span>
+        <div>
+          <div class="ti-title">FCRA &amp; FDCPA Grounded</div>
+          <div class="ti-desc">Every action is based on consumer protection law — not workarounds or loopholes.</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <span class="ti-icon">🤖</span>
+        <div>
+          <div class="ti-title">AI-Assisted Analysis</div>
+          <div class="ti-desc">Your profile is cross-referenced against hundreds of lender approval patterns.</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <span class="ti-icon">🚫</span>
+        <div>
+          <div class="ti-title">No Generic Disputes</div>
+          <div class="ti-desc">We never send template letters. Every dispute is specific to your exact file.</div>
+        </div>
+      </div>
+      <div class="trust-item">
+        <span class="ti-icon">🎯</span>
+        <div>
+          <div class="ti-title">Approval-Focused Strategy</div>
+          <div class="ti-desc">We optimize for your specific goal — not just a higher number in a vacuum.</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- ══ 10.5 — FAQ ══ -->
-  <div class="card reveal" id="faq-section">
-    <div class="eyebrow center" style="margin-bottom:16px">❓ Common Questions</div>
-    <div class="sec-title center" style="margin-bottom:20px">Before You Decide</div>
 
-    <div class="faq-item">
-      <div class="faq-q">How is this different from DIY credit repair?</div>
-      <div class="faq-a">DIY credit repair typically uses generic letters with no legal grounding. Our process is built around your specific file using FCRA and FDCPA provisions — the actual laws that govern what bureaus and collectors must do. Template letters get ignored. Legally-grounded, file-specific disputes get results.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">How soon can I expect to see changes?</div>
-      <div class="faq-a">Most clients see initial movement within 30–45 days of their first round of disputes. The full 4-round Accelerated Audit runs over 120 days — that's the cycle needed to pursue removals aggressively across all three bureaus. Your timeline and goal affect sequencing, which is why we personalize the strategy.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">What's included in the 120-Day Guarantee?</div>
-      <div class="faq-a">If we complete the full four-round dispute cycle and fail to secure the removal of a single inaccurate, unverified, or obsolete item, you receive a full refund. This applies to the Accelerated Audit. We stand behind the process because we know it works when it's done correctly.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">Can you guarantee a specific score increase?</div>
-      <div class="faq-a">No legitimate credit repair service can legally promise a specific score increase — and anyone who does is violating the Credit Repair Organizations Act. What we can promise is a legally-sound, personalized dispute strategy built for your file and your goal. That's what actually moves the needle.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q">What if I want to talk to someone before purchasing?</div>
-      <div class="faq-a">Book the free 30-minute strategy session above — that's exactly what it's for. You'll walk away with clarity on your profile, your options, and the right next step for your situation. No pitch, no pressure.</div>
-    </div>
-  </div>
+  <!-- ══════════════════════════════════════
+       HIDDEN STUBS — required by results-engine.js
+       (Invisible; kept so the engine's setHTML calls don't error)
+  ══════════════════════════════════════ -->
+  <div id="strategy"     style="display:none"></div>
+  <div id="comparison"   style="display:none"></div>
+  <div id="on-call"      style="display:none"><span id="oncall-title"></span></div>
+  <div id="why-matters"  style="display:none"><span id="wm-title"></span><span id="wm-body"></span></div>
+  <div id="urgency-banner" style="display:none"><span id="urgency-title"></span><span id="urgency-desc"></span></div>
 
-  <!-- ══ 10.75 — PDF DOWNLOAD ══ -->
-  <div class="reveal" id="pdf-section">
-    <div class="pdf-icon">📄</div>
-    <div class="pdf-title">Save Your Personalized Analysis</div>
-    <p class="pdf-sub">Download a copy of this report as a PDF. Purchase links are clickable when opened in Chrome or Edge.</p>
-    <button class="btn-pdf" onclick="downloadPDF()">
-      ⬇ Download My Results as PDF
-    </button>
-    <p class="pdf-note">Tip: In the print dialog, select "Save as PDF" and enable "Background graphics" for best results.</p>
-  </div>
+</main><!-- /main -->
 
-  <!-- ══ 11 — TRUST STACK ══ -->
-  <div class="card reveal" id="trust">
-    <div class="eyebrow center" style="margin-bottom:16px">🔒 Why Trust Our Process</div>
-    <div class="trust-grid">
-      <div class="trust-item"><span class="ti-icon">⚖️</span><div><div class="ti-title">FCRA &amp; FDCPA Compliant</div><div class="ti-desc">Every action is grounded in consumer protection law — not loopholes.</div></div></div>
-      <div class="trust-item"><span class="ti-icon">🤖</span><div><div class="ti-title">AI-Assisted Analysis</div><div class="ti-desc">Your profile is cross-referenced against hundreds of lender approval patterns.</div></div></div>
-      <div class="trust-item"><span class="ti-icon">🚫</span><div><div class="ti-title">No Generic Disputes</div><div class="ti-desc">We never send template letters. Every dispute is specific to your exact file.</div></div></div>
-      <div class="trust-item"><span class="ti-icon">🎯</span><div><div class="ti-title">Approval-Focused Strategy</div><div class="ti-desc">We optimize for your specific goal — not just a higher score in a vacuum.</div></div></div>
-    </div>
-  </div>
 
-</main>
-
-<!-- Sticky mobile bar (no phone number shown) -->
+<!-- Sticky mobile CTA (shows below 640px) -->
 <div id="sticky-call">
   <a href="tel:+13463995606"><span>📞</span> Speak With a Strategist Now</a>
 </div>
 
 
+<!-- ════════════════════════════════════════
+     INLINE SCRIPTS
+════════════════════════════════════════ -->
 <script>
+'use strict';
+
 /* ── FAQ accordion ── */
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.faq-q').forEach(q => {
     q.addEventListener('click', () => {
       const item = q.closest('.faq-item');
-      const isOpen = item.classList.contains('open');
+      const wasOpen = item.classList.contains('open');
+      // Close all
       document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
-      if (!isOpen) item.classList.add('open');
+      // Toggle clicked
+      if (!wasOpen) item.classList.add('open');
     });
   });
 });
 
-/* ── PDF download ──
-   Uses browser print-to-PDF. Chrome/Edge preserve <a> href clickability.
-   For server-side PDF with full fidelity, use puppeteer or playwright
-   with page.pdf({ printBackground: true, format: 'Letter' }).
-*/
+/* ── PDF download ──────────────────────────
+   Uses browser print-to-PDF.
+   Chrome & Edge preserve <a> href clickability
+   as real hyperlinks in the exported PDF.
+
+   For server-side rendering with full layout
+   fidelity, use Puppeteer:
+     page.pdf({ printBackground:true, format:'Letter' })
+   Or Playwright:
+     page.pdf({ format:'A4', printBackground:true })
+─────────────────────────────────────────── */
 function downloadPDF() {
+  const prev = document.title;
   document.title = 'Clean Path Credit — My Personalized Analysis';
   window.print();
+  // Restore title after print dialog closes
+  setTimeout(() => { document.title = prev }, 1000);
 }
+
+/* ── Scroll indicator ── */
+(function() {
+  const ind = document.getElementById('scroll-indicator');
+  if (!ind) return;
+  let hidden = false;
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 220 && !hidden) {
+      ind.classList.add('hidden'); hidden = true;
+    } else if (window.scrollY <= 220 && hidden) {
+      ind.classList.remove('hidden'); hidden = false;
+    }
+  }, { passive:true });
+})();
 </script>
+
+<!-- ════════════════════════════════════════
+     PERSONALIZATION ENGINE
+     Reads localStorage data from index.html,
+     injects dynamic copy into all #id hooks above.
+════════════════════════════════════════ -->
 <script src="results-engine.js"></script>
+
 </body>
 </html>
