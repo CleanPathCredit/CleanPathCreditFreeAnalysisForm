@@ -310,7 +310,8 @@ body {
 #ai-msg {
   font-family:var(--fd); font-size:14px; font-weight:700;
   color:var(--teal); letter-spacing:.04em;
-  text-align:center; max-width:320px;
+  text-align:center; max-width:min(340px, 88vw);
+  white-space:normal; line-height:1.4;
   animation:aiPulse 1.6s ease-in-out infinite;
 }
 @keyframes aiPulse { 0%,100%{opacity:1} 50%{opacity:.55} }
@@ -335,16 +336,16 @@ body {
 }
 #ai-rotate-text {
   font-family:var(--fd); font-size:13px; font-weight:700;
-  letter-spacing:.08em; text-transform:uppercase;
+  letter-spacing:.06em; text-transform:uppercase;
   color:var(--teal);
-  height:20px; overflow:hidden; position:relative;
-  min-width:280px; text-align:center;
+  height:40px; overflow:hidden; position:relative;
+  width:min(380px, 88vw); text-align:center;
 }
 #ai-rotate-text span {
   position:absolute; left:0; right:0; top:0;
   opacity:0; transform:translateY(7px);
   transition:opacity .35s, transform .35s;
-  white-space:nowrap;
+  white-space:normal; line-height:1.4;
 }
 #ai-rotate-text span.on { opacity:1; transform:none; }
 
@@ -422,9 +423,12 @@ body {
 
 <!-- ── TOP BAR ── -->
 <div id="top-bar">
-  <div class="nav-logo-wrap">
-    <span class="nav-logo grad-text">Clean Path Credit</span>
-    <span class="nav-ai-badge">powered by AI</span>
+  <div class="nav-logo-wrap" style="flex-direction:row;align-items:center;gap:10px">
+    <img src="logo.png" alt="Clean Path Credit" style="height:34px;width:auto;object-fit:contain;display:block"/>
+    <div style="display:flex;flex-direction:column;line-height:1">
+      <span class="nav-logo grad-text">Clean Path Credit</span>
+      <span class="nav-ai-badge">powered by AI</span>
+    </div>
   </div>
   <div class="nav-pill"><span class="dot"></span>AI Analysis</div>
 </div>
