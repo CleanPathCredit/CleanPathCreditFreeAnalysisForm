@@ -105,12 +105,13 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
 .hero-sub strong{color:var(--txt)}
 .hero-call-pill{
   display:inline-flex;align-items:center;gap:9px;margin-top:22px;
-  padding:12px 24px;background:var(--gradr);border-radius:99px;
+  padding:13px 26px;background:#10b981;border-radius:99px;
   color:#fff;font-family:var(--fd);font-size:13px;font-weight:700;
   text-decoration:none;letter-spacing:.02em;cursor:pointer;border:none;
-  box-shadow:0 0 28px rgba(255,90,126,.25);transition:opacity .2s;
+  box-shadow:0 4px 18px rgba(16,185,129,.3);transition:background .2s,box-shadow .2s,transform .15s;
 }
-.hero-call-pill:hover{opacity:.88}
+.hero-call-pill:hover{background:#059669;box-shadow:0 6px 24px rgba(16,185,129,.4);transform:translateY(-1px);}
+.hero-call-pill:active{transform:scale(.98)}
 
 /* ── SCROLL INDICATOR ── */
 #scroll-indicator{
@@ -440,8 +441,8 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
     <!-- Profile type badge -->
     <div id="profile-badge-wrap"></div>
     <div class="center">
-      <button class="hero-call-pill" id="hero-call-pill" onclick="document.getElementById('booking').scrollIntoView({behavior:'smooth'})">
-        📞 Speak With a Strategist Now
+      <button class="hero-call-pill" id="hero-call-pill" onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">
+        ↓ Scroll Down to View Your Plan
       </button>
     </div>
   </div>
