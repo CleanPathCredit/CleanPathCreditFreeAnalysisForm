@@ -70,6 +70,11 @@ const D = {
   painLevel : String(RAW.painLevel || 'MODERATE').toUpperCase(),
   painScore : Number(RAW.painScore || 3),
   urgency   : String(RAW.urgency   || 'LOW').toUpperCase(),
+  // Enhanced lead scoring (from new SCORING config in index.html)
+  leadScore        : Number(RAW.leadScore || 0),
+  leadTier         : String(RAW.leadTier  || 'warm').toLowerCase(),
+  recommendedOffer : String(RAW.recommendedOffer || 'accelerated').toLowerCase(),
+  blockerTags      : Array.isArray(RAW.blockerTags) ? RAW.blockerTags : [],
 };
 
 console.log('[CPC] D (normalised):', D);
@@ -381,6 +386,111 @@ function getOnCallTitle() {
 }
 
 /* ════════════════════════════════════════════
+   2b. WHAT THIS MEANS — plain-English impact
+════════════════════════════════════════════ */
+function getWhatThisMeans() {
+  const n = NAME ? `<strong>${NAME}</strong>` : 'You';
+  const hasCollections = issueIs('collection');
+  const hasDenials     = issueIs('denial','denials');
+  const hasLate        = issueIs('late');
+  const hasLowScore    = issueIs('low score');
+  const hasNeg         = issueIs('negative');
+
+  // Grid items explaining impact (2–4 depending on profile)
+  const items = [];
+
+  if (goalIs('home')) {
+    items.push({
+      icon: '🏦', label: 'Mortgage Readiness',
+      value: hasDenials || hasCollections
+        ? 'Most conventional lenders require a 620+ score with no active collections. Your profile needs targeted work before approval becomes realistic.'
+        : 'You\'re closer than a standard lender review suggests — targeted positioning can close the gap.',
+    });
+    items.push({
+      icon: '💸', label: 'Rate Difference at Stake',
+      value: 'A 40-point score improvement on a $300,000 mortgage can save $200–$350 per month — roughly $84,000 over the life of the loan.',
+    });
+  } else if (goalIs('car')) {
+    items.push({
+      icon: '🚗', label: 'Auto Approval Risk',
+      value: hasLowScore || hasCollections
+        ? 'Sub-600 scores typically face subprime rates of 14–24% APR. On a $30K vehicle, that\'s $7,000–$12,000 more in interest than a prime borrower pays.'
+        : 'Small improvements to your profile can move you from subprime into prime rates — a material difference per month.',
+    });
+    items.push({
+      icon: '📊', label: 'Monthly Payment Impact',
+      value: 'Improving from a 580 to a 660 score on a $25,000 auto loan can lower your monthly payment by $80–$130.',
+    });
+  } else if (goalIs('business')) {
+    items.push({
+      icon: '💼', label: 'Funding Access',
+      value: 'Most SBA lenders and business credit programs require the guarantor\'s personal score to be 650+. Below that threshold, your options are limited to high-cost alternatives.',
+    });
+    items.push({
+      icon: '🏗️', label: 'Business Credit Separation',
+      value: 'Building business credit while your personal profile is clean allows you to access $50K–$250K+ in business lines without further impacting your personal score.',
+    });
+  } else {
+    items.push({
+      icon: '📈', label: 'The Invisible Tax',
+      value: 'A below-average credit score costs the average American $200,000+ in excess interest and fees over a lifetime. This isn\'t abstract — it shows up in every rate, every deposit, every loan you touch.',
+    });
+    items.push({
+      icon: '🔓', label: 'What Unlocks',
+      value: 'Better credit means lower rates, smaller deposits, stronger negotiating position with landlords and lenders, and access to financial products that are simply unavailable below key score thresholds.',
+    });
+  }
+
+  // Profile-based explanation
+  let title, body;
+  if (D.profile === 'REBUILD') {
+    title = 'Your profile shows significant friction points';
+    body  = `Based on your answers, ${n} likely have one or more items on your report that are actively blocking approvals and inflating the cost of credit. The encouraging reality: many of these items are disputable, removable, or significantly reducible using consumer protection law — when the right approach is applied in the right order.`;
+  } else if (D.profile === 'OPTIMIZATION') {
+    title = 'Your baseline is strong — positioning is the gap';
+    body  = `Based on your answers, ${n} have a solid foundation. The focus here isn\'t repair — it\'s strategic positioning. Small, sequenced changes to utilization, inquiry patterns, and account mix can produce meaningful score movement and meaningfully improve how lenders score your file.`;
+  } else {
+    title = 'A few targeted issues are holding your profile back';
+    body  = `Based on your answers, ${n} are in a position where specific, sequenced actions are likely to produce real movement. This isn\'t a full rebuild — it\'s targeted intervention on the items most likely to be blocking your next approval or inflating your costs.`;
+  }
+
+  return { title, body, items };
+}
+
+/* ════════════════════════════════════════════
+   2c. RECOMMENDED OFFER — applies visual
+   elevation to the tier card matching the
+   lead score-determined recommendedOffer field
+════════════════════════════════════════════ */
+function applyRecommendedOffer() {
+  const offerMap = {
+    diy:         'offer-diy',
+    accelerated: 'offer-accelerated',
+    executive:   'offer-executive',
+  };
+  const targetId = offerMap[D.recommendedOffer] || 'offer-accelerated';
+  const el = document.getElementById(targetId);
+  if (!el) return;
+
+  // Remove any existing recommended state
+  document.querySelectorAll('.tier-card').forEach(c => {
+    c.classList.remove('recommended');
+    const existing = c.querySelector('.tier-rec-badge');
+    if (existing) existing.remove();
+    // Also remove old static .tier-badge if present (replaced by dynamic)
+    const staticBadge = c.querySelector('.tier-badge');
+    if (staticBadge) staticBadge.remove();
+  });
+
+  // Apply to the right card
+  el.classList.add('recommended');
+  const badge = document.createElement('div');
+  badge.className = 'tier-rec-badge';
+  badge.textContent = 'Recommended For You';
+  el.insertBefore(badge, el.firstChild);
+}
+
+/* ════════════════════════════════════════════
    3. SAFE DOM HELPERS
 ════════════════════════════════════════════ */
 const $       = id      => document.getElementById(id);
@@ -397,6 +507,24 @@ function render() {
   /* Hero */
   setHTML('hero-headline', getHeadline());
   setHTML('hero-sub',      getSubheadline());
+
+  /* What This Means */
+  const wtm = getWhatThisMeans();
+  setHTML('wtm-title', wtm.title);
+  setHTML('wtm-body',  wtm.body);
+  const wtmGrid = $('wtm-grid');
+  if (wtmGrid) {
+    wtmGrid.innerHTML = wtm.items.map(item =>
+      `<div class="wtm-item">
+        <div class="wtm-icon">${item.icon}</div>
+        <div class="wtm-label">${item.label}</div>
+        <div class="wtm-value">${item.value}</div>
+      </div>`
+    ).join('');
+  }
+
+  /* Recommended offer — apply visual elevation */
+  applyRecommendedOffer();
 
   /* Scarcity section */
   const scar = getScarcity();

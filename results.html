@@ -376,6 +376,82 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
 .guarantee-label{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#1d4ed8;margin-bottom:6px}
 .guarantee-title{font-family:var(--fd);font-size:18px;font-weight:800;color:#1e3a5f;margin-bottom:10px}
 .guarantee-body{font-size:13px;color:#334155;line-height:1.75}
+
+/* ══════════════════════════════════════
+   WHAT THIS MEANS SECTION
+══════════════════════════════════════ */
+#what-this-means .wtm-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+@media(max-width:480px){#what-this-means .wtm-grid{grid-template-columns:1fr}}
+.wtm-item{background:var(--card2);border:1px solid var(--bdr);border-radius:var(--rs);padding:16px 14px}
+.wtm-icon{font-size:20px;margin-bottom:8px}
+.wtm-label{font-family:var(--fd);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);margin-bottom:4px}
+.wtm-value{font-size:13px;color:var(--txt);line-height:1.5}
+.wtm-body{font-size:14px;color:var(--mut);line-height:1.75;margin-top:12px}
+.wtm-body strong{color:var(--txt)}
+
+/* ══════════════════════════════════════
+   RECOMMENDED OFFER (dynamic class)
+══════════════════════════════════════ */
+.tier-card.recommended{border:2.5px solid #10b981;box-shadow:0 14px 48px rgba(16,185,129,.18);position:relative}
+.tier-rec-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:#10b981;color:#fff;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:4px 14px;border-radius:99px;white-space:nowrap}
+@media(min-width:861px){.tier-card.recommended{transform:scale(1.04)}}
+
+/* ══════════════════════════════════════
+   FAQ SECTION
+══════════════════════════════════════ */
+#faq-section{padding:28px 26px}
+.faq-item{border-bottom:1px solid var(--bdr);padding:16px 0}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-family:var(--fd);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--txt)}
+.faq-q::after{content:'＋';font-size:18px;color:var(--teal);flex-shrink:0;transition:transform .25s}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{font-size:13px;color:var(--mut);line-height:1.7;max-height:0;overflow:hidden;transition:max-height .4s var(--ease),padding .3s}
+.faq-item.open .faq-a{max-height:400px;padding-top:10px}
+
+/* ══════════════════════════════════════
+   PDF DOWNLOAD SECTION
+══════════════════════════════════════ */
+#pdf-section{padding:28px 26px;background:linear-gradient(135deg,rgba(13,148,136,.04),rgba(37,99,235,.04));border:1px solid var(--bhi);border-radius:var(--r);text-align:center}
+.pdf-icon{font-size:36px;margin-bottom:12px}
+.pdf-title{font-family:var(--fd);font-size:17px;font-weight:800;margin-bottom:6px}
+.pdf-sub{font-size:13px;color:var(--mut);margin-bottom:18px;line-height:1.55}
+.btn-pdf{display:inline-flex;align-items:center;gap:9px;padding:13px 26px;background:var(--card);border:1.5px solid var(--teal);border-radius:99px;color:var(--teal);font-family:var(--fd);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.02em;transition:background .2s,color .2s,box-shadow .2s}
+.btn-pdf:hover{background:rgba(13,148,136,.06);box-shadow:0 4px 16px rgba(13,148,136,.15)}
+.pdf-note{font-size:11px;color:var(--mut2);margin-top:10px;line-height:1.4}
+
+/* ══════════════════════════════════════
+   PRINT / PDF STYLES
+   Browser print-to-PDF preserves <a> clickability.
+   Use Chrome → Print → Save as PDF for best results.
+   For server-side rendering: puppeteer / playwright headless.
+══════════════════════════════════════ */
+@media print {
+  /* Hide everything that isn't content */
+  #page-loader,#top-bar,#progress-bar,#scroll-indicator,
+  #sticky-call,.hero-call-pill,#pdf-section,.btn-pdf,
+  #urgency-banner,.call-btn,.call-disclaimer,.cal-buttons,
+  .calendly-wrap,#booking .eyebrow,.booking-reassurance,
+  .faq-q::after{display:none!important}
+
+  body{background:#fff!important;color:#000!important;font-size:12px}
+  main{padding:10px 0!important}
+  .card,.reveal{box-shadow:none!important;border:1px solid #e2e8f0!important;page-break-inside:avoid}
+  .reveal{opacity:1!important;transform:none!important}
+  #pricing-section{max-width:100%!important;overflow:visible!important}
+  .pricing-grid{grid-template-columns:1fr!important}
+  .tier-card{page-break-inside:avoid;margin-bottom:12px}
+
+  /* Show Stripe payment URLs as text for PDF clickability */
+  .pdf-stripe-link{display:block!important;font-size:11px;color:#0d9488;text-decoration:underline;margin-top:8px;word-break:break-all}
+  stripe-buy-button{display:none!important}
+
+  /* Show full URLs on all links */
+  a[href^="http"]::after{content:" (" attr(href) ")";font-size:10px;color:#64748b}
+  a[href^="http"].pdf-stripe-link::after{display:none}
+
+  /* Page header for PDF */
+  main::before{content:"Clean Path Credit — Personalized Analysis";display:block;font-family:sans-serif;font-size:14px;font-weight:bold;color:#0d9488;padding:10px 0 16px;border-bottom:2px solid #0d9488;margin-bottom:20px}
+}
 </style>
 </head>
 <body>
@@ -454,7 +530,15 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
     </div>
   </div>
 
-  <!-- ══ 1.5 — SCARCITY / COST OF WAITING ══ -->
+  <!-- ══ 1.5 — WHAT THIS MEANS ══ -->
+  <div class="card reveal" id="what-this-means">
+    <div class="eyebrow" style="margin-bottom:8px">📖 What This Means For You</div>
+    <div class="sec-title" id="wtm-title" style="margin-bottom:4px"></div>
+    <p class="wtm-body" id="wtm-body"></p>
+    <div class="wtm-grid" id="wtm-grid"></div>
+  </div>
+
+  <!-- ══ 1.75 — SCARCITY / COST OF WAITING ══ -->
   <div id="scarcity-section" class="reveal" style="background:#fff5f5;border:1.5px solid #fecaca">
     <div class="scarcity-label">🚨 The True Cost of Waiting</div>
     <h2 class="scarcity-headline" id="scarcity-headline">Every Month You Wait Costs You Money</h2>
@@ -555,7 +639,7 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
     <div class="pricing-grid">
 
       <!-- Tier 1: Clean Path DIY Blueprint -->
-      <div class="tier-card tier-1">
+      <div class="tier-card tier-1" id="offer-diy">
         <div class="tier-name">Clean Path DIY Blueprint</div>
         <div class="tier-price">$97</div>
         <div class="tier-cadence">one-time · self-mailing required</div>
@@ -570,12 +654,15 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
             buy-button-id="buy_btn_1TKC9sCRvEfUoJHH2j25qlzl"
             publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
+          <!-- PDF fallback — visible only in print -->
+          <a class="pdf-stripe-link" style="display:none" href="https://buy.stripe.com/buy_btn_1TKC9sCRvEfUoJHH2j25qlzl">
+            → Get the DIY Blueprint ($97) — click to purchase
+          </a>
         </div>
       </div>
 
-      <!-- Tier 2: Accelerated Audit (Most Popular) -->
-      <div class="tier-card tier-2">
-        <div class="tier-badge">Most Popular</div>
+      <!-- Tier 2: Accelerated Audit -->
+      <div class="tier-card tier-2" id="offer-accelerated">
         <div class="tier-name">Accelerated Audit</div>
         <div class="tier-price">$497</div>
         <div class="tier-cadence">one-time payment</div>
@@ -591,11 +678,14 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
             buy-button-id="buy_btn_1TKCHQCRvEfUoJHHRsYycHRA"
             publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
+          <a class="pdf-stripe-link" style="display:none" href="https://buy.stripe.com/buy_btn_1TKCHQCRvEfUoJHHRsYycHRA">
+            → Get the Accelerated Audit ($497) — click to purchase
+          </a>
         </div>
       </div>
 
       <!-- Tier 3: Executive Funding Audit -->
-      <div class="tier-card tier-3">
+      <div class="tier-card tier-3" id="offer-executive">
         <div class="tier-name">Executive Funding Audit</div>
         <div class="tier-price">$2,497</div>
         <div class="tier-cadence">one-time payment</div>
@@ -611,6 +701,9 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
             buy-button-id="buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9"
             publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
+          <a class="pdf-stripe-link" style="display:none" href="https://buy.stripe.com/buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9">
+            → Get the Executive Funding Audit ($2,497) — click to purchase
+          </a>
         </div>
       </div>
 
@@ -684,6 +777,44 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
     </div>
   </div>
 
+  <!-- ══ 10.5 — FAQ ══ -->
+  <div class="card reveal" id="faq-section">
+    <div class="eyebrow center" style="margin-bottom:16px">❓ Common Questions</div>
+    <div class="sec-title center" style="margin-bottom:20px">Before You Decide</div>
+
+    <div class="faq-item">
+      <div class="faq-q">How is this different from DIY credit repair?</div>
+      <div class="faq-a">DIY credit repair typically uses generic letters with no legal grounding. Our process is built around your specific file using FCRA and FDCPA provisions — the actual laws that govern what bureaus and collectors must do. Template letters get ignored. Legally-grounded, file-specific disputes get results.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How soon can I expect to see changes?</div>
+      <div class="faq-a">Most clients see initial movement within 30–45 days of their first round of disputes. The full 4-round Accelerated Audit runs over 120 days — that's the cycle needed to pursue removals aggressively across all three bureaus. Your timeline and goal affect sequencing, which is why we personalize the strategy.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What's included in the 120-Day Guarantee?</div>
+      <div class="faq-a">If we complete the full four-round dispute cycle and fail to secure the removal of a single inaccurate, unverified, or obsolete item, you receive a full refund. This applies to the Accelerated Audit. We stand behind the process because we know it works when it's done correctly.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can you guarantee a specific score increase?</div>
+      <div class="faq-a">No legitimate credit repair service can legally promise a specific score increase — and anyone who does is violating the Credit Repair Organizations Act. What we can promise is a legally-sound, personalized dispute strategy built for your file and your goal. That's what actually moves the needle.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">What if I want to talk to someone before purchasing?</div>
+      <div class="faq-a">Book the free 30-minute strategy session above — that's exactly what it's for. You'll walk away with clarity on your profile, your options, and the right next step for your situation. No pitch, no pressure.</div>
+    </div>
+  </div>
+
+  <!-- ══ 10.75 — PDF DOWNLOAD ══ -->
+  <div class="reveal" id="pdf-section">
+    <div class="pdf-icon">📄</div>
+    <div class="pdf-title">Save Your Personalized Analysis</div>
+    <p class="pdf-sub">Download a copy of this report as a PDF. Purchase links are clickable when opened in Chrome or Edge.</p>
+    <button class="btn-pdf" onclick="downloadPDF()">
+      ⬇ Download My Results as PDF
+    </button>
+    <p class="pdf-note">Tip: In the print dialog, select "Save as PDF" and enable "Background graphics" for best results.</p>
+  </div>
+
   <!-- ══ 11 — TRUST STACK ══ -->
   <div class="card reveal" id="trust">
     <div class="eyebrow center" style="margin-bottom:16px">🔒 Why Trust Our Process</div>
@@ -703,6 +834,29 @@ main{max-width:var(--max);margin:0 auto;padding:44px 20px 150px;display:flex;fle
 </div>
 
 
+<script>
+/* ── FAQ accordion ── */
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!isOpen) item.classList.add('open');
+    });
+  });
+});
+
+/* ── PDF download ──
+   Uses browser print-to-PDF. Chrome/Edge preserve <a> href clickability.
+   For server-side PDF with full fidelity, use puppeteer or playwright
+   with page.pdf({ printBackground: true, format: 'Letter' }).
+*/
+function downloadPDF() {
+  document.title = 'Clean Path Credit — My Personalized Analysis';
+  window.print();
+}
+</script>
 <script src="results-engine.js"></script>
 </body>
 </html>

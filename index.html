@@ -984,52 +984,110 @@ function formatPhone(val) {
 }
 
 /* ══════════════════════════════════════════
-   PROFILE CLASSIFICATION & PAIN SCORING
+   SCORING CONFIG — edit these values to tune
+   lead classification and offer routing
+══════════════════════════════════════════ */
+const SCORING = {
+  goals: {
+    home:           { score: 15, path: 'home',              offerBias: 'mid'  },
+    car:            { score: 10, path: 'auto',              offerBias: 'low'  },
+    business:       { score: 12, path: 'business',          offerBias: 'high' },
+    improve_credit: { score:  8, path: 'score-improvement', offerBias: 'low'  },
+  },
+  situations: {
+    'recent denials':           { score: 20, urgency: 4, tags: ['denial'],         offerBias: 'high' },
+    'collections':              { score: 18, urgency: 4, tags: ['collections'],    offerBias: 'high' },
+    'low score':                { score: 15, urgency: 3, tags: ['low-score'],      offerBias: 'mid'  },
+    'late payments':            { score: 15, urgency: 3, tags: ['late-payments'],  offerBias: 'mid'  },
+    'negative items on report': { score: 12, urgency: 2, tags: ['negative-items'], offerBias: 'mid'  },
+    'not sure':                 { score:  5, urgency: 0, tags: ['unsure'],         offerBias: 'low'  },
+  },
+  scores: {
+    '500s':     { score: 28, urgency: 5, scoreTier: 'critical' },
+    '600s':     { score: 18, urgency: 3, scoreTier: 'low'      },
+    '700+':     { score:  5, urgency: 1, scoreTier: 'good'     },
+    'not sure': { score: 15, urgency: 2, scoreTier: 'unknown'  },
+  },
+  timelines: {
+    'asap':           { score: 20, urgency: 5 },
+    'within 30 days': { score: 15, urgency: 4 },
+    'within 60 days': { score: 10, urgency: 2 },
+    'just exploring': { score:  2, urgency: 0 },
+  },
+  // Bonus when multiple serious issues are stacked
+  stackBonus: { 3: 10, 4: 15, 5: 20 },
+};
+
+// Lead tier thresholds — adjust min values to tune offer routing
+const LEAD_TIERS = [
+  { min: 80, tier: 'priority', label: 'Priority',  recommendedOffer: 'executive'   },
+  { min: 55, tier: 'hot',      label: 'Hot',       recommendedOffer: 'accelerated' },
+  { min: 30, tier: 'warm',     label: 'Warm',      recommendedOffer: 'accelerated' },
+  { min:  0, tier: 'cold',     label: 'Cold',      recommendedOffer: 'diy'         },
+];
+
+/* ══════════════════════════════════════════
+   PROFILE CLASSIFICATION & LEAD SCORING
 ══════════════════════════════════════════ */
 function classifyProfile() {
-  const issues = formData.situation.map(s => s.toLowerCase());
-  const score = formData.score.toLowerCase();
+  const issues   = formData.situation.map(s => s.toLowerCase());
+  const score    = formData.score.toLowerCase();
   const timeline = formData.timeline.toLowerCase();
 
-  // Pain weights
-  const weights = {
-    'collections': 3,
-    'negative items on report': 3,
-    'late payments': 2,
-    'low score': 2,
-    'recent denials': 2,
-    'not sure': 1,
-  };
+  /* ── Compute lead score from config ── */
+  let leadScore = 0;
+  const blockerTags = [];
 
-  let painScore = 0;
+  // Goal
+  const goalCfg = SCORING.goals[formData.goal.toLowerCase()];
+  if (goalCfg) leadScore += goalCfg.score;
+
+  // Situations
   issues.forEach(issue => {
-    Object.keys(weights).forEach(key => {
-      if (issue.includes(key) || key.includes(issue.toLowerCase())) {
-        painScore += weights[key];
-      }
-    });
+    const key = Object.keys(SCORING.situations).find(k => issue.includes(k));
+    if (key) {
+      leadScore += SCORING.situations[key].score;
+      blockerTags.push(...SCORING.situations[key].tags);
+    }
   });
 
-  // Profile type
-  let profile = 'RECOVERY';
-  if (score.includes('500') || issues.some(i => i.includes('collection') || i.includes('negative'))) {
-    profile = 'REBUILD';
-  } else if (score.includes('700')) {
-    profile = 'OPTIMIZATION';
-  }
+  // Stack bonus (3+ serious issues)
+  const seriousCount = issues.filter(i => !i.includes('not sure')).length;
+  if (SCORING.stackBonus[seriousCount]) leadScore += SCORING.stackBonus[seriousCount];
 
-  // Pain level
-  let painLevel = 'MODERATE';
-  if (painScore >= 6) painLevel = 'SEVERE';
-  else if (painScore <= 2) painLevel = 'LIGHT';
+  // Credit score range
+  const scoreKey = Object.keys(SCORING.scores).find(k => score.includes(k.replace(/\s+/g, '')));
+  if (scoreKey) leadScore += SCORING.scores[scoreKey].score;
 
-  // Urgency
-  let urgency = 'LOW';
-  if (timeline.includes('asap')) urgency = 'HIGH';
-  else if (timeline.includes('30')) urgency = 'MEDIUM';
-  else if (timeline.includes('exploring')) urgency = 'VERY_LOW';
+  // Timeline
+  const timeKey = Object.keys(SCORING.timelines).find(k => timeline.includes(k));
+  if (timeKey) leadScore += SCORING.timelines[timeKey].score;
 
-  return { profile, painLevel, painScore, urgency };
+  // Lead tier + recommended offer
+  const tierObj = LEAD_TIERS.find(t => leadScore >= t.min) || LEAD_TIERS[LEAD_TIERS.length - 1];
+
+  /* ── Legacy pain/profile fields (backwards compat) ── */
+  const profile = score.includes('500') || issues.some(i => i.includes('collection') || i.includes('negative'))
+    ? 'REBUILD'
+    : score.includes('700') ? 'OPTIMIZATION' : 'RECOVERY';
+
+  const weights = { 'collections': 3, 'negative items on report': 3, 'late payments': 2, 'low score': 2, 'recent denials': 2, 'not sure': 1 };
+  let painScore = 0;
+  issues.forEach(issue => {
+    Object.keys(weights).forEach(k => { if (issue.includes(k) || k.includes(issue)) painScore += weights[k]; });
+  });
+
+  const painLevel = painScore >= 6 ? 'SEVERE' : painScore <= 2 ? 'LIGHT' : 'MODERATE';
+  const urgency   = timeline.includes('asap') ? 'HIGH' : timeline.includes('30') ? 'MEDIUM' : timeline.includes('exploring') ? 'VERY_LOW' : 'LOW';
+
+  return {
+    profile, painLevel, painScore, urgency,
+    leadScore,
+    leadTier:      tierObj.tier,
+    leadTierLabel: tierObj.label,
+    recommendedOffer: tierObj.recommendedOffer,
+    blockerTags,
+  };
 }
 
 /* ══════════════════════════════════════════
@@ -1101,7 +1159,7 @@ function submitForm() {
     name:      formData.firstName,
     email:     formData.email,
     phone:     formData.phone,
-    goal:      formData.goal,          // already canonical: 'home'|'car'|'business'|'improve_credit'
+    goal:      formData.goal,          // canonical: 'home'|'car'|'business'|'improve_credit'
     situation: Array.isArray(formData.situation) ? formData.situation.join(', ') : formData.situation,
     situationArray: formData.situation,
     score:     formData.score,
@@ -1111,6 +1169,12 @@ function submitForm() {
     painLevel: classification.painLevel,
     painScore: classification.painScore,
     urgency:   classification.urgency,
+    // Enhanced lead scoring fields
+    leadScore:        classification.leadScore,
+    leadTier:         classification.leadTier,
+    leadTierLabel:    classification.leadTierLabel,
+    recommendedOffer: classification.recommendedOffer,
+    blockerTags:      classification.blockerTags,
   };
 
   /* ⚠️ WEBHOOK — Send lead data to GoHighLevel (fire-and-forget) */
@@ -1129,9 +1193,12 @@ function submitForm() {
       score:      formData.score,
       timeline:   formData.timeline,
       blocker:    formData.blocker,
-      profile:    classification.profile,
-      painLevel:  classification.painLevel,
-      urgency:    classification.urgency,
+      profile:          classification.profile,
+      painLevel:        classification.painLevel,
+      urgency:          classification.urgency,
+      leadScore:        classification.leadScore,
+      leadTier:         classification.leadTier,
+      recommendedOffer: classification.recommendedOffer,
     }),
   })
   .then(r => console.log('[CPC] Webhook sent:', r.status))
