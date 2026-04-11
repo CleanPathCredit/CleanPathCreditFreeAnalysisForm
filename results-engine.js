@@ -126,17 +126,17 @@ function getProfileBadge() {
 function getAIScore() {
   const heavyBlocker = has('collection','bankruptcy','judgment','charge-off','charged off');
   const midBlocker   = has('late','missed','balance','utiliz','denied','denial');
-  if (scoreIs('500')) return { label:'Recoverable', sub:'High improvement potential', pct:0.28 };
+  if (scoreIs('500')) return { label:'Recoverable', sub:'High improvement potential', pct:0.28, tier:'low' };
   if (scoreIs('600')) {
-    if (heavyBlocker) return { label:'Emerging', sub:'Approval blockers identified', pct:0.48 };
-    if (midBlocker)   return { label:'Emerging', sub:'Targeted action needed', pct:0.52 };
-    return { label:'Emerging', sub:'Close to approval threshold', pct:0.56 };
+    if (heavyBlocker) return { label:'Emerging', sub:'Approval blockers identified', pct:0.48, tier:'mid' };
+    if (midBlocker)   return { label:'Emerging', sub:'Targeted action needed', pct:0.52, tier:'mid' };
+    return { label:'Emerging', sub:'Close to approval threshold', pct:0.56, tier:'mid' };
   }
   if (scoreIs('700')) {
-    if (heavyBlocker||midBlocker) return { label:'Strong · Under-Optimized', sub:'Optimization opportunity detected', pct:0.74 };
-    return { label:'Approval-Ready', sub:'Positioning refinement needed', pct:0.82 };
+    if (heavyBlocker||midBlocker) return { label:'Strong · Under-Optimized', sub:'Optimization opportunity detected', pct:0.74, tier:'high' };
+    return { label:'Approval-Ready', sub:'Positioning refinement needed', pct:0.82, tier:'high' };
   }
-  return { label:'Analysis Pending', sub:'Profile risk factors detected', pct:0.42 };
+  return { label:'Analysis Pending', sub:'Profile risk factors detected', pct:0.42, tier:'mid' };
 }
 
 function getSummaryCards() {
@@ -410,7 +410,10 @@ function render() {
   setText('ring-sub', ai.sub);
   setTimeout(() => {
     const rf = $('ring-fill');
-    if (rf) rf.style.strokeDashoffset = circumf - (circumf * ai.pct);
+    if (rf) {
+      rf.style.strokeDashoffset = circumf - (circumf * ai.pct);
+      rf.setAttribute('stroke', 'url(#rg-' + ai.tier + ')');
+    }
   }, 900);
 
   /* Profile badge */
