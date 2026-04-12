@@ -37,6 +37,19 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
+
+/* Reduced Motion */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important}
+  html{scroll-behavior:auto}
+}
+
+/* Focus States */
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px;border-radius:var(--rs)}
+
+/* Skip Link */
+.skip-link{position:absolute;top:-100%;left:16px;z-index:9999;padding:12px 20px;background:var(--green);color:#fff;font-family:var(--fd);font-size:14px;font-weight:700;border-radius:0 0 var(--rs) var(--rs);text-decoration:none;transition:top .2s}
+.skip-link:focus{top:0}
 body{
   font-family:var(--fb);background:var(--bg);color:var(--txt);
   min-height:100vh;overflow-x:hidden;
@@ -173,13 +186,15 @@ main .card:nth-child(4){animation-delay:.45s}
 </head>
 <body>
 
+<a href="#hero" class="skip-link">Skip to content</a>
+
 <!-- ── TOP BAR ── -->
-<div id="top-bar">
+<nav id="top-bar" role="navigation" aria-label="Main navigation">
   <div class="nav-logo-wrap" style="display:flex;align-items:center">
     <img src="logo.png" alt="Clean Path Credit" style="height:48px;width:auto;object-fit:contain;display:block"/>
   </div>
-  <div class="nav-badge-confirmed">✓ Payment Confirmed</div>
-</div>
+  <div class="nav-badge-confirmed" aria-label="Payment confirmed">✓ Payment Confirmed</div>
+</nav>
 
 <main>
 

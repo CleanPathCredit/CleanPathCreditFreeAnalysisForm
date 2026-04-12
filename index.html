@@ -47,6 +47,30 @@
   --ease: cubic-bezier(.4,0,.2,1);
 }
 
+/* ── Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
+  html { scroll-behavior: auto; }
+}
+
+/* ── Focus States ── */
+:focus-visible {
+  outline:2px solid var(--teal);
+  outline-offset:2px;
+  border-radius:var(--rs);
+}
+input:focus-visible, textarea:focus-visible, select:focus-visible { outline-offset:0; }
+
+/* ── Skip Link (accessibility) ── */
+.skip-link {
+  position:absolute; top:-100%; left:16px; z-index:9999;
+  padding:12px 20px; background:var(--teal); color:#fff;
+  font-family:var(--fd); font-size:14px; font-weight:700;
+  border-radius:0 0 var(--rs) var(--rs); text-decoration:none;
+  transition:top .2s;
+}
+.skip-link:focus { top:0; }
+
 *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
 html { scroll-behavior:smooth; }
 
@@ -480,8 +504,11 @@ body {
 </head>
 <body>
 
+<!-- Skip to main content (accessibility) -->
+<a href="#form-wrap" class="skip-link">Skip to form</a>
+
 <!-- ── TOP BAR ── -->
-<div id="top-bar">
+<nav id="top-bar" role="navigation" aria-label="Main navigation">
   <div class="nav-logo-wrap" style="display:flex;align-items:center">
     <img src="logo.png" alt="Clean Path Credit" style="height:48px;width:auto;object-fit:contain;display:block"/>
   </div>
@@ -489,8 +516,8 @@ body {
 </div>
 
 <!-- ── PROGRESS BAR ── -->
-<div id="progress-bar"><div id="progress-fill"></div></div>
-<div id="step-indicator">Step 1 of 6</div>
+<div id="progress-bar" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="6" aria-label="Form progress"><div id="progress-fill"></div></div>
+<div id="step-indicator" aria-live="polite">Step 1 of 6</div>
 
 <!-- ── AI MICRO-FEEDBACK OVERLAY ── -->
 <div id="ai-feedback">
@@ -665,24 +692,24 @@ body {
 
     <div class="info-grid">
       <div class="info-field">
-        <label class="field-label" for="first-name">First Name</label>
-        <input class="form-input" type="text" id="first-name" placeholder="First name" required autocomplete="given-name"/>
-        <div class="field-error" id="err-first">First name is required</div>
+        <label class="field-label" for="first-name">First Name <span style="color:var(--red)">*</span></label>
+        <input class="form-input" type="text" id="first-name" placeholder="First name" required aria-required="true" autocomplete="given-name" aria-describedby="err-first"/>
+        <div class="field-error" id="err-first" role="alert" aria-live="assertive">First name is required</div>
       </div>
       <div class="info-field">
-        <label class="field-label" for="last-name">Last Name</label>
-        <input class="form-input" type="text" id="last-name" placeholder="Last name" required autocomplete="family-name"/>
-        <div class="field-error" id="err-last">Last name is required</div>
+        <label class="field-label" for="last-name">Last Name <span style="color:var(--red)">*</span></label>
+        <input class="form-input" type="text" id="last-name" placeholder="Last name" required aria-required="true" autocomplete="family-name" aria-describedby="err-last"/>
+        <div class="field-error" id="err-last" role="alert" aria-live="assertive">Last name is required</div>
       </div>
       <div class="info-field">
-        <label class="field-label" for="phone">Phone Number</label>
-        <input class="form-input" type="tel" id="phone" placeholder="(555) 555-5555" required autocomplete="tel"/>
-        <div class="field-error" id="err-phone">Valid phone number is required</div>
+        <label class="field-label" for="phone">Phone Number <span style="color:var(--red)">*</span></label>
+        <input class="form-input" type="tel" id="phone" placeholder="(555) 555-5555" required aria-required="true" autocomplete="tel" inputmode="tel" aria-describedby="err-phone"/>
+        <div class="field-error" id="err-phone" role="alert" aria-live="assertive">Valid phone number is required</div>
       </div>
       <div class="info-field">
-        <label class="field-label" for="email">Email Address</label>
-        <input class="form-input" type="email" id="email" placeholder="you@email.com" required autocomplete="email"/>
-        <div class="field-error" id="err-email">Valid email address is required</div>
+        <label class="field-label" for="email">Email Address <span style="color:var(--red)">*</span></label>
+        <input class="form-input" type="email" id="email" placeholder="you@email.com" required aria-required="true" autocomplete="email" inputmode="email" aria-describedby="err-email"/>
+        <div class="field-error" id="err-email" role="alert" aria-live="assertive">Valid email address is required</div>
       </div>
     </div>
 
@@ -693,7 +720,7 @@ body {
         I consent to receive text messages, emails, and calls from Clean Path Credit regarding my credit analysis and related services. Message & data rates may apply. Reply STOP to opt out at any time.
       </label>
     </div>
-    <div class="consent-error" id="consent-error">You must agree to receive communications before submitting.</div>
+    <div class="consent-error" id="consent-error" role="alert" aria-live="assertive">You must agree to receive communications before submitting.</div>
 
     <div class="btn-row">
       <button class="btn-back" onclick="goBack()">← Back</button>
@@ -970,6 +997,8 @@ function updateProgress() {
   const pct = (currentStep / totalSteps) * 100;
   $('progress-fill').style.width = pct + '%';
   $('step-indicator').textContent = `Step ${currentStep} of ${totalSteps}`;
+  const bar = $('progress-bar');
+  if (bar) bar.setAttribute('aria-valuenow', currentStep);
 }
 
 /* ══════════════════════════════════════════
@@ -1075,6 +1104,12 @@ function bindCards(containerId, onSelect, isMulti) {
   if (!container) return;
   const cards = container.querySelectorAll('.option-card');
   cards.forEach(card => {
+    // Keyboard accessibility
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+    });
     card.addEventListener('click', () => {
       if (isMulti) {
         // Toggle selection
