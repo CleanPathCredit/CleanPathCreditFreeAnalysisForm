@@ -218,59 +218,60 @@ main {
 #hero { padding:40px 22px 36px; text-align:center }
 
 /* Score ring — animated urgency display
-   Ring stroke COLOR is driven by [data-tier] on the parent .score-ring.
-   We use a CSS variable so the gradient cascades cleanly from parent → fill,
-   sidestepping the SVG-attribute-vs-CSS-rule specificity issue.
-   The percentage NUMBER stays a neutral dark color regardless of tier —
-   urgency is communicated by the RING color, not the number. */
+   Ring stroke uses SOLID colors (not SVG gradients) so CSS can smoothly
+   interpolate the color as the animation progresses. JS updates [data-tier]
+   in real-time during the fill animation, and the CSS transition cross-fades
+   the stroke color smoothly between green → yellow → amber → red. */
 .score-ring-wrap { display:flex; justify-content:center; margin-bottom:24px }
 .score-ring {
   position:relative; width:200px; height:200px;
   aspect-ratio:1/1; flex-shrink:0;
-  /* CSS variable that .ring-fill consumes — defaults to green */
-  --ring-color: url(#rg-green);
+  /* CSS variables — solid colors that CAN interpolate via transition */
+  --ring-color: #10b981;        /* green default */
   --ring-halo:  rgba(16,185,129,.18);
   filter: drop-shadow(0 6px 28px var(--ring-halo));
-  transition: filter 1.8s var(--ease);
+  transition: filter 1.2s var(--ease);
 }
-/* Tier-driven ring color + halo (cascades to .ring-fill via CSS var) */
-.score-ring[data-tier="green"]  { --ring-color: url(#rg-green);  --ring-halo: rgba(16,185,129,.18); }
-.score-ring[data-tier="yellow"] { --ring-color: url(#rg-yellow); --ring-halo: rgba(234,179,8,.25); }
-.score-ring[data-tier="amber"]  { --ring-color: url(#rg-amber);  --ring-halo: rgba(245,158,11,.32); }
-.score-ring[data-tier="red"]    { --ring-color: url(#rg-red);    --ring-halo: rgba(239,68,68,.38); }
+/* Tier-driven ring color + halo — JS toggles data-tier as the count animates */
+.score-ring[data-tier="green"]  { --ring-color: #10b981; --ring-halo: rgba(16,185,129,.20); }
+.score-ring[data-tier="yellow"] { --ring-color: #eab308; --ring-halo: rgba(234,179,8,.28); }
+.score-ring[data-tier="amber"]  { --ring-color: #f59e0b; --ring-halo: rgba(245,158,11,.32); }
+.score-ring[data-tier="red"]    { --ring-color: #ef4444; --ring-halo: rgba(239,68,68,.38); }
 
 .score-ring svg { width:100%; height:100%; display:block; overflow:visible; transform:rotate(-90deg) }
 .ring-bg   { fill:none; stroke:#e2e8f0; stroke-width:9 }
 .ring-fill {
   fill:none; stroke-width:9; stroke-linecap:round;
-  stroke: var(--ring-color);     /* color comes from parent's CSS var */
+  stroke: var(--ring-color);
   stroke-dasharray:302;
   stroke-dashoffset:302;
-  transition: stroke 1.2s var(--ease), stroke-dashoffset 3.5s cubic-bezier(.22,1,.36,1);
+  /* Stroke transition is fast (0.6s) so color swaps feel responsive while
+     the count is animating. Dashoffset transition is the long 3.5s fill. */
+  transition: stroke 0.6s var(--ease), stroke-dashoffset 3.5s cubic-bezier(.22,1,.36,1);
 }
 .ring-label {
   position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:2px;
-  padding:0 12px; text-align:center;
+  padding:0 18px; text-align:center;     /* extra horizontal padding to clear the ring */
 }
-/* Big animated percentage — neutral dark color so the ring is the urgency signal */
+/* Animated percentage — sized so it never touches the ring at any value */
 .rl-pct {
   font-family:var(--fd);
-  font-size:46px;
+  font-size:38px;                /* down from 46px to give the ring breathing room */
   font-weight:800;
   line-height:1;
-  color: var(--txt);              /* neutral dark — ring color does the urgency work */
+  color: var(--txt);             /* neutral dark — ring color signals urgency */
   letter-spacing:-0.02em;
   font-variant-numeric: tabular-nums;
 }
 .rl-pct .rl-pct-symbol {
-  font-size:24px;
+  font-size:20px;                /* down from 24px, scales with the number */
   font-weight:700;
-  margin-left:2px;
+  margin-left:1px;
   vertical-align:top;
   position:relative;
-  top:8px;
-  color: var(--mut);              /* slightly lighter % symbol */
+  top:6px;                       /* down from 8px */
+  color: var(--mut);
 }
 
 .rl-label {
