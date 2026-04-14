@@ -91,24 +91,33 @@ const NAME    = D.firstName !== 'there' ? D.firstName.replace(/[<>&"']/g, c => (
    2. PERSONALIZATION FUNCTIONS
 ════════════════════════════════════════════ */
 
+/**
+ * Headline strategy: short, punchy, emotion-forward.
+ * - SEVERE: validate the pain, promise a way out
+ * - LIGHT:  affirm strength, hint at optimization
+ * - MODERATE (default): create curiosity + light urgency
+ * Each is ≤ 50 chars to prevent line-wrapping clipping on mobile.
+ */
 function getHeadline() {
-  // Pain-level based headlines (as specified)
+  const n = NAME || 'You';
   if (D.painLevel === 'SEVERE')
-    return "You're closer to fixing your credit than you think — here's what's really going on…";
+    return `${n}, your credit is fixable.`;
   if (D.painLevel === 'LIGHT')
-    return "You're in a strong position — here's how to optimize your credit…";
-  // MODERATE (default)
-  return "A few key issues may be holding your credit back…";
+    return `${n}, you're closer than you think.`;
+  return `Here's what's really holding you back.`;
 }
 
+/**
+ * Subheadline: one tight sentence that promises specific value.
+ * Goal-personalized. Short enough to render cleanly on mobile.
+ */
 function getSubheadline() {
-  const n = NAME ? `<strong>${NAME}</strong>, based` : 'Based';
-  if (goalIs('home'))           return `${n} on your responses, we identified key factors likely affecting your mortgage approval odds — and mapped out your smartest next steps.`;
-  if (goalIs('car'))            return `${n} on your profile, we identified the factors guaranteeing you a subprime rate — and exactly what to fix first to stop overpaying.`;
-  if (goalIs('business'))       return `${n} on your profile, we found factors that may be limiting your access to capital — and a clear path to address them.`;
-  if (goalIs('improve_credit')) return `${n} on your answers, we identified the hidden costs your current score is imposing on you — and the fastest path to eliminating them.`;
-  if (goalIs('emergency'))      return `${n} on what you've shared, we've prioritized your fastest available options and identified what needs to move first.`;
-  return `${n} on your responses, we identified likely approval blockers, optimization opportunities, and the fastest path to stronger qualification.`;
+  if (goalIs('home'))           return `We mapped the exact items blocking your mortgage approval — and the fastest path to fix them.`;
+  if (goalIs('car'))            return `We found what's locking you into subprime rates — and how to qualify for prime financing.`;
+  if (goalIs('business'))       return `We identified what's limiting your funding access — and a clear path to capital readiness.`;
+  if (goalIs('improve_credit')) return `We found the hidden costs draining your wallet — and the fastest way to stop them.`;
+  if (goalIs('emergency'))      return `We prioritized your fastest options — and exactly what needs to move first.`;
+  return `We identified your approval blockers and the shortest path to qualification.`;
 }
 
 function getProfileBadge() {
@@ -129,20 +138,54 @@ function getProfileBadge() {
   };
 }
 
+/**
+ * Computes an "Action Required Score" — 0-100 where higher = more urgent action needed.
+ *
+ * Used to drive the score ring animation:
+ *   - Higher % → ring fills further → color shifts toward red (urgency)
+ *   - Lower %  → ring partially filled → green (less work needed)
+ *
+ * This is a CONVERSION-PSYCHOLOGY metric — it intentionally surfaces urgency
+ * for users with significant repair needs (who are also the most likely buyers).
+ */
 function getAIScore() {
   const heavyBlocker = has('collection','bankruptcy','judgment','charge-off','charged off');
   const midBlocker   = has('late','missed','balance','utiliz','denied','denial');
-  if (scoreIs('500')) return { label:'Recoverable', sub:'High improvement potential', pct:0.28, tier:'low' };
-  if (scoreIs('600')) {
-    if (heavyBlocker) return { label:'Emerging', sub:'Approval blockers identified', pct:0.48, tier:'mid' };
-    if (midBlocker)   return { label:'Emerging', sub:'Targeted action needed', pct:0.52, tier:'mid' };
-    return { label:'Emerging', sub:'Close to approval threshold', pct:0.56, tier:'mid' };
+  const issueCount   = (D.situationArray || []).filter(s => !s.includes('not sure')).length;
+
+  let urgency = 50;       // baseline
+  let label   = 'Action Required';
+  let sub     = 'Repair plan recommended';
+
+  if (scoreIs('500')) {
+    urgency = 88;
+    label = 'Critical';
+    sub = 'Immediate repair plan needed';
+  } else if (scoreIs('600')) {
+    if (heavyBlocker)      { urgency = 76; label = 'High';     sub = 'Major blockers active'; }
+    else if (midBlocker)   { urgency = 68; label = 'Elevated'; sub = 'Targeted repair needed'; }
+    else                   { urgency = 58; label = 'Moderate'; sub = 'A few items to address'; }
+  } else if (scoreIs('700')) {
+    if (heavyBlocker || midBlocker) { urgency = 42; label = 'Optimize';  sub = 'Hidden gaps to close'; }
+    else                            { urgency = 28; label = 'Refine';    sub = 'Fine-tuning opportunities'; }
+  } else {
+    urgency = 60;
+    label = 'Pending';
+    sub = 'Full audit recommended';
   }
-  if (scoreIs('700')) {
-    if (heavyBlocker||midBlocker) return { label:'Strong · Under-Optimized', sub:'Optimization opportunity detected', pct:0.74, tier:'high' };
-    return { label:'Approval-Ready', sub:'Positioning refinement needed', pct:0.82, tier:'high' };
-  }
-  return { label:'Analysis Pending', sub:'Profile risk factors detected', pct:0.42, tier:'mid' };
+
+  // Stack multiplier — more issues = even higher urgency
+  if (issueCount >= 4)      urgency = Math.min(95, urgency + 8);
+  else if (issueCount >= 3) urgency = Math.min(95, urgency + 4);
+
+  // Determine color tier (CSS gradient ID)
+  let tier;
+  if (urgency >= 70)      tier = 'red';     // Critical
+  else if (urgency >= 50) tier = 'amber';   // Elevated
+  else if (urgency >= 30) tier = 'yellow';  // Moderate
+  else                    tier = 'green';   // Low
+
+  return { label, sub, pct: urgency / 100, urgencyPct: urgency, tier };
 }
 
 function getHeroMetrics() {
@@ -583,18 +626,46 @@ function render() {
   setHTML('scarcity-headline', scar.headline);
   setHTML('scarcity-body',     scar.body);
 
-  /* Ring */
+  /* ── Score Ring ── animated 0% → target% over ~3.5s with synced counter ── */
   const ai = getAIScore();
-  const circumf = 2 * Math.PI * 48;
-  setText('ring-val', ai.label);
-  setText('ring-sub', ai.sub);
+  const circumf = 2 * Math.PI * 48; // r=48 → ~301.59
+  const targetPct = ai.urgencyPct;  // 0-100 integer
+
+  // Set the static text labels immediately
+  setText('ring-label', ai.label);
+  setText('ring-sub',   ai.sub);
+
+  // Set the tier on the ring container — drives drop-shadow color via [data-tier]
+  const ringEl = $('score-ring');
+  if (ringEl) ringEl.setAttribute('data-tier', ai.tier);
+
+  // Set the SVG gradient on the fill stroke
+  const rf = $('ring-fill');
+  if (rf) rf.setAttribute('stroke', 'url(#rg-' + ai.tier + ')');
+
+  // Animate the ring fill (CSS handles the easing — 3.5s cubic-bezier)
   setTimeout(() => {
-    const rf = $('ring-fill');
-    if (rf) {
-      rf.style.strokeDashoffset = circumf - (circumf * ai.pct);
-      rf.setAttribute('stroke', 'url(#rg-' + ai.tier + ')');
+    if (rf) rf.style.strokeDashoffset = circumf - (circumf * (targetPct / 100));
+  }, 600);
+
+  // Animate the percentage counter in sync with the ring fill
+  // Uses requestAnimationFrame for smooth 60fps counting
+  const numEl = $('ring-pct-num');
+  if (numEl) {
+    const startTime = performance.now() + 600;       // matches setTimeout above
+    const duration  = 3500;                          // matches CSS transition
+    const easeOutQuart = t => 1 - Math.pow(1 - t, 4); // matches cubic-bezier shape
+    function tickCounter(now) {
+      const elapsed = now - startTime;
+      if (elapsed < 0) { requestAnimationFrame(tickCounter); return; }
+      const t = Math.min(1, elapsed / duration);
+      const eased = easeOutQuart(t);
+      numEl.textContent = Math.round(targetPct * eased);
+      if (t < 1) requestAnimationFrame(tickCounter);
+      else      numEl.textContent = targetPct;       // ensure exact final value
     }
-  }, 900);
+    requestAnimationFrame(tickCounter);
+  }
 
   /* Profile badge */
   const badge = getProfileBadge();

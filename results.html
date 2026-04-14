@@ -217,28 +217,104 @@ main {
 ════════════════════════════════════════════ */
 #hero { padding:40px 22px 36px; text-align:center }
 
-/* Score ring */
-.score-ring-wrap { display:flex; justify-content:center; margin-bottom:28px }
+/* Score ring — animated urgency display */
+.score-ring-wrap { display:flex; justify-content:center; margin-bottom:24px }
 .score-ring {
-  position:relative; width:172px; height:172px;
+  position:relative; width:200px; height:200px;
   aspect-ratio:1/1; flex-shrink:0;
-  filter:drop-shadow(0 4px 22px rgba(16,185,129,.22));
+  filter:drop-shadow(0 6px 28px rgba(16,185,129,.18));
+  transition: filter 1.8s var(--ease);
 }
+/* Tier-driven drop-shadow halo (amber/red glow as urgency increases) */
+.score-ring[data-tier="yellow"] { filter:drop-shadow(0 6px 28px rgba(234,179,8,.25)); }
+.score-ring[data-tier="amber"]  { filter:drop-shadow(0 6px 28px rgba(245,158,11,.32)); }
+.score-ring[data-tier="red"]    { filter:drop-shadow(0 6px 32px rgba(239,68,68,.38)); }
+
 .score-ring svg { width:100%; height:100%; display:block; overflow:visible; transform:rotate(-90deg) }
-.ring-bg   { fill:none; stroke:#e2e8f0; stroke-width:10 }
-.ring-fill { fill:none; stroke-width:10; stroke-linecap:round; stroke:url(#rg-high); stroke-dasharray:302; stroke-dashoffset:302; transition:stroke-dashoffset 2.2s var(--ease) }
+.ring-bg   { fill:none; stroke:#e2e8f0; stroke-width:9 }
+.ring-fill {
+  fill:none; stroke-width:9; stroke-linecap:round;
+  stroke:url(#rg-green);
+  stroke-dasharray:302;
+  stroke-dashoffset:302;
+  transition: stroke-dashoffset 3.5s cubic-bezier(.22,1,.36,1);
+}
 .ring-label {
   position:absolute; inset:0; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:3px;
+  align-items:center; justify-content:center; gap:2px;
+  padding:0 12px; text-align:center;
 }
-.rl-val { font-family:var(--fd); font-size:14px; font-weight:800; color:var(--teal); text-align:center; max-width:110px; line-height:1.2 }
-.rl-sub { font-size:11px; color:var(--mut); text-align:center; max-width:110px; line-height:1.3 }
-/* Score ring caption below the ring */
-.ring-caption { font-family:var(--fd); font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--mut2); margin-top:8px }
+/* Big animated percentage — the focal point */
+.rl-pct {
+  font-family:var(--fd);
+  font-size:46px;
+  font-weight:800;
+  line-height:1;
+  color:var(--teal);
+  letter-spacing:-0.02em;
+  font-variant-numeric: tabular-nums;
+  transition: color 1.8s var(--ease);
+}
+.rl-pct .rl-pct-symbol {
+  font-size:24px;
+  font-weight:700;
+  margin-left:2px;
+  vertical-align:top;
+  position:relative;
+  top:8px;
+}
+/* Tier color overrides for the percentage text */
+.score-ring[data-tier="green"]  .rl-pct { color:#059669; }
+.score-ring[data-tier="yellow"] .rl-pct { color:#ca8a04; }
+.score-ring[data-tier="amber"]  .rl-pct { color:#d97706; }
+.score-ring[data-tier="red"]    .rl-pct { color:#dc2626; }
 
-/* Hero text */
-#hero h1 { font-family:var(--fd); font-size:clamp(24px,5.5vw,40px); font-weight:800; line-height:1.1; margin-bottom:12px }
-.hero-sub { font-size:15px; color:var(--mut); line-height:1.7; max-width:520px; margin:0 auto }
+.rl-label {
+  font-family:var(--fd);
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--mut);
+  margin-top:6px;
+}
+.rl-sub {
+  font-size:11px;
+  color:var(--mut2);
+  line-height:1.3;
+  margin-top:2px;
+  max-width:130px;
+}
+/* Score ring caption below the ring */
+.ring-caption {
+  font-family:var(--fd); font-size:10px; font-weight:700;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:var(--mut2); margin-top:10px;
+}
+
+/* Hero text — short headlines, comfortable line-height, no horizontal clipping */
+#hero h1 {
+  font-family:var(--fd);
+  font-size:clamp(24px,6vw,38px);
+  font-weight:800;
+  line-height:1.15;
+  margin-bottom:14px;
+  max-width:560px;
+  margin-left:auto;
+  margin-right:auto;
+  padding:0 4px;          /* breathing room on edges */
+  word-wrap:break-word;   /* prevent long words from overflowing */
+  overflow-wrap:break-word;
+  hyphens:auto;
+}
+.hero-sub {
+  font-size:15px;
+  color:var(--mut);
+  line-height:1.65;
+  max-width:520px;
+  margin:0 auto;
+  padding:0 4px;
+}
 .hero-sub strong { color:var(--txt) }
 
 /* Profile badge */
@@ -810,23 +886,38 @@ main {
     <!-- Score ring -->
     <div class="score-ring-wrap">
       <div>
-        <div class="score-ring">
+        <div class="score-ring" id="score-ring" data-tier="green">
           <svg viewBox="0 0 100 100">
             <defs>
-              <!-- Green — strong/high scores -->
-              <linearGradient id="rg-high" x1="0%" y1="0%" x2="100%" y2="100%">
+              <!-- Green — low urgency (refine/optimize) -->
+              <linearGradient id="rg-green" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%"   stop-color="#10b981"/>
                 <stop offset="100%" stop-color="#059669"/>
               </linearGradient>
-              <!-- Amber — mid/recovery scores -->
-              <linearGradient id="rg-mid" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%"   stop-color="#fbbf24"/>
+              <!-- Yellow — moderate urgency -->
+              <linearGradient id="rg-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#facc15"/>
+                <stop offset="100%" stop-color="#eab308"/>
+              </linearGradient>
+              <!-- Amber — elevated urgency -->
+              <linearGradient id="rg-amber" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#fb923c"/>
                 <stop offset="100%" stop-color="#f59e0b"/>
               </linearGradient>
-              <!-- Red-orange — low/rebuild scores -->
-              <linearGradient id="rg-low" x1="0%" y1="0%" x2="100%" y2="100%">
+              <!-- Red — critical / high urgency -->
+              <linearGradient id="rg-red" x1="0%" y1="0%" x2="100%" y2="100%">
                 <stop offset="0%"   stop-color="#f97316"/>
                 <stop offset="100%" stop-color="#ef4444"/>
+              </linearGradient>
+              <!-- Legacy fallbacks (preserve backwards compat with older renders) -->
+              <linearGradient id="rg-high" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#10b981"/><stop offset="100%" stop-color="#059669"/>
+              </linearGradient>
+              <linearGradient id="rg-mid" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fbbf24"/><stop offset="100%" stop-color="#f59e0b"/>
+              </linearGradient>
+              <linearGradient id="rg-low" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#f97316"/><stop offset="100%" stop-color="#ef4444"/>
               </linearGradient>
             </defs>
             <!-- Track ring (visible gray background) -->
@@ -836,11 +927,12 @@ main {
           </svg>
           <!-- Label centered inside ring -->
           <div class="ring-label">
-            <span class="rl-val" id="ring-val">Analyzing…</span>
-            <span class="rl-sub" id="ring-sub">Profile Score</span>
+            <div class="rl-pct" id="ring-pct"><span id="ring-pct-num">0</span><span class="rl-pct-symbol">%</span></div>
+            <div class="rl-label" id="ring-label">Calculating…</div>
+            <div class="rl-sub" id="ring-sub">Analyzing your profile</div>
           </div>
         </div>
-        <div class="ring-caption center">Approval Readiness Score</div>
+        <div class="ring-caption center" id="ring-caption">Action Required Score</div>
       </div>
     </div>
 
