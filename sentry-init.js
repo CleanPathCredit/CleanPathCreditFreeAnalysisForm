@@ -20,9 +20,10 @@
     tracesSampleRate: 0.1,
 
     // ── Session Replay ──
-    // 10% of normal sessions, 100% of sessions with errors (critical for debugging)
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
+    // Note: PostHog handles behavioral session recording. Sentry only records
+    // sessions with errors to preserve error context without doubling storage.
+    replaysSessionSampleRate: 0,      // No background replays (PostHog covers this)
+    replaysOnErrorSampleRate: 1.0,    // 100% of sessions that hit an error
 
     integrations: [
       Sentry.browserTracingIntegration(),

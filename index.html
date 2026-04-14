@@ -21,6 +21,8 @@
 <!-- Sentry Error Monitoring + Session Replay -->
 <script src="https://browser.sentry-cdn.com/8.40.0/bundle.tracing.replay.min.js" crossorigin="anonymous"></script>
 <script src="/sentry-init.js"></script>
+<!-- PostHog Product Analytics + Funnel Tracking + Session Recording -->
+<script src="/posthog-init.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <style>
@@ -1078,6 +1080,16 @@ function showStep(num) {
   currentStep = num;
   updateProgress();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Track step view for funnel analysis
+  const stepNames = { 1:'goal', 2:'situation', 3:'timeline', 4:'score', 5:'blocker', 6:'contact' };
+  if (window.trackQuizEvent) {
+    window.trackQuizEvent('quiz_step_viewed', {
+      step: num,
+      step_name: stepNames[num] || 'unknown',
+      total_steps: totalSteps,
+    });
+  }
 }
 
 /* ══════════════════════════════════════════
@@ -1457,6 +1469,20 @@ function submitForm() {
 
   /* ⚠️ Store in localStorage for results page to read */
   localStorage.setItem('creditData', JSON.stringify(creditData));
+
+  /* Track conversion event (NO PII — only categorical lead attributes) */
+  if (window.trackQuizEvent) {
+    window.trackQuizEvent('quiz_submitted', {
+      goal:             formData.goal,
+      situation_count:  formData.situation.length,
+      score_range:      formData.score,
+      timeline:         formData.timeline,
+      has_blocker_text: formData.blocker.length > 0,
+      lead_tier:        classification.leadTier,
+      recommended_offer: classification.recommendedOffer,
+      profile:          classification.profile,
+    });
+  }
 
   console.log('[CPC] Form submitted');
 
