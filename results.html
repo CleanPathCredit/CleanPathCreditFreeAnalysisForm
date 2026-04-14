@@ -217,43 +217,51 @@ main {
 ════════════════════════════════════════════ */
 #hero { padding:40px 22px 36px; text-align:center }
 
-/* Score ring — animated urgency display */
+/* Score ring — animated urgency display
+   Ring stroke COLOR is driven by [data-tier] on the parent .score-ring.
+   We use a CSS variable so the gradient cascades cleanly from parent → fill,
+   sidestepping the SVG-attribute-vs-CSS-rule specificity issue.
+   The percentage NUMBER stays a neutral dark color regardless of tier —
+   urgency is communicated by the RING color, not the number. */
 .score-ring-wrap { display:flex; justify-content:center; margin-bottom:24px }
 .score-ring {
   position:relative; width:200px; height:200px;
   aspect-ratio:1/1; flex-shrink:0;
-  filter:drop-shadow(0 6px 28px rgba(16,185,129,.18));
+  /* CSS variable that .ring-fill consumes — defaults to green */
+  --ring-color: url(#rg-green);
+  --ring-halo:  rgba(16,185,129,.18);
+  filter: drop-shadow(0 6px 28px var(--ring-halo));
   transition: filter 1.8s var(--ease);
 }
-/* Tier-driven drop-shadow halo (amber/red glow as urgency increases) */
-.score-ring[data-tier="yellow"] { filter:drop-shadow(0 6px 28px rgba(234,179,8,.25)); }
-.score-ring[data-tier="amber"]  { filter:drop-shadow(0 6px 28px rgba(245,158,11,.32)); }
-.score-ring[data-tier="red"]    { filter:drop-shadow(0 6px 32px rgba(239,68,68,.38)); }
+/* Tier-driven ring color + halo (cascades to .ring-fill via CSS var) */
+.score-ring[data-tier="green"]  { --ring-color: url(#rg-green);  --ring-halo: rgba(16,185,129,.18); }
+.score-ring[data-tier="yellow"] { --ring-color: url(#rg-yellow); --ring-halo: rgba(234,179,8,.25); }
+.score-ring[data-tier="amber"]  { --ring-color: url(#rg-amber);  --ring-halo: rgba(245,158,11,.32); }
+.score-ring[data-tier="red"]    { --ring-color: url(#rg-red);    --ring-halo: rgba(239,68,68,.38); }
 
 .score-ring svg { width:100%; height:100%; display:block; overflow:visible; transform:rotate(-90deg) }
 .ring-bg   { fill:none; stroke:#e2e8f0; stroke-width:9 }
 .ring-fill {
   fill:none; stroke-width:9; stroke-linecap:round;
-  stroke:url(#rg-green);
+  stroke: var(--ring-color);     /* color comes from parent's CSS var */
   stroke-dasharray:302;
   stroke-dashoffset:302;
-  transition: stroke-dashoffset 3.5s cubic-bezier(.22,1,.36,1);
+  transition: stroke 1.2s var(--ease), stroke-dashoffset 3.5s cubic-bezier(.22,1,.36,1);
 }
 .ring-label {
   position:absolute; inset:0; display:flex; flex-direction:column;
   align-items:center; justify-content:center; gap:2px;
   padding:0 12px; text-align:center;
 }
-/* Big animated percentage — the focal point */
+/* Big animated percentage — neutral dark color so the ring is the urgency signal */
 .rl-pct {
   font-family:var(--fd);
   font-size:46px;
   font-weight:800;
   line-height:1;
-  color:var(--teal);
+  color: var(--txt);              /* neutral dark — ring color does the urgency work */
   letter-spacing:-0.02em;
   font-variant-numeric: tabular-nums;
-  transition: color 1.8s var(--ease);
 }
 .rl-pct .rl-pct-symbol {
   font-size:24px;
@@ -262,12 +270,8 @@ main {
   vertical-align:top;
   position:relative;
   top:8px;
+  color: var(--mut);              /* slightly lighter % symbol */
 }
-/* Tier color overrides for the percentage text */
-.score-ring[data-tier="green"]  .rl-pct { color:#059669; }
-.score-ring[data-tier="yellow"] .rl-pct { color:#ca8a04; }
-.score-ring[data-tier="amber"]  .rl-pct { color:#d97706; }
-.score-ring[data-tier="red"]    .rl-pct { color:#dc2626; }
 
 .rl-label {
   font-family:var(--fd);

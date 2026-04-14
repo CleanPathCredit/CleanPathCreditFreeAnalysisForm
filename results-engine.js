@@ -626,43 +626,52 @@ function render() {
   setHTML('scarcity-headline', scar.headline);
   setHTML('scarcity-body',     scar.body);
 
-  /* ── Score Ring ── animated 0% → target% over ~3.5s with synced counter ── */
+  /* ── Score Ring ── animated 0% → target% with synced counter ──
+     Timing strategy: page-loader runs ~2.9s after DOMContentLoaded.
+     We delay the ring animation start until ~3.2s so users SEE it begin
+     at 0% after the loader fades, not partway through. */
   const ai = getAIScore();
   const circumf = 2 * Math.PI * 48; // r=48 → ~301.59
   const targetPct = ai.urgencyPct;  // 0-100 integer
+  const ANIM_START_DELAY = 3200;    // ms — wait for page-loader to fully fade
+  const ANIM_DURATION    = 3500;    // ms — must match CSS transition duration
 
-  // Set the static text labels immediately
+  // Set the static text labels immediately (visible behind loader)
   setText('ring-label', ai.label);
   setText('ring-sub',   ai.sub);
 
-  // Set the tier on the ring container — drives drop-shadow color via [data-tier]
+  // Set the tier on the ring container.
+  // CSS [data-tier] selectors automatically swap --ring-color and --ring-halo,
+  // which cascade to .ring-fill stroke via CSS variable. No setAttribute needed.
   const ringEl = $('score-ring');
   if (ringEl) ringEl.setAttribute('data-tier', ai.tier);
 
-  // Set the SVG gradient on the fill stroke
+  // Reset the fill to 0% (in case of re-render) — animation will tween to target
   const rf = $('ring-fill');
-  if (rf) rf.setAttribute('stroke', 'url(#rg-' + ai.tier + ')');
+  if (rf) rf.style.strokeDashoffset = circumf;
 
-  // Animate the ring fill (CSS handles the easing — 3.5s cubic-bezier)
+  // Reset counter to 0 — animation will tick up
+  const numEl = $('ring-pct-num');
+  if (numEl) numEl.textContent = '0';
+
+  // Trigger the ring fill animation (CSS handles the easing)
   setTimeout(() => {
     if (rf) rf.style.strokeDashoffset = circumf - (circumf * (targetPct / 100));
-  }, 600);
+  }, ANIM_START_DELAY);
 
   // Animate the percentage counter in sync with the ring fill
   // Uses requestAnimationFrame for smooth 60fps counting
-  const numEl = $('ring-pct-num');
   if (numEl) {
-    const startTime = performance.now() + 600;       // matches setTimeout above
-    const duration  = 3500;                          // matches CSS transition
-    const easeOutQuart = t => 1 - Math.pow(1 - t, 4); // matches cubic-bezier shape
+    const startTime    = performance.now() + ANIM_START_DELAY;
+    const easeOutQuart = t => 1 - Math.pow(1 - t, 4); // matches CSS cubic-bezier shape
     function tickCounter(now) {
       const elapsed = now - startTime;
       if (elapsed < 0) { requestAnimationFrame(tickCounter); return; }
-      const t = Math.min(1, elapsed / duration);
+      const t = Math.min(1, elapsed / ANIM_DURATION);
       const eased = easeOutQuart(t);
       numEl.textContent = Math.round(targetPct * eased);
       if (t < 1) requestAnimationFrame(tickCounter);
-      else      numEl.textContent = targetPct;       // ensure exact final value
+      else      numEl.textContent = targetPct;       // pin exact final value
     }
     requestAnimationFrame(tickCounter);
   }
