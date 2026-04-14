@@ -232,7 +232,7 @@ main {
 .profile-badge.optimization .pb-text { color:var(--teal) }
 .pb-desc { font-size:12px; color:var(--mut); margin-top:3px; line-height:1.45 }
 
-/* Hero CTA */
+/* Hero CTA (legacy — kept for backwards compat) */
 .hero-call-pill {
   display:inline-flex; align-items:center; gap:9px; margin-top:22px;
   padding:14px 28px; background:var(--em); border-radius:99px;
@@ -243,6 +243,55 @@ main {
 }
 .hero-call-pill:hover  { background:#059669; box-shadow:0 6px 28px rgba(16,185,129,.4); transform:translateY(-1px) }
 .hero-call-pill:active { transform:scale(.98) }
+
+/* Engagement prompt — soft curiosity hook (replaces the hard CTA button) */
+.hero-read-prompt {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hrp-line {
+  font-size: 14px;
+  color: var(--mut);
+  line-height: 1.65;
+  text-align: center;
+}
+.hrp-line strong {
+  color: var(--txt);
+  font-weight: 600;
+}
+.hrp-arrow {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(13,148,136,.08);
+  border: 1px solid rgba(13,148,136,.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: hrpBounce 2s ease-in-out infinite;
+}
+.hrp-arrow svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: var(--teal);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+@keyframes hrpBounce {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+@media(max-width:480px) {
+  .hrp-line { font-size: 13px; }
+}
 
 /* ════════════════════════════════════════════
    ── SECTION 2: WHAT THIS MEANS ──
@@ -784,12 +833,16 @@ main {
     <!-- Microcopy — reassurance nudge -->
     <p class="hero-microcopy" id="hero-microcopy">You're closer than you think — but not fully approval-ready yet.</p>
 
-    <!-- Primary CTA scrolls to pricing -->
-    <div class="center">
-      <button class="hero-call-pill" id="hero-call-pill"
-        onclick="document.getElementById('pricing-section').scrollIntoView({behavior:'smooth'})">
-        ↓ View Your Plan &amp; Next Steps
-      </button>
+    <!-- Engagement prompt — creates a curiosity loop that pulls users through the diagnosis -->
+    <div class="hero-read-prompt">
+      <p class="hrp-line">
+        Below, we'll show you the <strong>specific items holding you back</strong>,
+        what they're <strong>costing you every month</strong>,
+        and the <strong>legal path</strong> to remove them.
+      </p>
+      <div class="hrp-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
     </div>
 
   </div><!-- /#hero -->
@@ -931,8 +984,7 @@ main {
         <div class="tier-cta">
           <stripe-buy-button
             buy-button-id="buy_btn_1TKC9sCRvEfUoJHH2j25qlzl"
-            publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F"
-            success-url="https://form.cleanpathcredit.com/success.html?plan=diy">
+            publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
           <!-- Shown only in print/PDF — preserves clickable purchase link -->
           <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKC9sCRvEfUoJHH2j25qlzl">
@@ -967,8 +1019,7 @@ main {
         <div class="tier-cta">
           <stripe-buy-button
             buy-button-id="buy_btn_1TKCHQCRvEfUoJHHRsYycHRA"
-            publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F"
-            success-url="https://form.cleanpathcredit.com/success.html?plan=standard">
+            publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
           <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKCHQCRvEfUoJHHRsYycHRA">
             → Get the Accelerated Audit ($497) — click to complete purchase
@@ -1001,8 +1052,7 @@ main {
         <div class="tier-cta">
           <stripe-buy-button
             buy-button-id="buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9"
-            publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F"
-            success-url="https://form.cleanpathcredit.com/success.html?plan=premium">
+            publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
           <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9">
             → Get the Executive Funding Audit ($2,497) — click to complete purchase
