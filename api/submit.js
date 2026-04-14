@@ -1,24 +1,51 @@
 /**
- * Vercel Serverless Function — proxies form submissions to GoHighLevel.
- * The webhook URL is stored in the Vercel environment variable GHL_WEBHOOK_URL.
- *
- * Set it in Vercel Dashboard → Settings → Environment Variables:
- *   GHL_WEBHOOK_URL = https://services.leadconnectorhq.com/hooks/da0KTegxFQ62eqS73TQv/webhook-trigger/73b8546c-54a7-491f-ae2c-8575e976fc34
+ * Vercel Serverless Function — proxies form submissions to CRM.
+ * Set GHL_WEBHOOK_URL in Vercel Dashboard → Settings → Environment Variables.
  */
+
+const ALLOWED_FIELDS = new Set([
+  'first_name', 'last_name', 'full_name', 'email', 'phone',
+  'goal', 'situation', 'score', 'timeline', 'blocker',
+  'profile', 'painLevel', 'urgency',
+  'leadScore', 'leadTier', 'recommendedOffer',
+]);
+
+const MAX_BODY_SIZE = 4096; // bytes
+
+function sanitizeBody(body) {
+  if (!body || typeof body !== 'object') return null;
+  const clean = {};
+  for (const [key, value] of Object.entries(body)) {
+    if (!ALLOWED_FIELDS.has(key)) continue;
+    if (typeof value === 'string') {
+      clean[key] = value.slice(0, 500); // cap field length
+    } else if (typeof value === 'number') {
+      clean[key] = value;
+    }
+  }
+  return Object.keys(clean).length > 0 ? clean : null;
+}
+
 export default async function handler(req, res) {
   // Only allow POST
+  if (req.method === 'OPTIONS') {
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    return res.status(204).end();
+  }
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   // Origin check — only allow requests from our domains
-  const origin = req.headers.origin || req.headers.referer || '';
+  const origin = req.headers.origin || '';
   const allowed = [
     'form.cleanpathcredit.com',
     'clean-path-credit-free-analysis-for.vercel.app',
-    'localhost',
   ];
-  const isAllowed = allowed.some(d => origin.includes(d));
+  // Allow localhost in development
+  const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
+  const isAllowed = allowed.some(d => origin.includes(d)) || isLocal;
   if (!isAllowed) {
     return res.status(403).json({ error: 'Forbidden' });
   }
@@ -28,9 +55,26 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // Validate body size
+  const rawBody = JSON.stringify(req.body || {});
+  if (rawBody.length > MAX_BODY_SIZE) {
+    return res.status(413).json({ error: 'Payload too large' });
+  }
+
+  // Validate and sanitize input
+  const cleanBody = sanitizeBody(req.body);
+  if (!cleanBody) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+
+  // Require at minimum an email
+  if (!cleanBody.email || !cleanBody.email.includes('@')) {
+    return res.status(400).json({ error: 'Valid email required' });
+  }
+
   const webhookUrl = process.env.GHL_WEBHOOK_URL;
   if (!webhookUrl) {
-    console.error('[CPC API] GHL_WEBHOOK_URL not set');
+    console.error('[CPC API] Webhook URL not configured');
     return res.status(500).json({ error: 'Server configuration error' });
   }
 
@@ -38,15 +82,14 @@ export default async function handler(req, res) {
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify(cleanBody),
     });
 
     return res.status(response.ok ? 200 : 502).json({
       success: response.ok,
-      status: response.status,
     });
   } catch (err) {
-    console.error('[CPC API] Webhook proxy error:', err);
+    console.error('[CPC API] Proxy error:', err.message);
     return res.status(502).json({ error: 'Failed to reach CRM' });
   }
 }

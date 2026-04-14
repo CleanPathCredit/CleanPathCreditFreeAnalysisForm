@@ -28,7 +28,7 @@ const DEMO_USER = {
    for goal and name (canonical from form redirect)
 ════════════════════════════════════════════ */
 function loadUser() {
-  if (DEMO_MODE) { console.log('[CPC] DEMO_MODE active:', DEMO_USER); return DEMO_USER; }
+  if (DEMO_MODE) { console.log('[CPC] DEMO_MODE active'); return DEMO_USER; }
 
   // Read URL params
   const urlParams = new URLSearchParams(window.location.search);
@@ -45,7 +45,7 @@ function loadUser() {
     if (urlName) parsed.name      = parsed.name      || urlName;
 
     if (!raw && !urlGoal) console.warn('[CPC] No creditData — using fallbacks.');
-    console.log('[CPC] Loaded (merged):', parsed);
+    console.log('[CPC] Data loaded');
     return parsed;
   } catch(e) {
     console.error('[CPC] Failed to parse creditData:', e);
@@ -77,14 +77,15 @@ const D = {
   blockerTags      : Array.isArray(RAW.blockerTags) ? RAW.blockerTags : [],
 };
 
-console.log('[CPC] D (normalised):', D);
+console.log('[CPC] Profile:', D.profile, '| Goal:', D.goal);
 
 const goalIs  = (...k) => k.some(v => D.goal.includes(v.toLowerCase()));
 const scoreIs = (...k) => k.some(v => D.score.includes(v.toLowerCase()));
 const timeIs  = (...k) => k.some(v => D.timeline.includes(v.toLowerCase()));
 const has     = (...k) => k.some(v => D.blocker.includes(v.toLowerCase()) || D.situation.includes(v.toLowerCase()));
 const issueIs = (...k) => k.some(v => D.situationArray.some(s => s.includes(v.toLowerCase())));
-const NAME    = D.firstName !== 'there' ? D.firstName : null;
+// Sanitize user name for safe insertion into innerHTML contexts
+const NAME    = D.firstName !== 'there' ? D.firstName.replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c])) : null;
 
 /* ════════════════════════════════════════════
    2. PERSONALIZATION FUNCTIONS
@@ -542,6 +543,13 @@ const setText = (id, v) => { const el=$(id); if(el) el.textContent = v; };
 const setHTML = (id, v) => { const el=$(id); if(el) el.innerHTML   = v; };
 const setHref = (id, v) => { const el=$(id); if(el) el.href        = v; };
 
+/** Escape user-provided strings before inserting into HTML context */
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 /* ════════════════════════════════════════════
    4. RENDER
 ════════════════════════════════════════════ */
@@ -655,9 +663,9 @@ function render() {
     const quoteCard = $('user-quote-card');
     if (quoteCard) {
       quoteCard.style.display = 'block';
-      // Show original text (capitalize first letter)
+      // Show original text safely (no innerHTML — user input)
       const originalBlocker = String(RAW.blocker || '').trim();
-      setHTML('uq-text', '"' + originalBlocker + '"');
+      setText('uq-text', '"' + originalBlocker + '"');
       setHTML('uq-response', getUserQuoteResponse());
     }
   }
