@@ -567,6 +567,54 @@ main {
 .pricing-headline { font-family:var(--fd); font-size:clamp(19px,3.5vw,26px); font-weight:800; color:var(--txt); text-align:center; margin-bottom:6px }
 .pricing-sub      { font-size:13px; color:var(--mut); text-align:center; margin-bottom:32px; line-height:1.6 }
 
+/* ═══ Social Proof Section ═══ */
+.sp-eyebrow  { font-family:var(--fd); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); text-align:center; margin-bottom:10px }
+.sp-headline { font-family:var(--fd); font-size:clamp(19px,3.5vw,26px); font-weight:800; color:var(--txt); text-align:center; margin-bottom:28px }
+.sp-grid     { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; margin-bottom:28px }
+@media(max-width:860px) { .sp-grid { grid-template-columns:1fr; max-width:480px; margin:0 auto 28px } }
+
+.sp-card {
+  background:var(--card); border:1.5px solid var(--bdr); border-radius:var(--r);
+  padding:22px; display:flex; flex-direction:column; gap:14px;
+  transition:box-shadow .3s var(--ease), border-color .3s var(--ease);
+}
+@media(hover:hover) { .sp-card:hover { border-color:rgba(16,185,129,.35); box-shadow:0 4px 20px rgba(16,185,129,.1) } }
+
+.sp-score-row {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  padding:10px 0; border-radius:8px;
+  background:linear-gradient(135deg, rgba(239,68,68,.06), rgba(16,185,129,.06));
+}
+.sp-before   { font-size:13px; color:#ef4444; font-weight:600 }
+.sp-arrow    { font-size:16px; color:var(--mut) }
+.sp-after    { font-size:13px; color:#10b981; font-weight:600 }
+.sp-before strong, .sp-after strong { font-size:18px }
+
+.sp-quote {
+  font-size:13px; color:var(--txt); line-height:1.65; font-style:italic;
+  position:relative; padding-left:16px;
+  border-left:3px solid var(--teal);
+}
+
+.sp-author    { display:flex; align-items:center; gap:10px; margin-top:auto }
+.sp-avatar    {
+  width:36px; height:36px; border-radius:50%;
+  background:linear-gradient(135deg, var(--teal), #047857);
+  color:#fff; font-weight:700; font-size:14px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.sp-name      { font-size:13px; font-weight:700; color:var(--txt) }
+.sp-plan      { font-size:11px; color:var(--mut); margin-top:1px }
+
+.sp-stats {
+  display:flex; justify-content:center; gap:32px; padding:20px 0;
+  border-top:1px solid var(--bdr);
+}
+@media(max-width:640px) { .sp-stats { flex-direction:column; align-items:center; gap:16px } }
+.sp-stat      { text-align:center }
+.sp-stat-num  { font-family:var(--fd); font-size:28px; font-weight:800; color:var(--teal) }
+.sp-stat-label{ font-size:12px; color:var(--mut); max-width:160px; margin:4px auto 0; line-height:1.4 }
+
 .pricing-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; align-items:start; padding-top:22px }
 @media(max-width:860px) { .pricing-grid { grid-template-columns:1fr; max-width:480px; margin:0 auto } }
 
@@ -1068,6 +1116,82 @@ main {
         </div>
       </div>
       <p class="dt-closer">The difference isn't just speed — it's <strong>whether it actually works.</strong></p>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       6b. SOCIAL PROOF — CLIENT RESULTS
+       Builds confidence right before pricing decision.
+       Replace placeholder content with real client wins.
+  ══════════════════════════════════════ -->
+  <div class="card reveal" id="social-proof-section">
+    <div class="sp-eyebrow">Real Results From Real Clients</div>
+    <h2 class="sp-headline">What Clean Path Credit Clients Are Saying</h2>
+
+    <div class="sp-grid">
+      <div class="sp-card">
+        <div class="sp-score-row">
+          <span class="sp-before">Before: <strong>512</strong></span>
+          <span class="sp-arrow">→</span>
+          <span class="sp-after">After: <strong>697</strong></span>
+        </div>
+        <p class="sp-quote">"I didn't think anything could be done about my credit. Within 90 days, they removed 11 negative items and my score jumped almost 200 points."</p>
+        <div class="sp-author">
+          <span class="sp-avatar">J</span>
+          <div>
+            <div class="sp-name">J.R.</div>
+            <div class="sp-plan">Credit Correction System Client</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-score-row">
+          <span class="sp-before">Before: <strong>548</strong></span>
+          <span class="sp-arrow">→</span>
+          <span class="sp-after">After: <strong>721</strong></span>
+        </div>
+        <p class="sp-quote">"I was denied for a car loan twice. After going through the program, I got approved at 4.9% APR. This changed everything for my family."</p>
+        <div class="sp-author">
+          <span class="sp-avatar">M</span>
+          <div>
+            <div class="sp-name">M.T.</div>
+            <div class="sp-plan">Executive System Client</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sp-card">
+        <div class="sp-score-row">
+          <span class="sp-before">Before: <strong>489</strong></span>
+          <span class="sp-arrow">→</span>
+          <span class="sp-after">After: <strong>674</strong></span>
+        </div>
+        <p class="sp-quote">"The DIY Blueprint gave me everything I needed to handle my own corrections. Removed 7 items in the first two rounds."</p>
+        <div class="sp-author">
+          <span class="sp-avatar">S</span>
+          <div>
+            <div class="sp-name">S.L.</div>
+            <div class="sp-plan">DIY Blueprint Client</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sp-stats">
+      <div class="sp-stat">
+        <div class="sp-stat-num">94%</div>
+        <div class="sp-stat-label">of clients see items removed in Round 1</div>
+      </div>
+      <div class="sp-stat">
+        <div class="sp-stat-num">185+</div>
+        <div class="sp-stat-label">average point increase after 4 rounds</div>
+      </div>
+      <div class="sp-stat">
+        <div class="sp-stat-num">12,400+</div>
+        <div class="sp-stat-label">negative items successfully corrected</div>
+      </div>
     </div>
   </div>
 
