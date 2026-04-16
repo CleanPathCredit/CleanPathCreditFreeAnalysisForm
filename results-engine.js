@@ -270,10 +270,10 @@ function getDiagnosis() {
 
   if (has('collect') || issueIs('collection'))
     items.push({ sev:'error', icon:'💸', title:'Collections on File — Often Removable',
-      desc:'Collection accounts are among the most commonly disputable items under the FCRA. Many can be challenged and removed entirely if reporting doesn\'t meet strict legal accuracy standards.'});
+      desc:'Collection accounts are among the most commonly correctable items under the FCRA. Many can be removed entirely if reporting doesn\'t meet strict accuracy standards.'});
   if (has('late','missed','behind') || issueIs('late'))
     items.push({ sev:'warn', icon:'📅', title:'Payment History Pattern Detected',
-      desc:'Payment history carries 35% of your score weight. Even a few late marks can significantly suppress lender confidence — and many can be addressed through goodwill strategies or accuracy challenges.'});
+      desc:'Payment history carries 35% of your score weight. Even a few late marks can significantly suppress lender confidence — and many can be addressed through goodwill strategies or accuracy corrections.'});
   if (has('balance','utiliz','maxed','high card'))
     items.push({ sev:'warn', icon:'💳', title:'High Utilization Suppressing Your Profile',
       desc:'Utilization above 30% signals risk to lenders across all bureaus. Strategic balance restructuring can produce fast, measurable score improvement — often within a single billing cycle.'});
@@ -285,10 +285,10 @@ function getDiagnosis() {
       desc:'Recent denials often signal a specific threshold failure — not a general problem. Identifying and addressing the exact trigger can significantly strengthen any re-application.'});
   if (has('fraud','identity','error','mistake','incorrect','inaccurate'))
     items.push({ sev:'error', icon:'🛡️', title:'Potential Reporting Error Detected',
-      desc:'Reporting errors are more common than most people realize. Our 3-bureau audit routinely uncovers items that are inaccurate, outdated, or legally removable.'});
+      desc:'Reporting errors are more common than most people realize. Our 3-bureau audit routinely uncovers items that are inaccurate, outdated, or removable under federal law.'});
   if (issueIs('negative'))
     items.push({ sev:'error', icon:'📊', title:'Negative Items Dragging Your Score Down',
-      desc:'Negative marks on your report act as anchors that suppress your score and signal risk to lenders. Many of these items have specific legal requirements for how they must be reported — and frequently don\'t meet them.'});
+      desc:'Negative marks on your report act as anchors that suppress your score and signal risk to lenders. Many of these items have strict reporting requirements under federal law — and frequently don\'t meet them.'});
   if (issueIs('low score'))
     items.push({ sev:'warn', icon:'⬇️', title:'Low Score Reducing Your Options',
       desc:'A lower credit score limits which lenders will work with you and dramatically increases the cost of borrowing. Identifying the root causes is the first step to turning this around.'});
@@ -308,15 +308,15 @@ function getDiagIntro() {
 }
 
 function getGoodNews() {
-  if (D.profile === 'REBUILD') return 'Despite the severity of what we found, <strong>many of these items are commonly challenged and removed</strong>. Clients in similar situations have seen 50–100+ point improvements within 60–90 days when the right strategy is applied in the right sequence.';
+  if (D.profile === 'REBUILD') return 'Despite the severity of what we found, <strong>many of these items are commonly corrected and removed</strong>. Clients in similar situations have seen 50–100+ point improvements within 60–90 days when the right strategy is applied in the right sequence.';
   if (D.profile === 'OPTIMIZATION') return 'You\'re already in a strong position. <strong>Small, targeted adjustments</strong> — like optimizing utilization ratios and removing minor reporting inconsistencies — can unlock premium rates and higher approval tiers quickly.';
   return 'The gap between where you are and where you need to be is <strong>often much smaller than it feels</strong>. Most clients in your situation are just a few targeted actions away from a meaningful jump in their approval odds.';
 }
 
 function getUserQuoteResponse() {
   if (has('denied','denial')) return "This is something we help clients overcome every day. Denials often come from one specific threshold failure — not a broken profile. Once we identify that trigger, the path forward becomes very clear.";
-  if (has('collect')) return "Collections are one of the most common — and most disputable — items on a credit report. Many don't meet the strict legal reporting standards required under the FCRA, which means they can often be challenged and removed.";
-  if (has('late','missed')) return "Late payment marks are frustrating, but they're far from permanent. Between goodwill adjustments and accuracy challenges, there are proven strategies to address these — and the impact on your score can be dramatic.";
+  if (has('collect')) return "Collections are one of the most common — and most correctable — items on a credit report. Many don't meet the strict reporting standards required under the FCRA, which means they can often be corrected and removed.";
+  if (has('late','missed')) return "Late payment marks are frustrating, but they're far from permanent. Between goodwill adjustments and accuracy corrections, there are proven strategies to address these — and the impact on your score can be dramatic.";
   if (has('bankrupt')) return "Bankruptcy feels like the end of the road, but it's actually a defined starting point. Specific rebuild strategies exist for every post-bankruptcy stage, and strong approval pathways open up sooner than most people realize.";
   if (has('frustrat','confus','stress','overwhelm','lost','stuck','scared','worried')) return "We hear this from clients every day — and we want you to know that feeling stuck doesn't mean you are stuck. Once you can see the specific issues and the specific path forward, everything changes.";
   return "This is exactly the kind of situation our team specializes in. Once we do a full audit, we can map out the precise actions that will have the biggest impact on your specific goal.";
@@ -458,7 +458,7 @@ function getBookingSection() {
   if (goalIs('home'))           return { title:'Book Your Home Approval Strategy Session',     sub:"We'll walk through exactly what's blocking approval and map out the fastest path to getting mortgage-ready." };
   if (goalIs('car'))            return { title:'Book Your Rate Reduction Strategy Session',    sub:"We'll show you what may be costing you better terms and where to focus first to lower your effective APR." };
   if (goalIs('business'))       return { title:'Book Your Funding Readiness Strategy Session', sub:"We'll identify what's limiting your funding access and build the strongest path to capital." };
-  if (goalIs('improve_credit')) return { title:'Book Your Credit Score Recovery Session',      sub:"We'll map the exact items draining your score and give you the fastest legal path to recovery." };
+  if (goalIs('improve_credit')) return { title:'Book Your Credit Score Recovery Session',      sub:"We'll map the exact items draining your score and give you the fastest path to recovery." };
   if (goalIs('credit card'))    return { title:'Book Your Credit Optimization Session',        sub:"We'll review your profile and show you the fastest path to the products you're targeting." };
   if (goalIs('emergency'))      return { title:'Get Your Fast-Track Strategy Session',         sub:"Given your urgency, we'll prioritize the highest-leverage moves and get you moving immediately." };
   return { title:'Book Your 30-Minute Credit Strategy Session', sub:"We'll walk through your profile, identify your highest-impact actions, and map out a clear, sequenced plan — no cost, no obligation." };
