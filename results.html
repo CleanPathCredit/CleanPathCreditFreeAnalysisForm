@@ -399,6 +399,50 @@ main {
 }
 
 /* ════════════════════════════════════════════
+   ── VSL PLAYER ──
+════════════════════════════════════════════ */
+#vsl-section { padding-bottom:28px }
+.vsl-header { text-align:center; margin-bottom:20px }
+.vsl-badge {
+  display:inline-block; font-family:var(--fd); font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--teal);
+  background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.2);
+  border-radius:20px; padding:5px 14px; margin-bottom:12px;
+}
+.vsl-title { font-family:var(--fd); font-size:clamp(18px,3.2vw,24px); font-weight:800; color:var(--txt); margin-bottom:6px }
+.vsl-sub   { font-size:13px; color:var(--mut); line-height:1.5 }
+
+.vsl-player-wrap {
+  position:relative; border-radius:12px; overflow:hidden;
+  background:#000; aspect-ratio:16/9; max-width:640px; margin:0 auto;
+  box-shadow:0 8px 32px rgba(15,23,42,.15);
+}
+.vsl-player {
+  width:100%; height:100%; object-fit:cover; display:block;
+  border-radius:12px;
+}
+.vsl-play-overlay {
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  background:transparent; border:none; cursor:pointer;
+  transition:opacity .3s ease;
+}
+.vsl-play-overlay svg { width:80px; height:80px; filter:drop-shadow(0 2px 8px rgba(0,0,0,.3)) }
+.vsl-play-overlay:hover svg { transform:scale(1.08); transition:transform .2s ease }
+.vsl-play-overlay.hidden { opacity:0; pointer-events:none }
+
+.vsl-trust {
+  display:flex; justify-content:center; gap:20px; margin-top:14px; flex-wrap:wrap;
+}
+.vsl-trust-item {
+  font-size:11px; color:var(--mut); display:flex; align-items:center; gap:4px;
+}
+@media(max-width:640px) {
+  .vsl-trust { gap:12px }
+  .vsl-play-overlay svg { width:60px; height:60px }
+}
+
+
+/* ════════════════════════════════════════════
    ── SECTION 2: WHAT THIS MEANS ──
 ════════════════════════════════════════════ */
 #what-this-means .wtm-label-top {
@@ -1020,6 +1064,44 @@ main {
     </div>
 
   </div><!-- /#hero -->
+
+
+  <!-- ══════════════════════════════════════
+       1b. VSL — Personalized video diagnosis
+       HeyGen avatar walks through their specific situation.
+       Score-tier JS selects the correct video URL.
+  ══════════════════════════════════════ -->
+  <div class="card reveal" id="vsl-section">
+    <div class="vsl-header">
+      <div class="vsl-badge">🎥 Your Personal Strategy Brief</div>
+      <h2 class="vsl-title" id="vsl-title">Watch: What Your Credit Profile Tells Us</h2>
+      <p class="vsl-sub" id="vsl-sub">A 30-second breakdown of your situation — and what to do about it.</p>
+    </div>
+
+    <div class="vsl-player-wrap">
+      <video
+        id="vsl-video"
+        class="vsl-player"
+        controls
+        playsinline
+        preload="metadata"
+        poster=""
+      >
+        <source id="vsl-source" src="" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <!-- Overlay play button for higher click-through -->
+      <button class="vsl-play-overlay" id="vsl-play-btn" aria-label="Play video">
+        <svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="38" fill="rgba(0,0,0,.55)" stroke="#fff" stroke-width="2"/><polygon points="32,24 58,40 32,56" fill="#fff"/></svg>
+      </button>
+    </div>
+
+    <div class="vsl-trust">
+      <span class="vsl-trust-item">⏱ Under 30 seconds</span>
+      <span class="vsl-trust-item">🔒 Private &amp; personalized</span>
+      <span class="vsl-trust-item">📊 Based on your answers</span>
+    </div>
+  </div>
 
 
   <!-- ══════════════════════════════════════

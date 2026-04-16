@@ -594,6 +594,80 @@ function escapeHTML(str) {
 }
 
 /* ════════════════════════════════════════════
+   3b. VSL — score-tier video selection
+   Map each score range to a HeyGen video URL.
+   Replace placeholder URLs with real HeyGen video URLs.
+════════════════════════════════════════════ */
+const VSL_VIDEOS = {
+  // REPLACE these with your actual HeyGen video URLs
+  '500': 'YOUR_HEYGEN_VIDEO_URL_SCORE_500',   // Score 300–549: Critical
+  '600': 'YOUR_HEYGEN_VIDEO_URL_SCORE_600',   // Score 550–649: Moderate
+  '700': 'YOUR_HEYGEN_VIDEO_URL_SCORE_700',   // Score 650–699: Refinement
+  '750': 'YOUR_HEYGEN_VIDEO_URL_SCORE_750',   // Score 700+: Optimization
+  'default': 'YOUR_HEYGEN_VIDEO_URL_DEFAULT',  // Fallback
+};
+
+const VSL_TITLES = {
+  '500': `${NAME || 'Friend'}, here's what we found in your profile`,
+  '600': `${NAME || 'Friend'}, your profile is closer than you think`,
+  '700': `${NAME || 'Friend'}, you have a strong foundation — here's what's next`,
+  '750': `${NAME || 'Friend'}, a few strategic moves can unlock everything`,
+};
+
+const VSL_SUBS = {
+  '500': 'Your score range tells us there are significant items we can target. Watch this 30-second breakdown.',
+  '600': 'You\'re in a fixable range. Here\'s exactly what\'s holding you back — and how fast we can move.',
+  '700': 'Small, targeted corrections can produce big results at your level. Here\'s the strategy.',
+  '750': 'At your score, it\'s about optimization — not repair. Here\'s how to maximize your position.',
+};
+
+function getVSLTier() {
+  if (scoreIs('500')) return '500';
+  if (scoreIs('600')) return '600';
+  if (scoreIs('700') && !scoreIs('750','760','770','780','790','800')) return '700';
+  return '750';
+}
+
+function initVSL() {
+  const tier    = getVSLTier();
+  const videoUrl = VSL_VIDEOS[tier] || VSL_VIDEOS['default'];
+  const video   = document.getElementById('vsl-video');
+  const source  = document.getElementById('vsl-source');
+  const playBtn = document.getElementById('vsl-play-btn');
+  const section = document.getElementById('vsl-section');
+
+  // Set title and subtitle
+  setHTML('vsl-title', VSL_TITLES[tier] || VSL_TITLES['600']);
+  setHTML('vsl-sub',   VSL_SUBS[tier]   || VSL_SUBS['600']);
+
+  // If no real video URL is set yet, hide the section
+  if (!videoUrl || videoUrl.startsWith('YOUR_HEYGEN')) {
+    if (section) section.style.display = 'none';
+    return;
+  }
+
+  // Set video source
+  if (source) {
+    source.src = videoUrl;
+    video.load();
+  }
+
+  // Play button overlay
+  if (playBtn && video) {
+    playBtn.addEventListener('click', function() {
+      playBtn.classList.add('hidden');
+      video.play();
+    });
+    video.addEventListener('play',  function() { playBtn.classList.add('hidden'); });
+    video.addEventListener('pause', function() { if (!video.ended) playBtn.classList.remove('hidden'); });
+    video.addEventListener('ended', function() { playBtn.classList.remove('hidden'); });
+  }
+
+  console.log('[CPC] VSL tier:', tier);
+}
+
+
+/* ════════════════════════════════════════════
    4. RENDER
 ════════════════════════════════════════════ */
 function render() {
@@ -602,6 +676,9 @@ function render() {
   /* Hero */
   setHTML('hero-headline', getHeadline());
   setHTML('hero-sub',      getSubheadline());
+
+  /* VSL — select video based on score tier */
+  initVSL();
 
   /* What This Means */
   const wtm = getWhatThisMeans();
