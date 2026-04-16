@@ -1,10 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
   <defs>
-    <linearGradient id="arrow-grad" x1="0" y1="64" x2="64" y2="0" gradientUnits="userSpaceOnUse">
+    <linearGradient id="g" x1="2" y1="58" x2="62" y2="6" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="60%" stop-color="#0ea5e9"/>
       <stop offset="100%" stop-color="#2563eb"/>
     </linearGradient>
   </defs>
-  <path d="M4 48 L16 30 L26 42 L38 22 L48 34 L60 8" stroke="url(#arrow-grad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M48 8 L60 8 L60 20" stroke="url(#arrow-grad)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Zigzag path with sharp mitered joins -->
+  <polyline
+    points="2,50 14,28 24,42 36,18 50,34"
+    stroke="url(#g)"
+    stroke-width="6.5"
+    stroke-linejoin="miter"
+    stroke-linecap="butt"
+    fill="none"
+  />
+  <!-- Arrow shaft continuing from last zigzag point -->
+  <line x1="50" y1="34" x2="56" y2="10" stroke="url(#g)" stroke-width="6.5" stroke-linecap="butt"/>
+  <!-- Arrowhead (filled triangle) -->
+  <polygon points="48,4 62,4 62,18" fill="url(#g)"/>
 </svg>
