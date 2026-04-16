@@ -1450,10 +1450,14 @@ function downloadPDF() {
       else if (y <= 220 && indHidden) { ind.classList.remove('hidden'); indHidden = false; }
     }
 
-    // Sticky mobile CTA — slides up after user has scrolled past the hero
+    // Sticky mobile CTA — slides up after scrolling past hero, hides near the call section
     if (sticky) {
-      if (y > 600 && !stickyShown) { sticky.classList.add('visible'); stickyShown = true; }
-      else if (y <= 600 && stickyShown) { sticky.classList.remove('visible'); stickyShown = false; }
+      const mainCallBtn = document.getElementById('main-call-btn');
+      const mainCallTop = mainCallBtn ? mainCallBtn.getBoundingClientRect().top : Infinity;
+      const hideNearCall = mainCallTop < window.innerHeight + 80;
+
+      if (y > 600 && !hideNearCall && !stickyShown) { sticky.classList.add('visible'); stickyShown = true; }
+      else if ((y <= 600 || hideNearCall) && stickyShown) { sticky.classList.remove('visible'); stickyShown = false; }
     }
 
     // Reading progress bar — fills 0% → 100% as user scrolls through the page
