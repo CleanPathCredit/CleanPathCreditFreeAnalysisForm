@@ -284,8 +284,8 @@ function getDiagnosis() {
     items.push({ sev:'warn', icon:'🚪', title:'Recent Denial Pattern Detected',
       desc:'Recent denials often signal a specific threshold failure — not a general problem. Identifying and addressing the exact trigger can significantly strengthen any re-application.'});
   if (has('fraud','identity','error','mistake','incorrect','inaccurate'))
-    items.push({ sev:'error', icon:'🛡️', title:'Potential Reporting Error or Dispute Opportunity',
-      desc:'Reporting errors are more common than most people realize. Our 3-bureau audit routinely uncovers items that are inaccurate, outdated, or legally challengeable.'});
+    items.push({ sev:'error', icon:'🛡️', title:'Potential Reporting Error Detected',
+      desc:'Reporting errors are more common than most people realize. Our 3-bureau audit routinely uncovers items that are inaccurate, outdated, or legally removable.'});
   if (issueIs('negative'))
     items.push({ sev:'error', icon:'📊', title:'Negative Items Dragging Your Score Down',
       desc:'Negative marks on your report act as anchors that suppress your score and signal risk to lenders. Many of these items have specific legal requirements for how they must be reported — and frequently don\'t meet them.'});
@@ -308,7 +308,7 @@ function getDiagIntro() {
 }
 
 function getGoodNews() {
-  if (D.profile === 'REBUILD') return 'Despite the severity of what we found, <strong>many of these items are commonly disputed and removed</strong>. Clients in similar situations have seen 50–100+ point improvements within 60–90 days when the right strategy is applied in the right sequence.';
+  if (D.profile === 'REBUILD') return 'Despite the severity of what we found, <strong>many of these items are commonly challenged and removed</strong>. Clients in similar situations have seen 50–100+ point improvements within 60–90 days when the right strategy is applied in the right sequence.';
   if (D.profile === 'OPTIMIZATION') return 'You\'re already in a strong position. <strong>Small, targeted adjustments</strong> — like optimizing utilization ratios and removing minor reporting inconsistencies — can unlock premium rates and higher approval tiers quickly.';
   return 'The gap between where you are and where you need to be is <strong>often much smaller than it feels</strong>. Most clients in your situation are just a few targeted actions away from a meaningful jump in their approval odds.';
 }
