@@ -1,22 +1,28 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <linearGradient id="g" x1="2" y1="58" x2="62" y2="6" gradientUnits="userSpaceOnUse">
+    <linearGradient id="g" x1="0" y1="90" x2="95" y2="5" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#10b981"/>
-      <stop offset="60%" stop-color="#0ea5e9"/>
+      <stop offset="55%" stop-color="#06b6d4"/>
       <stop offset="100%" stop-color="#2563eb"/>
     </linearGradient>
   </defs>
-  <!-- Zigzag path with sharp mitered joins -->
-  <polyline
-    points="2,50 14,28 24,42 36,18 50,34"
+  <!--
+    Arrow path traced to match the Clean Path Credit logo:
+    - Zigzag from lower-left to upper-right
+    - Sharp mitered corners (angular, not rounded)
+    - Solid filled arrowhead at end
+  -->
+  <path
+    d="M 5,82 L 22,52 L 35,68 L 52,35 L 65,52 L 82,12"
     stroke="url(#g)"
-    stroke-width="6.5"
+    stroke-width="10"
     stroke-linejoin="miter"
     stroke-linecap="butt"
     fill="none"
   />
-  <!-- Arrow shaft continuing from last zigzag point -->
-  <line x1="50" y1="34" x2="56" y2="10" stroke="url(#g)" stroke-width="6.5" stroke-linecap="butt"/>
-  <!-- Arrowhead (filled triangle) -->
-  <polygon points="48,4 62,4 62,18" fill="url(#g)"/>
+  <!-- Arrowhead: solid filled triangle pointing upper-right -->
+  <path
+    d="M 72,5 L 95,5 L 95,28 Z"
+    fill="url(#g)"
+  />
 </svg>
