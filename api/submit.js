@@ -1,8 +1,48 @@
 /**
- * Vercel Serverless Function — proxies form submissions to CRM.
- * Set GHL_WEBHOOK_URL in Vercel Dashboard → Settings → Environment Variables.
+ * Vercel Serverless Function — proxies form submissions to the CRM.
+ *
+ * Hardened per audit finding C-4:
+ *   1. Strict origin check. The previous `origin.includes(d)` was bypassable
+ *      with crafted origins like https://evil.com/form.cleanpathcredit.com/
+ *      or https://form.cleanpathcredit.com.evil.com/. Now we parse the Origin
+ *      header as a URL and require an exact `hostname` match against an
+ *      allowlist.
+ *   2. Localhost only accepted when CORS_ALLOWED_DEV_ORIGIN is explicitly set.
+ *      Previously any origin substring-matching "localhost" passed, including
+ *      things like https://localhost.evil.com/.
+ *   3. Server-side honeypot. Hidden form fields that real users never fill.
+ *      If present on a submission we silently 200 (without forwarding to the
+ *      CRM) so bots can't tell they were detected.
+ *   4. Cloudflare Turnstile verification. When TURNSTILE_SECRET_KEY is set,
+ *      every POST must include a cf_turnstile_token that validates against
+ *      https://challenges.cloudflare.com/turnstile/v0/siteverify. When the
+ *      secret is unset, Turnstile is skipped (backwards compatible).
+ *   5. Origin-aware CORS preflight. OPTIONS requests echo Access-Control-
+ *      Allow-Origin only when the origin passes the same allowlist.
+ *
+ * Follow-up (tracked as H — not in this PR): IP-based rate limiting via
+ * @upstash/ratelimit + Vercel KV. Requires a KV store provisioned in the
+ * Vercel project settings.
+ *
+ * Required env:
+ *   GHL_WEBHOOK_URL           GoHighLevel inbound webhook URL
+ * Optional env:
+ *   TURNSTILE_SECRET_KEY      Cloudflare Turnstile server secret.
+ *                             When set, cf_turnstile_token is REQUIRED in
+ *                             the POST body. Leave unset to deploy the
+ *                             backend hardening without the frontend widget.
+ *   CORS_ALLOWED_ORIGINS      CSV of allowed hostnames (overrides defaults).
+ *                             Example: "form.cleanpathcredit.com,preview.example.com"
+ *   CORS_ALLOWED_DEV_ORIGIN   Single dev hostname to allow (e.g. "localhost").
+ *                             Must be explicitly set; NOT enabled by default.
  */
 
+const DEFAULT_ALLOWED_HOSTS = [
+  'form.cleanpathcredit.com',
+  'clean-path-credit-free-analysis-for.vercel.app',
+];
+
+// Fields we will forward to GoHighLevel. Anything else is stripped.
 const ALLOWED_FIELDS = new Set([
   'first_name', 'last_name', 'full_name', 'email', 'phone',
   'goal', 'situation', 'score', 'timeline', 'blocker',
@@ -10,7 +50,40 @@ const ALLOWED_FIELDS = new Set([
   'leadScore', 'leadTier', 'recommendedOffer',
 ]);
 
+// Hidden field names that real users never fill. Any non-empty value here
+// means the submission came from a bot — silently accept and drop.
+const HONEYPOT_FIELDS = ['website', 'company_website', 'fax'];
+
 const MAX_BODY_SIZE = 4096; // bytes
+const MAX_FIELD_LENGTH = 500; // chars per text field
+
+const TURNSTILE_VERIFY_URL = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+
+function getAllowedHosts() {
+  const raw = process.env.CORS_ALLOWED_ORIGINS;
+  if (!raw) return DEFAULT_ALLOWED_HOSTS;
+  return raw.split(',').map((s) => s.trim()).filter(Boolean);
+}
+
+function isAllowedOrigin(originHeader) {
+  if (!originHeader) return false;
+  let hostname;
+  try {
+    hostname = new URL(originHeader).hostname;
+  } catch {
+    return false;
+  }
+  const allowedHosts = getAllowedHosts();
+  if (allowedHosts.includes(hostname)) return true;
+
+  const devOrigin = process.env.CORS_ALLOWED_DEV_ORIGIN;
+  if (devOrigin) {
+    // Compare hostname only (strip any :port the caller included).
+    const devHost = devOrigin.split(':')[0];
+    if (hostname === devHost) return true;
+  }
+  return false;
+}
 
 function sanitizeBody(body) {
   if (!body || typeof body !== 'object') return null;
@@ -18,78 +91,133 @@ function sanitizeBody(body) {
   for (const [key, value] of Object.entries(body)) {
     if (!ALLOWED_FIELDS.has(key)) continue;
     if (typeof value === 'string') {
-      clean[key] = value.slice(0, 500); // cap field length
-    } else if (typeof value === 'number') {
+      clean[key] = value.slice(0, MAX_FIELD_LENGTH);
+    } else if (typeof value === 'number' && Number.isFinite(value)) {
       clean[key] = value;
     }
   }
   return Object.keys(clean).length > 0 ? clean : null;
 }
 
+function tripsHoneypot(body) {
+  if (!body || typeof body !== 'object') return false;
+  return HONEYPOT_FIELDS.some((f) => {
+    const v = body[f];
+    return typeof v === 'string' && v.trim().length > 0;
+  });
+}
+
+function getClientIp(req) {
+  const fwd = req.headers['x-forwarded-for'];
+  if (typeof fwd === 'string' && fwd.length > 0) {
+    return fwd.split(',')[0].trim();
+  }
+  return req.headers['x-real-ip'] || req.socket?.remoteAddress || '';
+}
+
+async function verifyTurnstile(token, remoteIp) {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return { ok: true, skipped: true }; // backwards-compatible
+  if (!token || typeof token !== 'string') {
+    return { ok: false, reason: 'missing_token' };
+  }
+
+  const params = new URLSearchParams({ secret, response: token });
+  if (remoteIp) params.append('remoteip', remoteIp);
+
+  try {
+    const res = await fetch(TURNSTILE_VERIFY_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+    const data = await res.json();
+    if (!data.success) {
+      return { ok: false, reason: 'verify_failed', codes: data['error-codes'] };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error('[CPC API] Turnstile verify threw:', err?.message);
+    return { ok: false, reason: 'verify_error' };
+  }
+}
+
+function applyCorsHeaders(res, origin) {
+  res.setHeader('Access-Control-Allow-Origin', origin);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Vary', 'Origin');
+}
+
 export default async function handler(req, res) {
-  // Only allow POST
+  // --- CORS preflight ---
   if (req.method === 'OPTIONS') {
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    const origin = req.headers.origin;
+    if (origin && isAllowedOrigin(origin)) {
+      applyCorsHeaders(res, origin);
+      res.setHeader('Access-Control-Max-Age', '86400');
+    }
     return res.status(204).end();
   }
+
+  // --- Method allowlist ---
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  // Origin check — only allow requests from our domains
+  // --- Strict origin check ---
   const origin = req.headers.origin || '';
-  const allowed = [
-    'form.cleanpathcredit.com',
-    'clean-path-credit-free-analysis-for.vercel.app',
-  ];
-  // Allow localhost in development
-  const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
-  const isAllowed = allowed.some(d => origin.includes(d)) || isLocal;
-  if (!isAllowed) {
+  if (!isAllowedOrigin(origin)) {
     return res.status(403).json({ error: 'Forbidden' });
   }
+  applyCorsHeaders(res, origin);
 
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', origin);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  // Validate body size
+  // --- Payload size guard ---
   const rawBody = JSON.stringify(req.body || {});
   if (rawBody.length > MAX_BODY_SIZE) {
     return res.status(413).json({ error: 'Payload too large' });
   }
 
-  // Validate and sanitize input
+  // --- Honeypot: silently drop bot submissions without revealing detection ---
+  if (tripsHoneypot(req.body)) {
+    console.log('[CPC API] Honeypot tripped from', getClientIp(req));
+    return res.status(200).json({ success: true });
+  }
+
+  // --- Turnstile verification (if configured). Runs before sanitize so the
+  //     token field isn't stripped. Token is NOT forwarded to the CRM. ---
+  const turnstile = await verifyTurnstile(req.body?.cf_turnstile_token, getClientIp(req));
+  if (!turnstile.ok) {
+    console.error('[CPC API] Turnstile rejected:', turnstile.reason, turnstile.codes);
+    return res.status(400).json({ error: 'Verification required' });
+  }
+
+  // --- Sanitize and validate ---
   const cleanBody = sanitizeBody(req.body);
   if (!cleanBody) {
     return res.status(400).json({ error: 'Invalid request body' });
   }
-
-  // Require at minimum an email
   if (!cleanBody.email || !cleanBody.email.includes('@')) {
     return res.status(400).json({ error: 'Valid email required' });
   }
 
+  // --- Fail closed on missing CRM webhook URL ---
   const webhookUrl = process.env.GHL_WEBHOOK_URL;
   if (!webhookUrl) {
-    console.error('[CPC API] Webhook URL not configured');
-    return res.status(500).json({ error: 'Server configuration error' });
+    console.error('[CPC API] GHL_WEBHOOK_URL not configured');
+    return res.status(500).json({ error: 'server_misconfigured' });
   }
 
+  // --- Forward to CRM ---
   try {
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cleanBody),
     });
-
-    return res.status(response.ok ? 200 : 502).json({
-      success: response.ok,
-    });
+    return res.status(response.ok ? 200 : 502).json({ success: response.ok });
   } catch (err) {
-    console.error('[CPC API] Proxy error:', err.message);
+    console.error('[CPC API] Proxy error:', err?.message);
     return res.status(502).json({ error: 'Failed to reach CRM' });
   }
 }
