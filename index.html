@@ -564,6 +564,22 @@ body {
   .option-label { font-size:14px; }
 }
 </style>
+<!-- ─── Cloudflare Turnstile (C-4 bot protection) ───────────────────────────── -->
+<script>
+  window.TURNSTILE_SITE_KEY = '0x4AAAAAAC_LMKxFprQQPeCw';
+  window.cpcTurnstileToken  = null;
+  window.onloadTurnstileCallback = function () {
+    if (!window.TURNSTILE_SITE_KEY) return;
+    if (!window.turnstile || !document.getElementById('cf-turnstile-container')) return;
+    window.turnstile.render('#cf-turnstile-container', {
+      sitekey: window.TURNSTILE_SITE_KEY,
+      callback:           function (t) { window.cpcTurnstileToken = t; },
+      'expired-callback': function () { window.cpcTurnstileToken = null; },
+      'error-callback':   function () { window.cpcTurnstileToken = null; },
+    });
+  };
+</script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback" async defer></script>
 </head>
 <body>
 
@@ -784,6 +800,15 @@ body {
       </label>
     </div>
     <div class="consent-error" id="consent-error" role="alert" aria-live="assertive">You must agree to receive communications before submitting.</div>
+    
+    <!-- ─── Honeypot (C-4): hidden from users, fills up by bots. ─── -->
+    <div style="position:absolute;left:-9999px;top:-9999px;width:0;height:0;overflow:hidden" aria-hidden="true">
+      <label for="cpc-website">Website (leave empty)</label>
+      <input type="text" id="cpc-website" name="website" tabindex="-1" autocomplete="off">
+    </div>
+
+    <!-- ─── Turnstile widget container (C-4) ─── -->
+    <div id="cf-turnstile-container" style="display:flex;justify-content:center;margin:16px 0"></div>
 
     <div class="btn-row">
       <button class="btn-back" onclick="goBack()">← Back</button>
@@ -1402,6 +1427,14 @@ function validateStep6() {
 
 function submitForm() {
   if (!validateStep6()) return;
+    // C-4: if Turnstile is configured, require a valid token before submitting.
+  // Without this check, a race condition lets a user click submit before the
+  // async Turnstile challenge completes, backend rejects with 400, frontend
+  // still redirects to results.html — silently losing the lead (Seer-flagged).
+  if (window.TURNSTILE_SITE_KEY && !window.cpcTurnstileToken) {
+    alert('Please wait for the security check to complete, then click submit again.');
+    return;
+  }
 
   // Show loading spinner on button
   const btn = $('btn-submit');
@@ -1462,7 +1495,10 @@ function submitForm() {
       leadScore:        classification.leadScore,
       leadTier:         classification.leadTier,
       recommendedOffer: classification.recommendedOffer,
-    }),
+           // C-4 bot protection
+      website:            (document.getElementById('cpc-website') || {}).value || '',
+      cf_turnstile_token: window.cpcTurnstileToken || null,
+    }), 
   })
   .then(r => console.log('[CPC] Lead submitted:', r.status))
   .catch(e => console.warn('[CPC] Submit error (non-blocking):', e));
