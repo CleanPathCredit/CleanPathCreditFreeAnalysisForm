@@ -564,6 +564,23 @@ main {
 ════════════════════════════════════════════ */
 #pricing-section { padding:32px 22px; overflow:visible; max-width:900px; width:100% }
 .pricing-eyebrow  { font-family:var(--fd); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--teal); text-align:center; margin-bottom:10px }
+
+/* Personalized recommendation pitch — sits above the pricing grid and
+   surfaces the tier we're guiding this specific lead toward. Teal accent
+   border matches the "Recommended For You" badge the engine attaches to
+   the matching card, so the eye moves naturally from pitch → grid → card. */
+.rec-pitch-wrap  {
+  max-width: 560px;
+  margin: 0 auto 24px;
+  padding: 18px 22px;
+  border-radius: var(--r);
+  background: linear-gradient(135deg, rgba(13,148,136,.06), rgba(37,99,235,.04));
+  border: 1px solid rgba(13,148,136,.18);
+  text-align: center;
+}
+.rec-pitch-label { font-family:var(--fd); font-size:10px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--teal); margin-bottom:6px }
+.rec-pitch-body  { font-size:15px; line-height:1.55; color:var(--txt) }
+.rec-pitch-body strong { color: var(--teal) }
 .pricing-headline { font-family:var(--fd); font-size:clamp(19px,3.5vw,26px); font-weight:800; color:var(--txt); text-align:center; margin-bottom:6px }
 .pricing-sub      { font-size:13px; color:var(--mut); text-align:center; margin-bottom:32px; line-height:1.6 }
 
@@ -975,7 +992,20 @@ main {
 
 
   <!-- ══════════════════════════════════════
-       2. WHAT THIS MEANS
+       2. COST OF WAITING (MOVED UP — pain-first framing)
+       Urgency / pain amplification — goal-specific copy injected by engine.
+       Previously sat below "What This Means"; moved above it so leads
+       feel the stakes before they read the diagnosis.
+  ══════════════════════════════════════ -->
+  <div id="scarcity-section" class="reveal">
+    <div class="scarcity-label">🚨 The True Cost of Waiting</div>
+    <h2 class="scarcity-headline" id="scarcity-headline">Every Month Without Action Has a Price</h2>
+    <p class="scarcity-body" id="scarcity-body"></p>
+  </div>
+
+
+  <!-- ══════════════════════════════════════
+       3. WHAT THIS MEANS
        Plain-English impact — translates score into real-world cost
   ══════════════════════════════════════ -->
   <div class="card reveal" id="what-this-means">
@@ -987,22 +1017,12 @@ main {
 
 
   <!-- ══════════════════════════════════════
-       3. COST OF WAITING
-       Urgency / pain amplification — goal-specific copy injected by engine
-  ══════════════════════════════════════ -->
-  <div id="scarcity-section" class="reveal">
-    <div class="scarcity-label">🚨 The True Cost of Waiting</div>
-    <h2 class="scarcity-headline" id="scarcity-headline">Every Month Without Action Has a Price</h2>
-    <p class="scarcity-body" id="scarcity-body"></p>
-  </div>
-
-
-  <!-- ══════════════════════════════════════
-       4. AI ANALYSIS SUMMARY
-       3 key diagnostic metrics
+       4. YOUR CREDIT SNAPSHOT
+       3 key diagnostic metrics (was "AI Analysis Summary" — dropped
+       the AI-hype framing; the substance is unchanged).
   ══════════════════════════════════════ -->
   <div class="card reveal" id="ai-summary">
-    <div class="section-title"><span>🤖</span> AI Analysis Summary</div>
+    <div class="section-title"><span>📋</span> Your Credit Snapshot</div>
     <div class="findings-grid" id="findings-grid"></div>
   </div>
 
@@ -1082,6 +1102,14 @@ main {
     <div class="pricing-eyebrow">Choose Your Path Forward</div>
     <h2 class="pricing-headline">Select the Right Plan for Your Situation</h2>
     <p class="pricing-sub">Every plan is backed by federal consumer protection law and built for your specific file.<br>Not sure which fits? The strategy call below is free.</p>
+
+    <!-- Personalized recommendation pitch — engine injects a goal +
+         leadScore-aware one-liner here. Visually elevates the matching
+         tier card; see applyRecommendedOffer() in results-engine.js. -->
+    <div id="rec-pitch-wrap" class="rec-pitch-wrap" style="display:none">
+      <div class="rec-pitch-label">For your profile</div>
+      <p class="rec-pitch-body" id="rec-pitch-body"></p>
+    </div>
 
     <div class="pricing-grid">
 
@@ -1260,10 +1288,11 @@ main {
       <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
     </div>
 
-    <!-- Phone CTA -->
+    <!-- Phone CTA — secondary path below the calendar. Label made less
+         aggressive: the calendar above is the primary conversion. -->
     <a href="tel:+13463995606" class="call-btn" id="main-call-btn" style="text-decoration:none">
       <span class="cb-pulse"></span>
-      📞 Speak With a Strategist Now
+      📞 Prefer to talk? Call (346) 399-5606
     </a>
     <p class="call-disclaimer">Mon–Fri · 9am–6pm CT · Free · No obligation</p>
 
@@ -1349,10 +1378,10 @@ main {
         </div>
       </div>
       <div class="trust-item">
-        <span class="ti-icon">🤖</span>
+        <span class="ti-icon">📊</span>
         <div>
-          <div class="ti-title">AI-Assisted Analysis</div>
-          <div class="ti-desc">Your profile is cross-referenced against hundreds of lender approval patterns.</div>
+          <div class="ti-title">Pattern-Based Diagnosis</div>
+          <div class="ti-desc">Your profile is reviewed against hundreds of lender approval patterns — not guesswork.</div>
         </div>
       </div>
       <div class="trust-item">
@@ -1386,9 +1415,12 @@ main {
 </main><!-- /main -->
 
 
-<!-- Sticky mobile CTA (shows below 640px) -->
+<!-- Sticky mobile CTA (shows below 640px). Previously linked to tel:
+     with "Speak With a Strategist Now" — too aggressive for cold traffic.
+     Now anchors to the booking section's Calendly embed: user lands on
+     a calendar, not a live phone call. -->
 <div id="sticky-call">
-  <a href="tel:+13463995606"><span>📞</span> Speak With a Strategist Now</a>
+  <a href="#booking"><span>📅</span> Book my free 15-min audit →</a>
 </div>
 
 

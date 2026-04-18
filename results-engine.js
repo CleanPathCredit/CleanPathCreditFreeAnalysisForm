@@ -308,9 +308,11 @@ function getDiagIntro() {
 }
 
 function getGoodNews() {
-  if (D.profile === 'REBUILD') return 'Despite the severity of what we found, <strong>many of these items are commonly corrected and removed</strong>. Clients in similar situations have seen 50–100+ point improvements within 60–90 days when the right strategy is applied in the right sequence.';
-  if (D.profile === 'OPTIMIZATION') return 'You\'re already in a strong position. <strong>Small, targeted adjustments</strong> — like optimizing utilization ratios and removing minor reporting inconsistencies — can unlock premium rates and higher approval tiers quickly.';
-  return 'The gap between where you are and where you need to be is <strong>often much smaller than it feels</strong>. Most clients in your situation are just a few targeted actions away from a meaningful jump in their approval odds.';
+  // Tightened to land the hope beat faster — original versions were good
+  // but read a touch long after a heavy diagnosis section above them.
+  if (D.profile === 'REBUILD') return 'Most of the items dragging your profile down are <strong>commonly correctable</strong>. Clients in similar situations typically see 50–100+ point improvements within 60–90 days when the right strategy runs in the right order.';
+  if (D.profile === 'OPTIMIZATION') return 'You\'re already in a strong position. <strong>Small, targeted adjustments</strong> — utilization ratios, minor reporting inconsistencies — are usually enough to unlock premium rates and tier-1 programs.';
+  return 'The gap between where you are and where you need to be is <strong>often smaller than it feels</strong>. Most clients in your situation are a few targeted actions away from a meaningful jump in approval odds.';
 }
 
 function getUserQuoteResponse() {
@@ -435,22 +437,27 @@ function getUrgency() {
    home | car | business | improve_credit
 ════════════════════════════════════════════ */
 function getScarcity() {
+  // Copy refresh: grounded, math-first, honest consequences. Previous
+  // version leaned on "banks are getting rich off your delay" and "don't
+  // let the dealer take advantage" — emotionally charged + attribution
+  // to third parties. The numbers alone do the work. Keeps urgency,
+  // drops the finger-wagging.
   if (goalIs('home')) return {
-    headline: 'Your Score Is Costing You $80,000–$100,000 on Your Mortgage',
-    body: "Fixing your credit isn't an expense; it's the down payment on your family's future. Right now, a low credit score guarantees a subprime interest rate. On a standard $300,000 home, the difference is an extra $80,000 to $100,000 in interest over the life of the loan. Every month you wait, you keep bleeding cash to a landlord.",
+    headline: 'Your Score Could Be Costing You $80,000–$100,000 on Your Mortgage',
+    body: "On a $300,000 mortgage, the rate spread between a subprime and prime credit profile runs roughly 1.5%. That's about $275 more in monthly payment — compounding to $80,000–$100,000 in extra interest over 30 years. Every month you wait at your current profile is another month locked into that spread.",
   };
   if (goalIs('car')) return {
-    headline: 'Dealers Are Counting on Your Bad Credit to Make Their Margin',
-    body: "Dealerships love bad credit because that is exactly where they make their highest margins. Walking onto a lot with a low score guarantees you will be forced into a predatory loan, costing you $5,000 to $10,000 extra in interest over a standard 5-year term. Don't let the dealership take advantage of you.",
+    headline: 'A Subprime Auto Loan Costs $5,000–$10,000 More Than Prime',
+    body: "Subprime auto APRs typically run 14–24% — against 6–9% for prime borrowers. On a $30,000 vehicle over 60 months, that spread is $5,000–$10,000 in extra interest you don't have to pay. And in the 42 states that credit-score drivers, your insurance premium runs about 30% higher on top of that.",
   };
   if (goalIs('business')) return {
-    headline: 'Every Week of Delay Is Another Week Starved of Capital',
-    body: "In business, cash flow is oxygen. A damaged personal profile means traditional banks have closed their doors, leaving you at the mercy of predatory alternative lenders that drain your daily revenue. Every week you delay is another week your business is starved of the low-interest capital it needs to scale.",
+    headline: 'Every Week of Delay Is Another Week Without Capital Access',
+    body: "In business, cash flow is oxygen. A thin personal credit file closes the door on SBA loans, bank lines of credit, and vendor accounts — pushing you toward alternative lenders charging 15–25% APR on money that should cost 8–11%. The delta per $100K borrowed runs $10,000–$20,000 over the loan term.",
   };
   // improve_credit (default)
   return {
     headline: "You're Paying a 'Bad Credit Tax' Every Single Day",
-    body: "You are silently paying a 'Bad Credit Tax' every single day. From maxed-out credit cards trapping you at 29% APR, to higher auto insurance premiums, to massive security deposits just to turn on basic utilities. This invisible tax is costing you thousands of dollars a year. The clock is ticking, and the banks are getting rich off your delay.",
+    body: "The bad-credit tax compounds across everything you touch. Card APRs stuck at 25–29% instead of 14–18%. Insurance premiums meaningfully higher in credit-scored states. Security deposits on utilities, phones, and apartments. Cumulatively, most profiles lose $2,000–$5,000 a year to this silent tax — and every month it continues is more money you don't get back.",
   };
 }
 
@@ -550,6 +557,38 @@ function getWhatThisMeans() {
    elevation to the tier card matching the
    lead score-determined recommendedOffer field
 ════════════════════════════════════════════ */
+/* ════════════════════════════════════════════
+   2d. RECOMMENDED PITCH — personalized one-liner
+   shown above the pricing grid. Uses the same
+   leadScore-based recommendedOffer as
+   applyRecommendedOffer(), so the eye reads:
+     pitch → grid → elevated card
+   without breaking if the lead score model
+   changes which tier is the right fit.
+════════════════════════════════════════════ */
+function getRecommendedPitch() {
+  const goalSuffix =
+    goalIs('home')           ? ' for mortgage readiness' :
+    goalIs('car')            ? ' for auto approval'      :
+    goalIs('business')       ? ' for funding access'     :
+    goalIs('improve_credit') ? ' for score recovery'     :
+    '';
+
+  if (D.recommendedOffer === 'diy') return {
+    tier: 'DIY Blueprint',
+    body: `Based on your profile, your most efficient path${goalSuffix} is the <strong>DIY Blueprint</strong>. You have the foundation to execute correctly with the right playbook — no done-for-you required.`,
+  };
+  if (D.recommendedOffer === 'executive') return {
+    tier: 'Executive Funding Audit',
+    body: `Based on your profile, the <strong>Executive Funding Audit</strong> is the strongest fit${goalSuffix}. Full personal + business credit positioning with direct strategist access and priority handling.`,
+  };
+  // Default / 'accelerated' — covers the majority of leads by design.
+  return {
+    tier: 'Accelerated Audit',
+    body: `Based on your profile, the <strong>Accelerated Audit</strong> is the right fit${goalSuffix}. Done-for-you execution on the items where expertise matters most — the full 4-round cycle, nothing for you to manage.`,
+  };
+}
+
 function applyRecommendedOffer() {
   const offerMap = {
     diy:         'offer-diy',
@@ -618,8 +657,16 @@ function render() {
     ).join('');
   }
 
-  /* Recommended offer — apply visual elevation */
+  /* Recommended offer — apply visual elevation AND personalized pitch
+     above the pricing grid. Both read from the same recommendedOffer so
+     they stay in sync. */
   applyRecommendedOffer();
+  const pitch = getRecommendedPitch();
+  const pitchWrap = $('rec-pitch-wrap');
+  if (pitchWrap) {
+    setHTML('rec-pitch-body', pitch.body);
+    pitchWrap.style.display = 'block';
+  }
 
   /* Scarcity section */
   const scar = getScarcity();
