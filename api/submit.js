@@ -209,15 +209,126 @@ export default async function handler(req, res) {
   }
 
   // --- Forward to CRM ---
+  let webhookOk = false;
   try {
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(cleanBody),
     });
-    return res.status(response.ok ? 200 : 502).json({ success: response.ok });
+    webhookOk = response.ok;
   } catch (err) {
     console.error('[CPC API] Proxy error:', err?.message);
+    // Fall through to Supabase persist so the lead still lands somewhere.
+  }
+
+  // --- Persist to Supabase so the lead surfaces on the main-site admin
+  //     dashboard's Leads tab alongside main-quiz submissions. Uses the
+  //     PostgREST endpoint directly (no SDK dependency — this is a
+  //     static/serverless project without a package.json). Best-effort:
+  //     we don't fail the request if Supabase is down, since the webhook
+  //     already delivered to GHL. ---
+  persistToSupabase(cleanBody).catch((e) =>
+    console.error('[CPC API] Supabase persist failed:', e?.message));
+
+  if (!webhookOk) {
     return res.status(502).json({ error: 'Failed to reach CRM' });
+  }
+  return res.status(200).json({ success: true });
+}
+
+/** Map sibling form's leadTier ('cold/warm/hot/priority') to the
+ *  main-site UrgencyTier ('low/moderate/elevated/urgent'). */
+function mapLeadTier(siblingTier) {
+  switch ((siblingTier || '').toLowerCase()) {
+    case 'priority': return 'urgent';
+    case 'hot':      return 'elevated';
+    case 'warm':     return 'moderate';
+    case 'cold':     return 'low';
+    default:         return null;
+  }
+}
+
+/** Map sibling form's free-form "situation" array into our obstacles
+ *  keyword buckets. Falls back to the raw lowercased tokens so the
+ *  admin still sees context even if we can't categorize them. */
+function mapSituationsToObstacles(situation) {
+  if (!situation) return [];
+  const tokens = Array.isArray(situation)
+    ? situation
+    : String(situation).split(/[,;\n]/);
+  const out = new Set();
+  for (const raw of tokens) {
+    const s = String(raw).toLowerCase().trim();
+    if (!s) continue;
+    if (s.includes('collect') || s.includes('medical'))      out.add('medical');
+    else if (s.includes('late') || s.includes('missed'))     out.add('late');
+    else if (s.includes('bankrupt') || s.includes('lien'))   out.add('bankruptcies');
+    else if (s.includes('balance') || s.includes('utiliz'))  out.add('balances');
+    else                                                      out.add('unsure');
+  }
+  return Array.from(out).slice(0, 10);
+}
+
+async function persistToSupabase(lead) {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) {
+    // Not configured on this Vercel project — skip silently. Admin
+    // dashboard will only show main-quiz leads until env is set.
+    return;
+  }
+
+  const fullName =
+    lead.full_name ||
+    [lead.first_name, lead.last_name].filter(Boolean).join(' ') ||
+    null;
+
+  const obstacles = mapSituationsToObstacles(
+    lead.situationArray || lead.situation,
+  );
+
+  const urgencyScore =
+    typeof lead.leadScore === 'number' && Number.isFinite(lead.leadScore)
+      ? Math.max(0, Math.min(100, Math.round(lead.leadScore)))
+      : null;
+  const urgencyTier = mapLeadTier(lead.leadTier);
+  const recommendedOffer =
+    ['diy', 'accelerated', 'executive'].includes(lead.recommendedOffer)
+      ? lead.recommendedOffer
+      : null;
+
+  const row = {
+    email:              lead.email,
+    full_name:          fullName,
+    phone:              lead.phone || null,
+    goal:               lead.goal || null,
+    obstacles,
+    credit_score_range: lead.score    || null,
+    income_range:       null,  // sibling form doesn't ask income
+    ideal_score:        null,
+    timeline:           lead.timeline || null,
+    urgency_score:      urgencyScore,
+    urgency_tier:       urgencyTier,
+    recommended_offer:  recommendedOffer,
+    source:             'form_funnel',
+    ghl_delivery:       'webhook_fallback',
+    consent:            true,  // form asks explicit consent before submit
+  };
+
+  const resp = await fetch(`${supabaseUrl}/rest/v1/lead_submissions`, {
+    method: 'POST',
+    headers: {
+      apikey:          serviceKey,
+      Authorization:   `Bearer ${serviceKey}`,
+      'Content-Type':  'application/json',
+      Prefer:          'return=minimal',
+    },
+    body: JSON.stringify(row),
+  });
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => '');
+    console.error('[CPC API] Supabase insert failed',
+      resp.status, text.slice(0, 300));
   }
 }

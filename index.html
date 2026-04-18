@@ -1307,12 +1307,15 @@ const SCORING = {
   stackBonus: { 3: 10, 4: 15, 5: 20 },
 };
 
-// Lead tier thresholds — adjust min values to tune offer routing
+// Lead tier thresholds — adjust min values to tune offer routing.
+// Per product decision, we never route to DIY automatically. Cold
+// leads still default to Accelerated — DIY stays in the catalog for
+// self-selection but isn't recommended for anyone.
 const LEAD_TIERS = [
   { min: 80, tier: 'priority', label: 'Priority',  recommendedOffer: 'executive'   },
   { min: 55, tier: 'hot',      label: 'Hot',       recommendedOffer: 'accelerated' },
   { min: 30, tier: 'warm',     label: 'Warm',      recommendedOffer: 'accelerated' },
-  { min:  0, tier: 'cold',     label: 'Cold',      recommendedOffer: 'diy'         },
+  { min:  0, tier: 'cold',     label: 'Cold',      recommendedOffer: 'accelerated' },
 ];
 
 /* ══════════════════════════════════════════

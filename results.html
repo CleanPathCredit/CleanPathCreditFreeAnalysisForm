@@ -1111,46 +1111,47 @@ main {
       <p class="rec-pitch-body" id="rec-pitch-body"></p>
     </div>
 
+    <!-- Pricing order: Executive (Premium) → Accelerated (Standard) → DIY.
+         Leads see the highest-value option first — "anchor high" pricing
+         pattern. Engine still elevates whichever card matches the
+         leadScore-derived recommendation, but the DOM order alone
+         steers eye-flow toward Executive/Accelerated. -->
     <div class="pricing-grid">
 
-      <!-- ── TIER 1: DIY Blueprint ─────────────── -->
-      <!-- REPLACE_WITH_STRIPE_LINK_1 = buy_btn_1TKC9sCRvEfUoJHH2j25qlzl -->
-      <div class="tier-card tier-1" id="offer-diy">
-        <div class="tier-eyebrow">Self-Managed</div>
-        <div class="tier-name">Clean Path DIY Blueprint</div>
-        <div class="tier-tagline">Understand the process. Take control yourself.</div>
+      <!-- ── TIER 1 (visual): Executive Funding Audit ────── -->
+      <div class="tier-card tier-3 reveal" id="offer-executive">
+        <div class="tier-eyebrow">Premium Strategy</div>
+        <div class="tier-name">Executive Funding Audit</div>
+        <div class="tier-tagline">Personal + business credit — comprehensive strategy.</div>
         <div class="tier-price-row">
-          <span class="tier-price">$97</span>
+          <span class="tier-price">$2,497</span>
           <span class="tier-period">one-time</span>
         </div>
-        <div class="tier-cadence">Instant access · self-mailing required</div>
+        <div class="tier-cadence">Priority handling · monthly strategy calls included</div>
         <hr class="tier-divider">
         <div class="tier-for">
-          <strong>Best for:</strong> People who want to understand the credit correction process and handle it themselves with professional-grade tools.
+          <strong>Best for:</strong> Business owners and high-intent buyers who need a full-spectrum personal and business credit strategy with direct access to expert support.
         </div>
         <ul class="tier-features">
-          <li>Proven Credit Correction Playbook</li>
-          <li>Step-By-Step Credit Correction Checklist</li>
-          <li>Bureau-Specific Action Guide</li>
-          <li>Credit-Building Sequencing Map</li>
-          <li>Lifetime access</li>
+          <li>Priority Document Prep</li>
+          <li>1-on-1 Monthly Strategy Calls</li>
+          <li>Authorized User Tradeline Analysis</li>
+          <li>$50K+ Business Credit Blueprint</li>
+          <li>SBA &amp; Lender-Ready Positioning</li>
         </ul>
         <div class="tier-cta">
           <stripe-buy-button
-            buy-button-id="buy_btn_1TKC9sCRvEfUoJHH2j25qlzl"
+            buy-button-id="buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9"
             publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
-          <!-- Shown only in print/PDF — preserves clickable purchase link -->
-          <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKC9sCRvEfUoJHH2j25qlzl">
-            → Purchase the DIY Blueprint ($97) — click to complete purchase
+          <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9">
+            → Get the Executive Funding Audit ($2,497) — click to complete purchase
           </a>
         </div>
       </div>
 
-      <!-- ── TIER 2: Accelerated Audit ─────────── -->
-      <!-- REPLACE_WITH_STRIPE_LINK_2 = buy_btn_1TKCHQCRvEfUoJHHRsYycHRA -->
-      <!-- Default recommended; JS overrides based on leadScore -->
-      <div class="tier-card tier-2" id="offer-accelerated">
+      <!-- ── TIER 2 (visual): Accelerated Audit — default recommended ── -->
+      <div class="tier-card tier-2 reveal" id="offer-accelerated">
         <div class="tier-eyebrow">Done-For-You</div>
         <div class="tier-name">Accelerated Audit</div>
         <div class="tier-tagline">Professional dispute strategy, executed for you.</div>
@@ -1181,35 +1182,34 @@ main {
         </div>
       </div>
 
-      <!-- ── TIER 3: Executive Funding Audit ────── -->
-      <!-- REPLACE_WITH_STRIPE_LINK_3 = buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9 -->
-      <div class="tier-card tier-3" id="offer-executive">
-        <div class="tier-eyebrow">Premium Strategy</div>
-        <div class="tier-name">Executive Funding Audit</div>
-        <div class="tier-tagline">Personal + business credit — comprehensive strategy.</div>
+      <!-- ── TIER 3 (visual): DIY Blueprint — last, self-select only ── -->
+      <div class="tier-card tier-1 reveal" id="offer-diy">
+        <div class="tier-eyebrow">Self-Managed</div>
+        <div class="tier-name">Clean Path DIY Blueprint</div>
+        <div class="tier-tagline">Understand the process. Take control yourself.</div>
         <div class="tier-price-row">
-          <span class="tier-price">$2,497</span>
+          <span class="tier-price">$97</span>
           <span class="tier-period">one-time</span>
         </div>
-        <div class="tier-cadence">Priority handling · monthly strategy calls included</div>
+        <div class="tier-cadence">Instant access · self-mailing required</div>
         <hr class="tier-divider">
         <div class="tier-for">
-          <strong>Best for:</strong> Business owners and high-intent buyers who need a full-spectrum personal and business credit strategy with direct access to expert support.
+          <strong>Best for:</strong> People who want to understand the credit correction process and handle it themselves with professional-grade tools.
         </div>
         <ul class="tier-features">
-          <li>Priority Document Prep</li>
-          <li>1-on-1 Monthly Strategy Calls</li>
-          <li>Authorized User Tradeline Analysis</li>
-          <li>$50K+ Business Credit Blueprint</li>
-          <li>SBA &amp; Lender-Ready Positioning</li>
+          <li>Proven Credit Correction Playbook</li>
+          <li>Step-By-Step Credit Correction Checklist</li>
+          <li>Bureau-Specific Action Guide</li>
+          <li>Credit-Building Sequencing Map</li>
+          <li>Lifetime access</li>
         </ul>
         <div class="tier-cta">
           <stripe-buy-button
-            buy-button-id="buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9"
+            buy-button-id="buy_btn_1TKC9sCRvEfUoJHH2j25qlzl"
             publishable-key="pk_live_51TK8cGCRvEfUoJHHxzULDJMLLDiw259orwvPXmQf5RpGAS79VUphUPSRo8hRVf6qnHGNQEqAaHs03krBlWD6Hnw200I1GroJ9F">
           </stripe-buy-button>
-          <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKCDdCRvEfUoJHHwJwoLyj9">
-            → Get the Executive Funding Audit ($2,497) — click to complete purchase
+          <a class="pdf-stripe-link" href="https://buy.stripe.com/buy_btn_1TKC9sCRvEfUoJHH2j25qlzl">
+            → Purchase the DIY Blueprint ($97) — click to complete purchase
           </a>
         </div>
       </div>
@@ -1244,10 +1244,10 @@ main {
   ══════════════════════════════════════ -->
   <div class="card reveal" id="booking">
 
-    <div class="eyebrow center" style="margin-bottom:8px">📅 Not Ready to Purchase Yet?</div>
-    <h2 class="center" id="booking-title">Book a Free 15-Minute Credit Audit &amp; Strategy Call</h2>
-    <p class="book-sub center" id="booking-sub">
-      For people who want expert clarity before committing. We'll review your profile, identify your highest-leverage moves, and give you a clear next step — at zero cost.
+    <div class="eyebrow center" style="margin-bottom:8px">📅 Not ready to purchase?</div>
+    <h3 class="center" id="booking-title" style="font-size:20px;font-weight:600;letter-spacing:-0.01em;margin-bottom:6px">Book my free 15-minute audit</h3>
+    <p class="book-sub center" id="booking-sub" style="font-size:14px">
+      We'll review your profile, identify your highest-leverage moves, and give you a clear next step — at zero cost.
     </p>
 
     <div class="booking-badge center" style="display:flex;justify-content:center">
@@ -1288,27 +1288,23 @@ main {
       <script type="text/javascript" src="https://assets.calendly.com/assets/external/widget.js" async></script>
     </div>
 
-    <!-- Phone CTA — secondary path below the calendar. Label made less
-         aggressive: the calendar above is the primary conversion. -->
+    <!-- Phone CTA — secondary path below the calendar. Intentionally
+         NO phone number shown in the label (cold-traffic marketing
+         request): the <a href="tel:"> still connects the call when
+         tapped on mobile, but we don't splash the number across the
+         page. -->
     <a href="tel:+13463995606" class="call-btn" id="main-call-btn" style="text-decoration:none">
       <span class="cb-pulse"></span>
-      📞 Prefer to talk? Call (346) 399-5606
+      📞 Prefer to talk?
     </a>
     <p class="call-disclaimer">Mon–Fri · 9am–6pm CT · Free · No obligation</p>
 
+    <!-- Reassurance bullets — "Limited spots available this week" removed;
+         the remaining two are factual, not urgency-based. Real urgency is
+         already carried by the Scarcity / Cost-of-Waiting sections above. -->
     <div class="booking-reassurance">
-      <div class="br-item"><span class="br-icon">🔒</span> Limited spots available this week</div>
       <div class="br-item"><span class="br-icon">✅</span> 100% free — no credit card required</div>
       <div class="br-item"><span class="br-icon">🤝</span> Zero pressure, zero obligation</div>
-    </div>
-
-    <div style="margin-top:24px">
-      <p style="font-size:12px;color:var(--mut2);text-align:center;margin-bottom:12px">Already booked? Add it to your calendar:</p>
-      <div class="cal-buttons">
-        <a href="#" class="cal-btn" id="cal-google" target="_blank" rel="noopener"><span class="cal-icon">📅</span> Google</a>
-        <a href="#" class="cal-btn" id="cal-outlook" target="_blank" rel="noopener"><span class="cal-icon">📆</span> Outlook</a>
-        <a href="#" class="cal-btn" id="cal-apple" download="strategy-session.ics"><span class="cal-icon">🍎</span> Apple</a>
-      </div>
     </div>
 
   </div><!-- /#booking -->
